@@ -58,8 +58,8 @@ void Loading::Draw(void)
 	std::wstring text = 
 		std::wstring(LOADING_TEXT) + std::wstring(dotCount, L'.');
 
-	const int x = Application::SCREEN_SIZE_X - FONT_ADJUST_X;
-	const int y = Application::SCREEN_SIZE_Y - FONT_ADJUST_Y;
+	const int x = Application::ASPECT_RATIO_X - FONT_ADJUST_X;
+	const int y = Application::ASPECT_RATIO_Y - FONT_ADJUST_Y;
 
 	DrawStringToHandle(
 		x, y,

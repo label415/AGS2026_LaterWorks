@@ -55,17 +55,6 @@ private:
 	// リザルトブレンドパラメータ倍率
 	static constexpr float RESULT_UI_ALPHA_MAGNIFICATION = 255.0f;
 
-	// リザルトUI表示フラグ
-	bool isResultUI_;
-	// リザルトハンドル
-	int resultImg_;
-	// リザルトブレンドパラメータ
-	int resultAlpha_;
-	// ゲームクリアハンドル
-	int gameClearImg_;
-	// ゲームオーバーハンドル
-	int gameOverImg_;
-
 	// スカイドーム
 	std::unique_ptr<SkyDome> skydome_;
 

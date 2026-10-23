@@ -3,7 +3,6 @@
 #include "../../../../Application.h"
 #include "../../../../Utility/AsoUtility.h"
 #include "../../../Common/Collider/ColliderBase.h"
-#include "EnemyDragon.h"
 #include "EnemyManager.h"
 
 EnemyManager::EnemyManager(void){}
@@ -109,7 +108,6 @@ void EnemyManager::Create(const EnemyBase::EnemyData& data)
 	switch (data.type)
 	{
 	case EnemyBase::TYPE::DRAGON:
-		enemy = std::make_shared<EnemyDragon>(data);
 		break;
 	default:
 		break;

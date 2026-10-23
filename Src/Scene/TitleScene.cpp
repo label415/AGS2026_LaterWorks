@@ -36,8 +36,8 @@ void TitleScene::Load(void)
 		uiBoxs_[i] = std::make_unique<ColliderBox2D>(
 			ColliderBase2D::TAG::UI,
 			Vector2F(
-				Application::HALF_SCREEN_SIZE_X - BOX_ADJUST_X,
-				(Application::HALF_SCREEN_SIZE_Y + BOX_ADJUST_Y) + (BOX_Y_INTERVAL * i)),
+				Application::HALF_ASPECT_RATIO_X - BOX_ADJUST_X,
+				(Application::HALF_ASPECT_RATIO_Y + BOX_ADJUST_Y) + (BOX_Y_INTERVAL * i)),
 			BOX_WIDTH, BOX_HEIGHT);
 	}
 }
@@ -110,8 +110,8 @@ void TitleScene::Draw(void)
 {
 	// タイトル画像
 	DrawRotaGraph(
-		Application::HALF_SCREEN_SIZE_X,
-		Application::HALF_SCREEN_SIZE_Y - TITLE_IMG_ADJUST_Y,
+		Application::HALF_ASPECT_RATIO_X,
+		Application::HALF_ASPECT_RATIO_Y - TITLE_IMG_ADJUST_Y,
 		TITLE_IMG_SIZE, 0.0f, titleImg_, true);
 
 	// カーソル画像
@@ -123,7 +123,7 @@ void TitleScene::Draw(void)
 				- uiBoxs_[selectIndex_]->Top()) * SELECT_IMG_ADJUST_Y;
 
 		DrawRotaGraph(
-			Application::HALF_SCREEN_SIZE_X,
+			Application::HALF_ASPECT_RATIO_X,
 			static_cast<int>(centerY),
 			SELECT_IMG_SIZE, 0.0f, selectImg_, true
 		);
@@ -134,9 +134,9 @@ void TitleScene::Draw(void)
 	{
 		// 文字描画
 		int strW = GetDrawStringWidthToHandle(pasueList_[i].c_str(), -1, pauseFont_);
-		int posX = static_cast<int>(Application::SCREEN_SIZE_X - strW) / FONT_ADJUST_X;
+		int posX = static_cast<int>(Application::ASPECT_RATIO_X - strW) / FONT_ADJUST_X;
 		int posY = static_cast<int>(
-			(Application::HALF_SCREEN_SIZE_Y + FONT_ADJUST_Y) + (FONT_INTERVAL * i));
+			(Application::HALF_ASPECT_RATIO_Y + FONT_ADJUST_Y) + (FONT_INTERVAL * i));
 
 		DrawFormatStringToHandle(
 			posX, posY,

@@ -57,9 +57,9 @@ void ShadowMap::TestDraw(void)
 	// シャドウマップのテスト描画
 	TestDrawShadowMap(shadowId_,
 		0,
-		Application::HALF_SCREEN_SIZE_Y,
-		(Application::HALF_SCREEN_SIZE_X) / 2,
-		Application::SCREEN_SIZE_Y);
+		Application::HALF_ASPECT_RATIO_Y,
+		(Application::HALF_ASPECT_RATIO_X) / 2,
+		Application::ASPECT_RATIO_Y);
 }
 
 void ShadowMap::Release(void)

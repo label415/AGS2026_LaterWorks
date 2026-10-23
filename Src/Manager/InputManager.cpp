@@ -81,7 +81,7 @@ void InputManager::Init(void)
 	info.keyTrgDown = false;
 	info.keyTrgUp = false;
 	mouseInfos_.emplace(info.key, info);
-	SetMousePoint(Application::SCREEN_SIZE_X / 2, Application::SCREEN_SIZE_Y / 2);
+	SetMousePoint(Application::ASPECT_RATIO_X / 2, Application::ASPECT_RATIO_Y / 2);
 }
 
 void InputManager::Update(void)
@@ -294,7 +294,7 @@ void InputManager::SetMousePos(int posX, int posY)
 {
 	mousePos_ = { posX, posY };
 	mousePrePos_ = { posX, posY };
-	SetMousePoint(Application::SCREEN_SIZE_X / 2, Application::SCREEN_SIZE_Y / 2);
+	SetMousePoint(Application::ASPECT_RATIO_X / 2, Application::ASPECT_RATIO_Y / 2);
 }
 
 Vector2 InputManager::GetMousePosDistance(void) const

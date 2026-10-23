@@ -14,11 +14,10 @@
 #include "../../Common/Collider/ColliderCapsule.h"
 #include "../../Common/Collider/ColliderSphere.h"
 #include "../../Common/Collider/ColliderModel.h"
-#include "../Wepon/WeponBlade.h"
+#include "../Weapon/WeaponSaw.h"
 #include "../UI/UISt.h"
 #include "../UI/UIHp.h"
 #include "../UI/UIRecovery.h"
-#include "Enemy/EnemyDragon.h"
 #include "Player.h"
 
 Player::Player(void)
@@ -62,7 +61,7 @@ void Player::DrawHp(void)
 	if (uiSt_) { uiSt_->Draw(); }
 
 	// 回復瓶のUI描画
-	if (uiRecovery_) { uiRecovery_->Draw(); }
+	/*if (uiRecovery_) { uiRecovery_->Draw(); }*/
 }
 
 void Player::InitLoad(void)
@@ -75,8 +74,8 @@ void Player::InitLoad(void)
 		ResourceManager::SRC::MODEL_PLAYER));
 
 	// 武器
-	auto weaponBlade = std::make_unique<WeponBlade>(transform_, WEAPON_ATTACH_FRAME_NO);
-	weapons_.push_back(std::move(weaponBlade));
+	auto weaponSaw = std::make_unique<WeaponSaw>(transform_, WEAPON_ATTACH_FRAME_NO);
+	weapons_.push_back(std::move(weaponSaw));
 	for (const auto& weapon : weapons_) {
 		weapon->Load();
 	}
@@ -87,13 +86,13 @@ void Player::InitLoad(void)
 
 	// HP UI を画面左上に表示
 	uiHp_ = std::make_unique<UIHp>(
-		Application::SCREEN_SIZE_X / UI_HP_POS_X_DIV, UI_HP_POS_Y,
+		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_HP_POS_Y,
 		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
 	uiHp_->Load();
 
 	// スタミナUIを HP の下に表示
 	uiSt_ = std::make_unique<UISt>(
-		Application::SCREEN_SIZE_X / UI_HP_POS_X_DIV, UI_ST_POS_Y,
+		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_ST_POS_Y,
 		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
 	uiSt_->Load();
 
@@ -357,9 +356,18 @@ void Player::ProcessAttack(void)
 				InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::R_TRIGGER);
 	}
 
-	// 通常状態（移動中など）からの新規攻撃開始
+	if (isAttackInput) {
+		for (const auto& weapon : weapons_) {
+			auto* weponSaw = static_cast<WeaponSaw*>(weapon.get());
+			weponSaw->SetIsTransformation(true);
+		}
+	}
+
+	// 通常状態からの新規攻撃開始
 	if (isAttackInput && !isJump_
-		&& (state_ == STATE::IDLE || state_ == STATE::RUN || state_ == STATE::FAST_RUN))
+		&& (state_ == STATE::IDLE
+			|| state_ == STATE::RUN
+			|| state_ == STATE::FAST_RUN))
 	{
 		// 攻撃状態に遷移
 		state_ = STATE::ATTACK;

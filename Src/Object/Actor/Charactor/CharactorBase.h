@@ -1,7 +1,7 @@
 #pragma once
 #include "../../Common/AnimationController.h"
 #include "../../Common/EffectController.h"
-#include "../Wepon/WeponBase.h"
+#include "../Weapon/WeaponBase.h"
 #include "../UI/UIHp.h"
 #include "../ActorBase.h"
 
@@ -45,7 +45,7 @@ protected:
     std::unique_ptr<AnimationController> animationController_;
 
     // ïêäÌ
-    std::vector<std::unique_ptr<WeponBase>> weapons_;
+    std::vector<std::unique_ptr<WeaponBase>> weapons_;
 
     // í«îˆëŒè€ÇÃTransform
     const VECTOR* targetPos_;

@@ -539,7 +539,7 @@ void Camera::RotKeyboard(bool isLimit)
 	if (SceneManager::GetInstance().GetSceneID() == SceneManager::SCENE_ID::GAME
 		&& isMouseInput_)
 	{
-		ins.SetMousePos(Application::SCREEN_SIZE_X / 2, Application::SCREEN_SIZE_Y / 2);
+		ins.SetMousePos(Application::ASPECT_RATIO_X / 2, Application::ASPECT_RATIO_Y / 2);
 	}
 
 	// äpìxêßå¿

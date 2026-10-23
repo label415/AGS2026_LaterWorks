@@ -124,9 +124,9 @@ public:
 	static constexpr float AVOIDANCE_ANGLE_AXIS_Y = 100.0f;
 
 	// 移動速度(通常)
-	static constexpr float SPEED_MOVE = 2.0f;
+	static constexpr float SPEED_MOVE = 6.0f;
 	// 移動速度(ダッシュ)
-	static constexpr float SPEED_DASH = 4.0f;
+	static constexpr float SPEED_DASH = 12.0f;
 	// 移動速度(回避)
 	static constexpr float SPEED_EVASION = 10.0f;
 
@@ -228,7 +228,7 @@ public:
 	static constexpr float COMBO3_MOVE_SPEED = 12.0f;
 
 	// 武器アタッチ先フレーム番号
-	static constexpr int WEAPON_ATTACH_FRAME_NO = 48;
+	static constexpr int WEAPON_ATTACH_FRAME_NO = 46;
 	// 被弾エフェクト発生フレーム番号
 	static constexpr int HIT_EFFECT_FRAME_NO = 2;
 	// 起き上がり時LockPosのY軸上昇速度
@@ -330,7 +330,7 @@ private:
 	static constexpr VECTOR LOCK_POS4 = { 0.0f, 30.0f, 0.0f };
 
 	//アニメーションを固定化するフレーム
-	static constexpr int LOCK_FRAME_NO = 0;
+	static constexpr int LOCK_FRAME_NO = 1;
 
 	// 衝突判定用線分開始
 	static constexpr VECTOR COL_LINE_START_LOCAL_POS = { 0.0f, 80.0f, 0.0f };

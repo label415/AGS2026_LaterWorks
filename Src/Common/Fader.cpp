@@ -75,8 +75,8 @@ void Fader::Draw(void)
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)alpha_);
 	DrawBox(
 		0, 0,
-		Application::SCREEN_SIZE_X,
-		Application::SCREEN_SIZE_Y,
+		Application::ASPECT_RATIO_X,
+		Application::ASPECT_RATIO_Y,
 		0x000000, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }

@@ -32,7 +32,7 @@ void SceneManager::Init(void)
 	Init3D();
 
 	// 初期シーン(ロード画面を経由して読み込む)
-	ChangeScene(SCENE_ID::TITLE);
+	ChangeScene(SCENE_ID::GAME);
 }
 
 void SceneManager::Init3D(void)
@@ -227,6 +227,9 @@ void SceneManager::ResetResource(void)
 	Application::GetInstance().InitEffekseer();
 
 	camera_->Release();
+
+	camera_->SetIsMouseInput(false);
+	InputManager::GetInstance().SetMouseFlage(true);
 }
 
 SceneManager::SceneManager(void) :

@@ -38,8 +38,10 @@ void ResourceManager::Init(void)
 	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player.mv1");
 	resourcesMap_.emplace(SRC::MODEL_PLAYER, res);
 	// プレイヤー武器
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Wepon/Wepon.mv1");
-	resourcesMap_.emplace(SRC::MODEL_WEAPON_BLADE, res);
+	res = new RES(RES_T::MODEL, PATH_MDL + L"Wepon/HuntersGun/Resource/HuntersGun.mv1");
+	resourcesMap_.emplace(SRC::MODEL_WEAPON_GUN, res);
+	res = new RES(RES_T::MODEL, PATH_MDL + L"Wepon/HuntersSaw/Resource/HuntersSaw.mv1");
+	resourcesMap_.emplace(SRC::MODEL_WEAPON_SAW, res);
 	// プレイヤーアニメーション
 	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Idle.mv1");
 	resourcesMap_.emplace(SRC::ANIM_PLAYER_IDLE, res);
@@ -67,12 +69,8 @@ void ResourceManager::Init(void)
 	res = new RES(RES_T::MODEL, PATH_MDL + L"SkyDome/Skydome.mv1");
 	resourcesMap_.emplace(SRC::MODEL_SKY_DOME, res);
 
-	// エネミードラゴンモデル
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Enemy/Dragon/Dragon.mv1");
-	resourcesMap_.emplace(SRC::MODEL_ENEMY_DRAGON, res);
-
 	// タイトル画像
-	res = new RES(RES_T::IMG, PATH_IMG + L"TitleImg.png");
+	res = new RES(RES_T::IMG, PATH_IMG + L"");
 	resourcesMap_.emplace(SRC::IMG_TITLE, res);
 	// ゲームクリア画像
 	res = new RES(RES_T::IMG, PATH_IMG + L"GameClearImg.png");
@@ -100,7 +98,7 @@ void ResourceManager::Init(void)
 	res = new RES(RES_T::IMG, PATH_IMG + L"ItemBox.png");
 	resourcesMap_.emplace(SRC::UI_ITEMBOX, res);
 	// 回復瓶UI
-	res = new RES(RES_T::IMG, PATH_IMG + L"RecoveryBottle.png");
+	res = new RES(RES_T::IMG, PATH_IMG + L"");
 	resourcesMap_.emplace(SRC::UI_RECOVERY_BOTTLE, res);
 
 	// フォント
@@ -108,9 +106,9 @@ void ResourceManager::Init(void)
 	resourcesMap_.emplace(SRC::FONT, res);
 
 	// BGM
-	res = new RES(RES_T::SOUND, PATH_SND + L"BGM/TitleBgm.mp3");
+	res = new RES(RES_T::SOUND, PATH_SND + L"BGM/");
 	resourcesMap_.emplace(SRC::BGM_TITLE, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"BGM/GameBgm.mp3");
+	res = new RES(RES_T::SOUND, PATH_SND + L"BGM/");
 	resourcesMap_.emplace(SRC::BGM_GAME, res);
 
 	// プレイヤーSE
@@ -122,9 +120,9 @@ void ResourceManager::Init(void)
 	resourcesMap_.emplace(SRC::SE_PLAYER_RECOVERY, res);
 	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerEvasionSE.mp3");
 	resourcesMap_.emplace(SRC::SE_PLAYER_EVASION, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerWakeSE.mp3");
+	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/.mp3");
 	resourcesMap_.emplace(SRC::SE_PLAYER_WAKE, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerRunSE.mp3");
+	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/.mp3");
 	resourcesMap_.emplace(SRC::SE_PLAYER_RUN, res);
 
 	// エネミーSE

@@ -26,20 +26,20 @@ void UIRecovery::Draw(void)
 {
 	// アイテムボックスを描画
 	DrawRotaGraphF(
-		Application::SCREEN_SIZE_X / UI_POS_ADJ_X,
-		Application::SCREEN_SIZE_Y / UI_POS_ADJ_Y,
+		Application::ASPECT_RATIO_X / UI_POS_ADJ_X,
+		Application::ASPECT_RATIO_Y / UI_POS_ADJ_Y,
 		BOX_SIZE, 0.0f, imgBox_, true);
 
 	// 回復瓶を描画
 	DrawRotaGraphF(
-		Application::SCREEN_SIZE_X / UI_POS_ADJ_X,
-		Application::SCREEN_SIZE_Y / UI_POS_ADJ_Y,
+		Application::ASPECT_RATIO_X / UI_POS_ADJ_X,
+		Application::ASPECT_RATIO_Y / UI_POS_ADJ_Y,
 		BOTTLE_SIZE, 0.0f, imgBottle_, true);
 
 	// 回復瓶の数を描画
 	DrawFormatStringFToHandle(
-		Application::SCREEN_SIZE_X / FONT_POS_ADJ_X,
-		Application::SCREEN_SIZE_Y / FONT_POS_ADJ_Y,
+		Application::ASPECT_RATIO_X / FONT_POS_ADJ_X,
+		Application::ASPECT_RATIO_Y / FONT_POS_ADJ_Y,
 		FONT_COLOR,
 		font_,
 		cntfont_.c_str());

@@ -18,7 +18,8 @@ public:
 
 		//プレイヤー
 		MODEL_PLAYER,
-		MODEL_WEAPON_BLADE,
+		MODEL_WEAPON_GUN,
+		MODEL_WEAPON_SAW,
 		ANIM_PLAYER_IDLE,
 		ANIM_PLAYER_RUN,
 		ANIM_PLSYER_ATTACK_1,
@@ -33,9 +34,6 @@ public:
 		MODEL_MAIN_STAGE,
 		// スカイドーム
 		MODEL_SKY_DOME,
-
-		// エネミードラゴンモデル
-		MODEL_ENEMY_DRAGON,
 
 		// ロックオンUI
 		UI_LOCKON,

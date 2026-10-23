@@ -21,7 +21,7 @@ void CollisionManager::DrawDebug(void)
 #ifdef _DEBUG
 	for (auto& collider : colliders_)
 	{
-		if (collider.lock() && collider.lock()->GetIsCollier())
+		if (collider.lock())
 		{
 			collider.lock()->Draw();
 		}

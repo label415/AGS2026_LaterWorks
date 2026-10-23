@@ -31,14 +31,15 @@ public:
 	// ディレクショナルライトの方向
 	static constexpr VECTOR LIGHT_DIRECTION = { -0.5f, -1.0f, -0.5f };
 	// ライトのディフューズカラー値
-	static constexpr COLOR_F LIGHT_DIFF_COLOR = { 1.0f, 1.0f, 0.95f, 1.0f };
+	static constexpr COLOR_F LIGHT_DIFF_COLOR = { 0.5f, 0.5f, 0.5f, 1.0f };
 	// ライトのアンビエントカラー値
-	static constexpr COLOR_F LIGHT_AMB_COLOR = { 0.4f, 0.4f, 0.45f, 1.0f };
+	static constexpr COLOR_F LIGHT_AMB_COLOR = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	// フォグカラー値
 	static constexpr int FOG_COLOR_R = 5;
 	static constexpr int FOG_COLOR_G = 5;
 	static constexpr int FOG_COLOR_B = 5;
+
 	// フォグ表示範囲
 	static constexpr float FOG_START = 10000.0f;
 	static constexpr float FOG_END = 20000.0f;

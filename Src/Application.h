@@ -10,12 +10,13 @@ class Application : public Singleton<Application>
 	friend class Singleton<Application>;
 public:
 	// スクリーンサイズ
-	static constexpr int SCREEN_SIZE_X = 1280;
-	static constexpr int SCREEN_SIZE_Y = 720;
+	static constexpr int SCREEN_SIZE = 100;
+	static constexpr int ASPECT_RATIO_X = (16 * SCREEN_SIZE);
+	static constexpr int ASPECT_RATIO_Y = (9 * SCREEN_SIZE);
 
 	//ハーフスクリーンサイズ
-	static constexpr int HALF_SCREEN_SIZE_X = SCREEN_SIZE_X / 2;
-	static constexpr int HALF_SCREEN_SIZE_Y = SCREEN_SIZE_Y / 2;
+	static constexpr int HALF_ASPECT_RATIO_X = ASPECT_RATIO_X / 2;
+	static constexpr int HALF_ASPECT_RATIO_Y = ASPECT_RATIO_Y / 2;
 
 	// カラービット数
 	static constexpr int COLOR_BIT = 32;

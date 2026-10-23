@@ -78,4 +78,7 @@ protected:
 	// 当たり判定衝突時の更新処理
 	virtual void Collision(void);
 	virtual void UpdateHitCollider(void){}
+
+	// GUi更新
+	virtual void UpdateGui(void) {};
 };

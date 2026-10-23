@@ -1,7 +1,6 @@
 #include <DxLib.h>
 #include "../Object/Actor/Charactor/Player.h"
 #include "../Object/Actor/Charactor/Enemy/EnemyManager.h"
-#include "../Object/Actor/Charactor/Enemy/EnemyDragon.h"
 #include "../Object/Actor/Stage/Stage.h"
 #include "../Object/Actor/Stage/SkyDome.h"
 #include "../Object/Common/Collider/ColliderCapsule.h"
@@ -18,12 +17,7 @@
 
 GameScene::GameScene(void)
 	:
-	SceneBase(),
-	isResultUI_(false),
-	resultAlpha_(0.0f),
-	resultImg_(-1),
-	gameClearImg_(-1),
-	gameOverImg_(-1)
+	SceneBase()
 {
 }
 
@@ -59,12 +53,8 @@ void GameScene::Load(void)
 	camera_->ChangeMode(Camera::MODE::FOLLOW);
 
 	// 入力管理のインスタンス取得
+	camera_->SetIsMouseInput(true);
 	InputManager::GetInstance().SetMouseFlage(false);
-
-	// ゲームクリア画像ロード
-	gameClearImg_ = resMng_.Load(ResourceManager::SRC::IMG_GAMECLEAR).handleId_;
-	// ゲームオーバー画像ロード
-	gameOverImg_ = resMng_.Load(ResourceManager::SRC::IMG_GAMEOVER).handleId_;
 }
 
 void GameScene::LoadEnd(void)
@@ -95,9 +85,6 @@ void GameScene::LoadEnd(void)
 			SHADOW_MAP_DIFF * SHADOW_MAP_MAX_DRAW,
 			(playerPos.z + SHADOW_MAP_DIFF))
 	);
-
-	camera_->SetIsMouseInput(true);
-	InputManager::GetInstance().SetMouseFlage(false);
 }
 
 void GameScene::Update(void)
@@ -215,20 +202,6 @@ void GameScene::UpdateAutoLockOn(void)
 
 void GameScene::UpdateResult(void)
 {
-	bool isResult = false;
-	// プレイヤー死亡判定
-	if (player_->GetState() == Player::STATE::END)isResult = true;
-	// 敵全滅判定
-	for (const auto& enemy : enemys_->GetEnemys())
-	{
-		if (enemy->GetState() == static_cast<int>(EnemyDragon::STATE::END))isResult = true;
-	}
-	// タイトルシーンに遷移
-	if (isResult) 
-	{
-		sceMng_.ChangeScene(SceneManager::SCENE_ID::TITLE);
-	}
-
 	// ポーズメニューの表示切り替え
 	bool isSelect = InputManager::GetInstance().IsTrgDown(KEY_INPUT_ESCAPE)
 		|| InputManager::GetInstance().IsPadBtnTrgDown(
@@ -245,40 +218,5 @@ void GameScene::DrawUI(void)
 	player_->DrawHp();
 	for (const auto& enemy : enemys_->GetEnemys()) {
 		enemy->DrawHp();
-	}
-
-	// すべての敵が死亡した時、ゲームクリアUIを表示する
-	for (const auto& enemy : enemys_->GetEnemys())
-	{
-		if (enemy->GetState() == static_cast<int>(EnemyDragon::STATE::DEAD))
-		{
-			resultAlpha_ = static_cast<int>(
-				enemy->GetDesath() * RESULT_UI_ALPHA_MAGNIFICATION);
-			resultImg_ = gameClearImg_;
-			isResultUI_ = true;
-		}
-	}
-
-	// プレイヤーが死亡した時、ゲームオーバーUIを表示する
-	if (player_->GetState() == Player::STATE::DIE)
-	{
-		resultAlpha_ = static_cast<int>(
-			player_->GetDesath() * RESULT_UI_ALPHA_MAGNIFICATION);
-		resultImg_ = gameOverImg_;
-		isResultUI_ = true;
-	}
-
-	// リザルトフラグがtrueの時、UIを表示する
-	if (isResultUI_)
-	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, resultAlpha_);
-		DrawRotaGraph(
-			Application::HALF_SCREEN_SIZE_X,
-			Application::HALF_SCREEN_SIZE_Y,
-			RESULT_UI_SIZE,
-			0.0f,
-			resultImg_,
-			true);
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 }

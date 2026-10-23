@@ -24,7 +24,7 @@ bool Application::Init(void)
 	SetWindowText(L"HOT SOULS");
 
 	// ウィンドウサイズ
-	SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, COLOR_BIT);
+	SetGraphMode(ASPECT_RATIO_X, ASPECT_RATIO_Y, COLOR_BIT);
 	ChangeWindowMode(true);
 	SetMultiThreadFlag(true);
 	// FPS制御初期化
