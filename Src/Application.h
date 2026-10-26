@@ -31,7 +31,7 @@ public:
 	static const std::wstring PATH_MODEL;
 	static const std::wstring PATH_EFFECT;
 	static const std::wstring PATH_FONT;
-	static const std::wstring PATH_CSV;
+	static const std::wstring PATH_JSON;
 	static const std::wstring PATH_SOUND;
 
 	static const std::wstring PATH_KEY_CONFIG;

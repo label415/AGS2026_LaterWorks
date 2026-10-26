@@ -114,11 +114,13 @@ void WeaponSaw::UpdateTransformation(void)
 	if (!isTransformation_)return;
 
 	// ƒAƒjƒƒVƒ‡ƒ“Ä¶
-	animationController_->Play(ANIM_WEAPON_ATTACH_NO);
+	animationController_->Play(ANIM_WEAPON_ATTACH_NO, false);
 
 	if (animationController_->GetPlayAnim().step
 		>= END_TRANSFORMATION_TIME)
 	{
+		animationController_->SetIsStopFlager(true);
+		animationController_->SetStateTime(START_TRANSFORMATION_TIME);
 		isTransformation_ = false;
 	}
 }

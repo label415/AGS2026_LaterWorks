@@ -1,3 +1,4 @@
+#include <fstream>
 #include <DxLib.h>
 #include "../../../Manager/ResourceManager.h"
 #include "../../../Manager/SceneManager.h"
@@ -14,6 +15,7 @@
 #include "../../Common/Collider/ColliderCapsule.h"
 #include "../../Common/Collider/ColliderSphere.h"
 #include "../../Common/Collider/ColliderModel.h"
+#include "../Libs/nlohmann/json.hpp"
 #include "../Weapon/WeaponSaw.h"
 #include "../UI/UISt.h"
 #include "../UI/UIHp.h"
@@ -66,9 +68,6 @@ void Player::DrawHp(void)
 
 void Player::InitLoad(void)
 {
-	// 基底クラスのリソースロード
-	CharactorBase::InitLoad();
-
 	//プレイヤー
 	transform_.SetModel(resMng_.LoadModelDuplicate(
 		ResourceManager::SRC::MODEL_PLAYER));
@@ -101,14 +100,28 @@ void Player::InitLoad(void)
 
 void Player::InitTransform(void)
 {
-	// トランスフォームの初期化
-	transform_.scl = AsoUtility::VECTOR_ONE;
+	// Transformの初期化
+	const auto& playerData =
+		resMng_.Load(ResourceManager::SRC::JSON_PLAYER).jsonData_;
+	const auto& playerTrans = playerData["transform"];
+
+	// 座標の初期化
+	const auto& playerPos = playerTrans["position"];
+	transform_.pos = { playerPos["x"], playerPos["y"], playerPos["z"] };
+
+	// 大きさの初期化
+	const auto& playerScale = playerTrans["scale"];
+	transform_.scl = { playerScale["x"], playerScale["y"], playerScale["z"] };
+
+	// 回転の初期化
 	transform_.quaRot = Quaternion::Identity();
 	transform_.quaRotLocal = Quaternion::Identity();
+	const auto& playerRotY = playerTrans["angleY"];
 	transform_.quaRotLocal =
 		Quaternion::Mult(transform_.quaRotLocal,
-			Quaternion::AngleAxis(AsoUtility::Deg2RadF(ANGLE_AXIS_Y), AsoUtility::AXIS_Y));
-	transform_.pos = INITIAL_POS;
+			Quaternion::AngleAxis(AsoUtility::Deg2RadF(playerRotY), AsoUtility::AXIS_Y));
+
+	// Transformの更新
 	transform_.Update();
 }
 

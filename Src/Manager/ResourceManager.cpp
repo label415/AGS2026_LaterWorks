@@ -30,6 +30,7 @@ void ResourceManager::Init(void)
 	static std::wstring PATH_FONT = Application::PATH_FONT;
 	static std::wstring PATH_EFF = Application::PATH_EFFECT;
 	static std::wstring PATH_SND = Application::PATH_SOUND;
+	static std::wstring PATH_JSON = Application::PATH_JSON;
 
 	// リソースの登録
 	Resource* res;
@@ -146,6 +147,10 @@ void ResourceManager::Init(void)
 	resourcesMap_.emplace(SRC::SE_ENEMY_FALL, res);
 	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/EnemyHItDamageSE.mp3");
 	resourcesMap_.emplace(SRC::SE_ENEMY_HIT_DAMAGE, res);
+
+	// JSONデータ
+	res = new RES(RES_T::JSON, PATH_JSON + L"PlayerData.json");
+	resourcesMap_.emplace(SRC::JSON_PLAYER, res);
 }
 
 void ResourceManager::Release(void)

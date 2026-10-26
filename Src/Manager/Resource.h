@@ -1,6 +1,10 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "../Libs/nlohmann/json.hpp"
+
+// namespaceの省略
+using Json = nlohmann::json;
 
 class Resource
 {
@@ -15,6 +19,7 @@ public:
 		FONT,
 		EFFEKSEER,
 		SOUND,
+		JSON,
 	};
 
 	// コンストラクタ
@@ -63,4 +68,7 @@ public:
 
 	// モデル複製用
 	std::vector<int> duplicateModelIds_;
+
+	// JSONデータ
+	Json jsonData_;
 };

@@ -1,3 +1,4 @@
+#include <fstream>
 #include <DxLib.h>
 #include <EffekseerForDXLib.h>
 #include "Resource.h"
@@ -12,7 +13,8 @@ Resource::Resource(void)
 	sizeY_(-1),
 	handleId_(-1),
 	handleIds_(nullptr)
-{}
+{
+}
 
 Resource::Resource(TYPE type, const std::wstring& path)
 	:
@@ -24,7 +26,8 @@ Resource::Resource(TYPE type, const std::wstring& path)
 	sizeY_(-1),
 	handleId_(-1),
 	handleIds_(nullptr)
-{}
+{
+}
 
 Resource::Resource(TYPE type, const std::wstring& path, int numX, int numY, int sizeX, int sizeY)
 	:
@@ -36,9 +39,10 @@ Resource::Resource(TYPE type, const std::wstring& path, int numX, int numY, int 
 	sizeY_(sizeY),
 	handleId_(-1),
 	handleIds_(nullptr)
-{}
+{
+}
 
-Resource::~Resource(void){}
+Resource::~Resource(void) {}
 
 void Resource::Load(void)
 {
@@ -49,7 +53,6 @@ void Resource::Load(void)
 		// 画像
 		handleId_ = LoadGraph(path_.c_str());
 		break;
-
 	case Resource::TYPE::IMGS:
 		// 複数画像
 		handleIds_ = new int[numX_ * numY_];
@@ -60,12 +63,10 @@ void Resource::Load(void)
 			sizeX_, sizeY_,
 			&handleIds_[0]);
 		break;
-
 	case Resource::TYPE::MODEL:
 		// モデル
 		handleId_ = MV1LoadModel(path_.c_str());
 		break;
-    
 	case Resource::TYPE::FONT:
 		//フォント
 		if (AddFontResourceEx(
@@ -77,14 +78,22 @@ void Resource::Load(void)
 			return;
 		}
 		break;
-
 	case Resource::TYPE::EFFEKSEER:
-
 		handleId_ = LoadEffekseerEffect(path_.c_str());
 		break;
 	case Resource::TYPE::SOUND:
 		// サウンド
 		handleId_ = LoadSoundMem(path_.c_str());
+		break;
+	case Resource::TYPE::JSON:
+		// JSON
+		std::ifstream ifs;
+		ifs.open(path_.c_str());
+
+		// ファイルが開けなかった場合は処理しない
+		if (!ifs)return;
+
+		jsonData_ = Json::parse(ifs);
 		break;
 	}
 }
@@ -108,7 +117,7 @@ void Resource::Release(void)
 		delete[] handleIds_;
 		handleIds_ = nullptr;
 	}
-		break;
+	break;
 
 	case Resource::TYPE::MODEL:
 	{
@@ -121,7 +130,7 @@ void Resource::Release(void)
 		// 削除済みのハンドルを保持し続けないようにクリア
 		duplicateModelIds_.clear();
 	}
-		break;
+	break;
 
 	case Resource::TYPE::FONT:
 	{
@@ -134,7 +143,7 @@ void Resource::Release(void)
 			return;
 		}
 	}
-		break;
+	break;
 
 	case Resource::TYPE::EFFEKSEER:
 

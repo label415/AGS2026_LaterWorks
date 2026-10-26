@@ -76,6 +76,85 @@
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponGan.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Libs\nlohmann\adl_serializer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\byte_container_with_subtype.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\abi_config.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\abi_macros.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\bit_ops.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\conversions\from_json.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\conversions\to_chars.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\conversions\to_json.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\conversions\zmij.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\exceptions.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\hash.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\binary_reader.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\input_adapters.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\json_sax.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\lexer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\number_parse.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\parser.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\position_t.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\pow5_table.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\simd_scan.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\input\string_scan.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\iterators\internal_iterator.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\iterators\iteration_proxy.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\iterators\iterator_traits.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\iterators\iter_impl.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\iterators\json_reverse_iterator.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\iterators\primitive_iterator.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\json_custom_base_class.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\json_pointer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\json_ref.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\macro_scope.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\macro_unscope.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\call_std\begin.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\call_std\end.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\cpp_future.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\detected.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\identity_tag.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\is_sax.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\std_fs.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\type_traits.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\meta\void_t.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\output\binary_writer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\output\error_handler.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\output\output_adapters.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\output\serializer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\recursion_depth_limit.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\string_concat.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\string_escape.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\string_utils.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\value_t.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\builder.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\compare.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\document_data.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\edit.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\edit_storage.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\errors.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\image.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\input.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\iterator.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\lookup.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\macro_scope.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\macro_unscope.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\materialize.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\node.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\number.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\object_index.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\pointer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\scan.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\serializer.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\simd.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\string_ref.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\detail\view\value.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\json.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\json_fwd.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\json_literals.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\json_view.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\ordered_map.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\thirdparty\hedley\hedley.hpp" />
+    <ClInclude Include="Src\Libs\nlohmann\thirdparty\hedley\hedley_undef.hpp" />
     <ClInclude Include="Src\Utility\ColliderUtility.h" />
     <ClInclude Include="Src\Manager\CollisionManager.h" />
     <ClInclude Include="Src\Object\Actor\UI\UIBase.h" />
@@ -227,7 +306,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXLIB_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXLIB_DIR);$(ProjectDir)Src/Libs/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -266,7 +345,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXLIB_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXLIB_DIR);$(ProjectDir)Src/Libs/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
