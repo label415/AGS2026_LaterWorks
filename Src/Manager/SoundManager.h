@@ -6,8 +6,17 @@ class SoundManager : public Singleton<SoundManager>
 {
     friend class Singleton<SoundManager>;
 public:
-	// SEのID（名前）を定義するenum
-    enum class SeId
+    // サウンド情報構造体
+    struct Sound
+    {
+        // サウンドハンドル
+        int handle;
+        // 音量
+        int volume;
+    };
+
+	// サウンドID
+    enum class SOUND_ID
     {
         PLAYER_WEPON_SE1,
         PLAYER_WEPON_SE2,
@@ -26,31 +35,36 @@ public:
         ENEMY_ARE_ENEMY_BREASE1,
         ENEMY_ARE_ENEMY_BREASE2,
         ENEMY_FALL,
+
+        BGM_TITLI,
+        BGM_GAME,
         Max,
     };
 
-    void Init(void); // 内部変数の初期化
+    // サウンド登録
+    void Add(SOUND_ID soundId, int bgmHandle, int volume = MaxVolumeValue);
+
+    // 解放処理
     void Release(void);
 
-    // --- 定数定義 ---
-    static constexpr int MaxVolumeValue = 100;   // ユーザーが指定する最大音量
-    static constexpr int DxLibMaxVolume = 255;  // DxLib内部で扱われる最大音量
+    // ユーザーが指定する最大音量
+    static constexpr int MaxVolumeValue = 100;  
+    // DxLib内部で扱われる最大音量
+    static constexpr int DxLibMaxVolume = 255; 
 
-    // --- BGM機能 ---
-    void PlayBGM(int handle, int volume = MaxVolumeValue); // BGMのループ再生
-    void PauseBGM();                                       // BGMの一時停止
-    void ResumeBGM();                                      // BGMの再開（停止位置から）
-    void StopBGM();                                        // BGMの完全停止とメモリ解放
-    void SetBGMVolume(int volume);                         // 再生中のBGM音量変更
-    void PlaySlowBGM(int handle,int slow=2);                          // BGMのスロー再生
-
-    // --- SE機能 ---
-    void PlaySE(SeId id, int handle, int volume = MaxVolumeValue);      // SEの再生
-    void PlayLoopSE(SeId id, int handle, int volume = MaxVolumeValue);      // SEの再生
-    void PlaySlowSE(SeId id, int handle, int volume = MaxVolumeValue,int slow=2);  // スローSE再生
-    void StopSE(SeId id);                                               // 特定のSEを停止
-    void AllStopSE();                                                   // 全てのSEを停止
-    void SetSESpeed(SeId id, float speed);
+    // BGMのループ再生
+    void PlaySound(SOUND_ID soundId, bool isLoop = false);
+    // BGMの一時停止
+    void PauseBGM();
+    // BGMの再開
+    void ResumeSound();
+    // BGMの完全停止とメモリ解放
+    void StopSound();
+    // 再生中のBGM音量変更
+    void SetVolume(int volume);
+    // SE音の流る速度を設定
+    void SetSpeed(SOUND_ID id, float speed);
+  
 private:
 	// シングルトンインスタンス
     SoundManager(void);
@@ -58,15 +72,12 @@ private:
     SoundManager(const SoundManager& instance) = default;
     ~SoundManager(void) = default;
 
-    int bgm_;           // 再生中BGMの複製ハンドル
-    int currentBgmVol_; // 現在のBGM音量(0-255)
-    bool isBgmPaused_;  // 一時停止フラグ
+    // 一時停止フラグ
+    bool isBgmPaused_;
 
-    // SEをID（名前）で管理するためのマップ（二重再生防止・個別停止用）
-    std::map<SeId, int> seMap_;
+    // SEをIDで管理するためのマップ
+    std::map<SOUND_ID, Sound> sounds_;
 
     // 0-100の値をDxLib用の0-255に変換する内部関数
-    int CalcVolume(int volume) const {
-        return (DxLibMaxVolume * volume) / MaxVolumeValue;
-    }
+    int CalcVolume(int volume) const { return (DxLibMaxVolume * volume) / MaxVolumeValue; }
 };

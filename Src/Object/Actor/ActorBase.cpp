@@ -1,11 +1,15 @@
 #include <algorithm>
 #include "../../Manager/ResourceManager.h"
 #include "../../Manager/SceneManager.h"
+#include "../../Manager/CollisionManager.h"
+#include "../../Manager/SoundManager.h"
 #include "ActorBase.h"
 
 ActorBase::ActorBase(void)
 	: resMng_(ResourceManager::GetInstance())
 	, scnMng_(SceneManager::GetInstance())
+	, colMng_(CollisionManager::GetInstance())
+	, sngMng_(SoundManager::GetInstance())
 	, transform_(Transform())
 	, isAlive_(true)
 {}

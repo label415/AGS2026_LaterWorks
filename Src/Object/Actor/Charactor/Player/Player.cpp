@@ -1,25 +1,36 @@
 #include <fstream>
 #include <DxLib.h>
-#include "../../../Manager/ResourceManager.h"
-#include "../../../Manager/SceneManager.h"
-#include "../../../Manager/CollisionManager.h"
-#include "../../../Manager/Camera.h"
-#include "../../../Manager/InputManager.h"
-#include "../../../Manager/SoundManager.h"
-#include "../../../Utility/AsoUtility.h"
-#include "../../../Utility/ColliderUtility.h"
-#include "../../../Utility/MatrixUtility.h"
-#include "../../../Application.h"
-#include "../../../Common/Quaternion.h"
-#include "../../Common/Collider/ColliderLine.h"
-#include "../../Common/Collider/ColliderCapsule.h"
-#include "../../Common/Collider/ColliderSphere.h"
-#include "../../Common/Collider/ColliderModel.h"
+#include "../../../../Manager/ResourceManager.h"
+#include "../../../../Manager/SceneManager.h"
+#include "../../../../Manager/CollisionManager.h"
+#include "../../../../Manager/Camera.h"
+#include "../../../../Manager/InputManager.h"
+#include "../../../../Manager/SoundManager.h"
+#include "../../../../Utility/AsoUtility.h"
+#include "../../../../Utility/ColliderUtility.h"
+#include "../../../../Utility/MatrixUtility.h"
+#include "../../../../Application.h"
+#include "../../../../Common/Quaternion.h"
+#include "../../../Common/Collider/ColliderLine.h"
+#include "../../../Common/Collider/ColliderCapsule.h"
+#include "../../../Common/Collider/ColliderSphere.h"
+#include "../../../Common/Collider/ColliderModel.h"
 #include "../Libs/nlohmann/json.hpp"
-#include "../Weapon/WeaponSaw.h"
-#include "../UI/UISt.h"
-#include "../UI/UIHp.h"
-#include "../UI/UIRecovery.h"
+#include "../../Weapon/WeaponSaw.h"
+#include "../../UI/UISt.h"
+#include "../../UI/UIHp.h"
+#include "../../UI/UIRecovery.h"
+#include "State/PlayerStateBase.h"
+#include "State/PlayerWalkState.h"
+//#include "State/PlayerIdleState.h"
+//#include "State/PlayerRunState.h"
+//#include "State/PlayerAttackState.h"
+//#include "State/PlayerEvasionState.h"
+//#include "State/PlayerDownState.h"
+//#include "State/PlayerUpState.h"
+//#include "State/PlayerRecoveryState.h"
+//#include "State/PlayerDieState.h"
+//#include "State/PlayerEndState.h"
 #include "Player.h"
 
 Player::Player(void)
@@ -32,6 +43,7 @@ Player::Player(void)
 	, isVinclible_(false)
 	, stateAtkCombo_(STATE_ATTACK_COMBO::COMBO_1)
 	, state_(STATE::IDLE)
+	, isChangeState_(false)
 	, uiRecovery_(nullptr)
 	, uiSt_(nullptr)
 {
@@ -95,7 +107,9 @@ void Player::InitLoad(void)
 		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
 	uiSt_->Load();
 
-	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
+	int seHandlId = -1;
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
+	sngMng_.
 }
 
 void Player::InitTransform(void)
@@ -138,7 +152,7 @@ void Player::InitCollider(void)
 
 	// マネージャーへ登録
 	ownColliders_[static_cast<int>(ColliderBase::SHAPE::LINE)].push_back(colLine);
-	CollisionManager::GetInstance().AddCollider(colLine);
+	colMng_.AddCollider(colLine);
 
 	// カプセルコライダ
 	std::vector<ColliderBase::TAG> CapsuleTags = {
@@ -157,11 +171,14 @@ void Player::InitCollider(void)
 
 	// マネージャーへ登録
 	ownColliders_[static_cast<int>(ColliderBase::SHAPE::CAPSULE)].push_back(colCapsule);
-	CollisionManager::GetInstance().AddCollider(colCapsule);
+	colMng_.AddCollider(colCapsule);
 }
 
 void Player::InitAnimation(void)
 {
+	// アニメーション
+	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
+
 	animationController_->Add(static_cast<int>(ANIM_TYPE::IDLE),
 		ANIM_SPEED_IDLE, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_IDLE));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
@@ -292,6 +309,28 @@ void Player::InitPost(void)
 	isComboNext_ = false;
 }
 
+void Player::InitState(void)
+{
+	// 配列初期化
+	states_.clear();
+
+	// 各ステートの登録
+	states_.emplace(STATE::IDLE, std::make_unique<PlayerIdleState>());
+	states_.emplace(STATE::WALK, std::make_unique<PlayerWalkState>());
+	states_.emplace(STATE::RUN, std::make_unique<PlayerRunState>());
+	states_.emplace(STATE::ATTACK, std::make_unique<PlayerAttackState>());
+	states_.emplace(STATE::EVASION, std::make_unique<PlayerEvasionState>());
+	states_.emplace(STATE::DOWN, std::make_unique<PlayerDownState>());
+	states_.emplace(STATE::UP, std::make_unique<PlayerUpState>());
+	states_.emplace(STATE::RECOVERY, std::make_unique<PlayerRecoveryState>());
+	states_.emplace(STATE::DIE, std::make_unique<PlayerDieState>());
+	states_.emplace(STATE::END, std::make_unique<PlayerEndState>());
+
+	// ステートを設定
+	currentState_ = states_.at(state_).get();
+	currentState_->StartState(*this);
+}
+
 void Player::ProcessMove(void)
 {
 	// 移動量の初期化
@@ -302,8 +341,8 @@ void Player::ProcessMove(void)
 	if (state_ != STATE::IDLE
 		&& state_ != STATE::RUN
 		&& state_ != STATE::FAST_RUN) {
-		SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_WAKE);
-		SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_RAN);
+		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
+		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
 		return;
 	}
 
@@ -326,16 +365,16 @@ void Player::ProcessMove(void)
 			state_ = STATE::FAST_RUN;
 			uiSt_->SetSt(CONSUMPTION_ST_FAST_RUN * SceneManager::GetInstance().GetDeltaTime());
 			animationController_->Play(static_cast<int>(ANIM_TYPE::FAST_RUN));
-			SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_WAKE);
+			SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
 			int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RUN).handleId_;
-			SoundManager::GetInstance().PlayLoopSE(SoundManager::SeId::PLAYER_RAN, bgm_, SE_VOLUME_RUN);
+			SoundManager::GetInstance().PlayLoopSE(SoundManager::SE_ID::PLAYER_RAN, bgm_, SE_VOLUME_RUN);
 		}
 		else {
 			moveSpeed_ = SPEED_MOVE;
 			animationController_->Play(static_cast<int>(ANIM_TYPE::RUN));
-			SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_RAN);
+			SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
 			int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
-			SoundManager::GetInstance().PlayLoopSE(SoundManager::SeId::PLAYER_WAKE, bgm_, SE_VOLUME_WALK);
+			SoundManager::GetInstance().PlayLoopSE(SoundManager::SE_ID::PLAYER_WAKE, bgm_, SE_VOLUME_WALK);
 		}
 
 		movePow_ = VAdd(movePow_, VScale(moveDir_, moveSpeed_));
@@ -347,8 +386,8 @@ void Player::ProcessMove(void)
 	}
 	else {
 		state_ = STATE::IDLE;
-		SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_WAKE);
-		SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_RAN);
+		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
+		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
 		animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
 	}
 
@@ -460,7 +499,7 @@ void Player::ProcessAttack(void)
 	if (currentStep == ATTACK_SE_TRIGGER_STEP) {
 		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WEAPON_1).handleId_;
 		SoundManager::GetInstance().PlaySE(
-			SoundManager::SeId::PLAYER_WEPON_SE1, bgm_, SE_VOLUME_ATTACK);
+			SoundManager::SE_ID::PLAYER_WEPON_SE1, bgm_, SE_VOLUME_ATTACK);
 	}
 
 	// コンボ遷移チェック
@@ -532,7 +571,7 @@ void Player::ProcessEvasion(void)
 
 		uiSt_->SetSt(CONSUMPTION_ST_EVASION);
 		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_EVASION).handleId_;
-		SoundManager::GetInstance().PlaySE(SoundManager::SeId::PLAYER_AVE, bgm_, SE_VOLUME_EVASION);
+		SoundManager::GetInstance().PlaySE(SoundManager::SE_ID::PLAYER_AVE, bgm_, SE_VOLUME_EVASION);
 
 		isVinclible_ = true;
 	}
@@ -630,13 +669,13 @@ void Player::ProcessRecovery(void)
 		uiRecovery_->SetBottleCnt(CONSUME_RECOVERY_BOTTLE_COUNT);
 		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RECOVERY).handleId_;
 		SoundManager::GetInstance().PlaySE(
-			SoundManager::SeId::PLAYER_HER, bgm_, SE_VOLUME_RECOVERY);
+			SoundManager::SE_ID::PLAYER_HER, bgm_, SE_VOLUME_RECOVERY);
 	}
 
 	// 回復アニメーションが終了したら通常状態に遷移
 	if (animationController_->IsEnd()) {
 		state_ = STATE::IDLE;
-		SoundManager::GetInstance().StopSE(SoundManager::SeId::PLAYER_HER);
+		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_HER);
 	}
 }
 
@@ -663,17 +702,13 @@ void Player::ApplyDamage(float damageAmount)
 
 	int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_DAMAGE).handleId_;
 	SoundManager::GetInstance().PlaySE(
-		SoundManager::SeId::PLAYER_DMAGE, bgm_, SE_VOLUME_DAMAGE);
+		SoundManager::SE_ID::PLAYER_DMAGE, bgm_, SE_VOLUME_DAMAGE);
 }
 
 void Player::UpdateProcess(void)
 {
-	// 死亡状態の処理
-	if (state_ == STATE::DIE)
-	{
-		ProcessDie();
-		return;
-	}
+	// 前フレームの当たり判定などで予約された遷移を反映
+	ApplyChangeState();
 
 	// エフェクトの位置をプレイヤーの位置に設定
 	effect_->SetEffectPos(static_cast<int>(effType_), transform_.pos);
@@ -708,6 +743,10 @@ void Player::UpdateProcess(void)
 		stRecoverTime_ -= 1.0f * SceneManager::GetInstance().GetDeltaTime();
 	}
 
+	// 状態ごとの更新
+	currentState_->Update(*this);
+	ApplyChangeState();
+
 	// 武器のコライダーを攻撃中以外では無効化
 	if (state_ != STATE::ATTACK)
 	{
@@ -717,46 +756,14 @@ void Player::UpdateProcess(void)
 		}
 	}
 
-	// 回復処理
-	ProcessRecovery();
-
-	//攻撃処理
-	ProcessAttack();
-
-	// 移動操作
-	ProcessMove();
-
-	//回避処理
-	ProcessEvasion();
-
-	// ダウン・アップ処理
-	ProcessDownUp();
-
 	// 武器処理
 	for (const auto& weapon : weapons_)
 	{
 		weapon->Update();
 	}
 
-	// コライダーの位置をアニメーションに合わせて変更
-	if (STATE::DOWN == state_)
-	{
-		animLockPos_ = LOCK_POS2;
-	}
-	else if (STATE::DIE == state_) {
-		animLockPos_ = LOCK_POS4;
-	}
-	else if (STATE::UP == state_)
-	{
-		animLockPos_.y += UP_LOCK_POS_Y_ADD;
-	}
-	else
-	{
-		animLockPos_ = LOCK_POS1;
-	}
-
 	//アニメーションの移動量を無効
-	SetFrameUserLocalPos(animLockPos_, LOCK_FRAME_NO);
+	SetFrameUserLocalPos(LOCK_POS1, LOCK_FRAME_NO);
 }
 
 void Player::UpdateProcessPost(void)
@@ -842,6 +849,27 @@ void Player::UpdateHitCollider(void)
 		ApplyDamage(damage);
 	}
 
+}
+
+void Player::ChangeState(STATE state)
+{
+	nextState_ = state;
+	isChangeState_ = true;
+}
+
+void Player::ApplyChangeState(void)
+{
+	if (!isChangeState_) return;
+	isChangeState_ = false;
+
+	if (currentState_ != nullptr)
+	{
+		currentState_->EndState(*this);
+	}
+
+	state_ = nextState_;
+	currentState_ = states_.at(state_).get();
+	currentState_->StartState(*this);
 }
 
 VECTOR Player::GetInputDirection(void)

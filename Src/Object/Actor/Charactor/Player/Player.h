@@ -2,16 +2,29 @@
 #include <map>
 #include <vector>
 #include <functional>
-#include "CharactorBase.h"
+#include "../CharactorBase.h"
 
 class Camara;
 class WeponBase;
 class UISt;
 class UIRecovery;
+class PlayerStateBase;
 
 class Player :
 	public CharactorBase
 {
+	// 各状態クラスからPlayerの内部にアクセスできるようにする
+	friend class PlayerStateBase;
+	friend class PlayerIdleState;
+	friend class PlayerWalkState;
+	friend class PlayerRunState;
+	friend class PlayerAttackState;
+	friend class PlayerEvasionState;
+	friend class PlayerDownState;
+	friend class PlayerUpState;
+	friend class PlayerRecoveryState;
+	friend class PlayerDieState;
+	friend class PlayerEndState;
 public:
 	// アニメーションタイプ
 	enum class ANIM_TYPE
@@ -33,8 +46,8 @@ public:
 	enum class STATE
 	{
 		IDLE,
+		WALK,
 		RUN,
-		FAST_RUN,
 		ATTACK,
 		EVASION,
 		DOWN,
@@ -263,9 +276,6 @@ public:
 	// HPおよび各種UIの描画
 	void DrawHp(void) override;
 
-	// 状態を取得
-	const STATE GetState(void) const { return state_; }
-
 	// 無敵状態かどうかを取得
 	const bool GetIsInvincible(void) const { return isVinclible_; }
 
@@ -304,6 +314,24 @@ private:
 
 	// 状態
 	STATE state_;
+
+	// 状態クラス(最初に全て生成して使い回す)
+	std::map<STATE, std::unique_ptr<PlayerStateBase>> states_;
+
+	// 現在の状態クラス
+	PlayerStateBase* currentState_;
+
+	// 遷移予約された状態
+	STATE nextState_;
+
+	// 遷移予約があるか
+	bool isChangeState_;
+
+	// 状態遷移
+	void ChangeState(STATE state);
+
+	// 予約された状態遷移を反映
+	void ApplyChangeState(void);
 
 	// 攻撃コンボデータ
 	std::map<STATE_ATTACK_COMBO, ATTACK_COMBO> atkComboData_;
@@ -344,6 +372,9 @@ private:
 	// 無敵時間
 	static constexpr float INVINCIBLE_TIME = 2.0f;
 
+	// ステート初期化処理
+	void InitState(void);
+
 	// 移動入力判定および移動処理
 	void ProcessMove(void);
 
@@ -367,6 +398,7 @@ private:
 
 	// 無敵
 	bool isVinclible_;
+
 	// 無敵時間
 	float invincibleTimer_;
 

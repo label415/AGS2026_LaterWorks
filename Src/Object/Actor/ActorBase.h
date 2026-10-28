@@ -8,7 +8,9 @@
 
 class ResourceManager;
 class SceneManager;
+class CollisionManager;
 class EffectController;
+class SoundManager;
 
 class ActorBase
 {
@@ -48,8 +50,9 @@ protected:
 
 	// シングルトン参照
 	ResourceManager& resMng_;
-
 	SceneManager& scnMng_;
+	CollisionManager& colMng_;
+	SoundManager& sngMng_;
 
 	// モデル制御の基本情報
 	Transform transform_;
