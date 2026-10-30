@@ -3,6 +3,8 @@
 #include "../../Manager/SceneManager.h"
 #include "../../Manager/CollisionManager.h"
 #include "../../Manager/SoundManager.h"
+#include "../Common/EffectController.h"
+#include "../Common/Collider/ColliderBase.h"
 #include "ActorBase.h"
 
 ActorBase::ActorBase(void)
@@ -13,6 +15,10 @@ ActorBase::ActorBase(void)
 	, transform_(Transform())
 	, isAlive_(true)
 {}
+
+ActorBase::~ActorBase(void)
+{
+}
 
 void ActorBase::Load(void)
 {

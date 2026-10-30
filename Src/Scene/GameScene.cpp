@@ -1,5 +1,5 @@
 #include <DxLib.h>
-#include "../Object/Actor/Charactor/Player.h"
+#include "../Object/Actor/Charactor/Player/Player.h"
 #include "../Object/Actor/Charactor/Enemy/EnemyManager.h"
 #include "../Object/Actor/Stage/Stage.h"
 #include "../Object/Actor/Stage/SkyDome.h"
@@ -55,15 +55,14 @@ void GameScene::Load(void)
 	// 入力管理のインスタンス取得
 	camera_->SetIsMouseInput(true);
 	InputManager::GetInstance().SetMouseFlage(false);
+
+	// BGM登録
+	auto bgm = resMng_.Load(ResourceManager::SRC::BGM_GAME).handleId_;
+	sonMng_.Add(SoundManager::SOUND_ID::BGM_GAME, bgm, BGM_VOLUME);
 }
 
 void GameScene::LoadEnd(void)
 {
-	// BGM再生
-	bgm_ = resMng_.Load(ResourceManager::SRC::BGM_GAME).handleId_;
-	volume_ = BGM_VOLUME;
-	SoundManager::GetInstance().PlayBGM(bgm_, volume_);
-
 	// スカイドーム初期化
 	skydome_->LoadEnd();
 	// ステージ初期化
@@ -85,6 +84,9 @@ void GameScene::LoadEnd(void)
 			SHADOW_MAP_DIFF * SHADOW_MAP_MAX_DRAW,
 			(playerPos.z + SHADOW_MAP_DIFF))
 	);
+
+	// BGM再生
+	sonMng_.PlaySoundId(SoundManager::SOUND_ID::BGM_GAME, true);
 }
 
 void GameScene::Update(void)

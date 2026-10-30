@@ -80,36 +80,18 @@ void Player::DrawHp(void)
 
 void Player::InitLoad(void)
 {
-	//プレイヤー
+	//プレイヤーモデル
 	transform_.SetModel(resMng_.LoadModelDuplicate(
 		ResourceManager::SRC::MODEL_PLAYER));
 
-	// 武器
-	auto weaponSaw = std::make_unique<WeaponSaw>(transform_, WEAPON_ATTACH_FRAME_NO);
-	weapons_.push_back(std::move(weaponSaw));
-	for (const auto& weapon : weapons_) {
-		weapon->Load();
-	}
+	// 武器初期化
+	InitWeapon();
 
-	// 回復瓶UI
-	uiRecovery_ = std::make_unique<UIRecovery>(INITIAL_RECOVERY_BOTTLE_COUNT);
-	uiRecovery_->Load();
+	// UI初期化
+	InitUI();
 
-	// HP UI を画面左上に表示
-	uiHp_ = std::make_unique<UIHp>(
-		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_HP_POS_Y,
-		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
-	uiHp_->Load();
-
-	// スタミナUIを HP の下に表示
-	uiSt_ = std::make_unique<UISt>(
-		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_ST_POS_Y,
-		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
-	uiSt_->Load();
-
-	int seHandlId = -1;
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
-	sngMng_.
+	// サウンド初期化
+	InitSound();
 }
 
 void Player::InitTransform(void)
@@ -309,6 +291,45 @@ void Player::InitPost(void)
 	isComboNext_ = false;
 }
 
+void Player::InitWeapon(void)
+{
+	// 武器
+	auto weaponSaw = std::make_unique<WeaponSaw>(transform_, WEAPON_ATTACH_FRAME_NO);
+	weapons_.push_back(std::move(weaponSaw));
+	for (const auto& weapon : weapons_) {
+		weapon->Load();
+	}
+}
+
+void Player::InitSound(void)
+{
+	// サウンド登録
+	int seHandlId = -1;
+	// 歩きSE
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_WAKE, seHandlId);
+
+}
+
+void Player::InitUI(void)
+{
+	// 回復瓶UI
+	uiRecovery_ = std::make_unique<UIRecovery>(INITIAL_RECOVERY_BOTTLE_COUNT);
+	uiRecovery_->Load();
+
+	// HP UI を画面左上に表示
+	uiHp_ = std::make_unique<UIHp>(
+		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_HP_POS_Y,
+		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
+	uiHp_->Load();
+
+	// スタミナUIを HP の下に表示
+	uiSt_ = std::make_unique<UISt>(
+		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_ST_POS_Y,
+		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
+	uiSt_->Load();
+}
+
 void Player::InitState(void)
 {
 	// 配列初期化
@@ -336,15 +357,6 @@ void Player::ProcessMove(void)
 	// 移動量の初期化
 	moveSpeed_ = 0.0f;
 	movePow_ = AsoUtility::VECTOR_ZERO;
-
-	// 移動状態以外ではSEを停止
-	if (state_ != STATE::IDLE
-		&& state_ != STATE::RUN
-		&& state_ != STATE::FAST_RUN) {
-		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
-		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
-		return;
-	}
 
 	// 共通化した関数から方向（カメラ/ターゲット変換済み）を取得
 	VECTOR inputDir = GetInputDirection();

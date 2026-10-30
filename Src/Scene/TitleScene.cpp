@@ -18,9 +18,9 @@ TitleScene::~TitleScene(void) {}
 
 void TitleScene::Load(void)
 {
-	// BGM読み込み(再生は読み込み完了後のLoadEndで行う)
-	bgm_ = resMng_.Load(ResourceManager::SRC::BGM_TITLE).handleId_;
-	volume_ = BGM_VOLUME;
+	// BGM登録
+	auto bgm = resMng_.Load(ResourceManager::SRC::BGM_TITLE).handleId_;
+	sonMng_.Add(SoundManager::SOUND_ID::BGM_TITLI, bgm, BGM_VOLUME);
 
 	// フォントのロード
 	resMng_.Load(ResourceManager::SRC::FONT);
@@ -45,7 +45,7 @@ void TitleScene::Load(void)
 void TitleScene::LoadEnd(void)
 {
 	// BGM再生
-	SoundManager::GetInstance().PlayBGM(bgm_, volume_);
+	sonMng_.PlaySoundId(SoundManager::SOUND_ID::BGM_TITLI, true);
 }
 
 void TitleScene::Update(void)

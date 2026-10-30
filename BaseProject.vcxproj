@@ -20,8 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Object\Actor\Charactor\Player\Player.cpp" />
-    <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerWalkState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerStateBase.cpp" />
+    <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerWalkState.cpp" />
     <ClCompile Include="Src\Utility\ColliderUtility.cpp" />
     <ClCompile Include="Src\Manager\CollisionManager.cpp" />
     <ClCompile Include="Src\Object\Actor\UI\UIBase.cpp" />
@@ -159,8 +159,8 @@
     <ClInclude Include="Src\Libs\nlohmann\thirdparty\hedley\hedley.hpp" />
     <ClInclude Include="Src\Libs\nlohmann\thirdparty\hedley\hedley_undef.hpp" />
     <ClInclude Include="Src\Object\Actor\Charactor\Player\Player.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerWalkState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerStateBase.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerWalkState.h" />
     <ClInclude Include="Src\Utility\ColliderUtility.h" />
     <ClInclude Include="Src\Manager\CollisionManager.h" />
     <ClInclude Include="Src\Object\Actor\UI\UIBase.h" />

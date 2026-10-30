@@ -372,6 +372,15 @@ private:
 	// 無敵時間
 	static constexpr float INVINCIBLE_TIME = 2.0f;
 
+	// 武器初期化処理
+	void InitWeapon(void);
+
+	// サウンド初期化処理
+	void InitSound(void);
+
+	// UI初期化処理
+	void InitUI(void);
+
 	// ステート初期化処理
 	void InitState(void);
 

@@ -41,8 +41,6 @@ void PauseScene::LoadEnd(void)
 
 void PauseScene::Update(void)
 {
-	//ポーズシーン中は、SEを停止する
-	SoundManager::GetInstance().AllStopSE();
 
 	// 入力管理インスタンスを取得
 	auto& ins = InputManager::GetInstance();

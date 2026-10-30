@@ -8,6 +8,7 @@ class SkyDome;
 class TitleScene : public SceneBase
 {
 public:
+
 	// 選択リスト
 	enum class LIST
 	{
@@ -36,6 +37,7 @@ public:
 
 	// 解放  
 	void Release(void) override;
+
 private:
 	// タイトル画像サイズ
 	static constexpr float TITLE_IMG_SIZE = 1.0f;

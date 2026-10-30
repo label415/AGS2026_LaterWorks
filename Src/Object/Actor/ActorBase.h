@@ -3,14 +3,13 @@
 #include <memory>
 #include <vector>
 #include "../Common/Transform.h"
-#include "../Common/EffectController.h"
-#include "../Common/Collider/ColliderBase.h"
 
 class ResourceManager;
 class SceneManager;
 class CollisionManager;
 class EffectController;
 class SoundManager;
+class ColliderBase;
 
 class ActorBase
 {
@@ -19,7 +18,7 @@ public:
 	ActorBase(void);
 
 	// デストラクタ
-	virtual ~ActorBase(void){}
+	virtual ~ActorBase(void);
 
 	//読み込み
 	void Load(void);

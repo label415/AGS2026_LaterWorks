@@ -1,3 +1,4 @@
+#include "../../../../../Utility/AsoUtility.h"
 #include "../../../../../Manager/SoundManager.h"
 #include "../../../../../Manager/ResourceManager.h"
 #include "../Player.h"
@@ -19,11 +20,12 @@ void PlayerWalkState::StartState(Player& player)
 
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::RUN));
 
-	// •à‚«SE
-	int handle = ResourceManager::GetInstance().Load(
+	// •à‚«SE“o˜^
+	int walkSe = ResourceManager::GetInstance().Load(
 		ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
-	SoundManager::GetInstance().PlayLoopSE(
-		SoundManager::SE_ID::PLAYER_WAKE, handle, Player::SE_VOLUME_WALK);
+
+	// •à‚«SEÄ¶
+	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_WAKE, true);
 }
 
 void PlayerWalkState::Update(Player& player)
@@ -32,5 +34,6 @@ void PlayerWalkState::Update(Player& player)
 
 void PlayerWalkState::EndState(Player& player)
 {
-	SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
+	// •à‚«SE’â~
+	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_WAKE);
 }

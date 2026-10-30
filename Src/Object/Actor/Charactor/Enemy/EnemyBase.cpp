@@ -1,3 +1,4 @@
+#include "../../../../Utility/AsoUtility.h"
 #include "EnemyBase.h"
 
 EnemyBase::EnemyBase(const EnemyBase::EnemyData& data)
