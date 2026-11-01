@@ -1,14 +1,14 @@
 #pragma once
 #include "PlayerStateBase.h"
 
-class PlayerWalkState : public PlayerStateBase
+class PlayerMoveState : public PlayerStateBase
 {
 public:
 	// コンストラクタ  
-	PlayerWalkState(void);
+	PlayerMoveState(void);
 
 	// デストラクタ  
-	~PlayerWalkState(void) override;
+	~PlayerMoveState(void) override;
 
 	// 開始
 	void StartState(Player& player)override;
@@ -18,5 +18,8 @@ public:
 
 	// 終了
 	void EndState(Player& player)override;
+
+	void SetWalk(void);
+	void SetRun(void);
 };
 

@@ -228,7 +228,7 @@
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerStateBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerWalkState.cpp">
+    <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerMoveState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -650,7 +650,7 @@
     <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerStateBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerWalkState.h">
+    <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerMoveState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

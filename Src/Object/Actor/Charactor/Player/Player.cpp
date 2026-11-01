@@ -21,7 +21,7 @@
 #include "../../UI/UIHp.h"
 #include "../../UI/UIRecovery.h"
 #include "State/PlayerStateBase.h"
-#include "State/PlayerWalkState.h"
+#include "State/PlayerMoveState.h"
 //#include "State/PlayerIdleState.h"
 //#include "State/PlayerRunState.h"
 //#include "State/PlayerAttackState.h"
@@ -307,8 +307,22 @@ void Player::InitSound(void)
 	int seHandlId = -1;
 	// 歩きSE
 	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
-	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_WAKE, seHandlId);
-
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_WAKE, seHandlId, SE_VOLUME);
+	// 走りSE
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RUN).handleId_;
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, SE_VOLUME);
+	// 回復SE
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RECOVERY).handleId_;
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, SE_VOLUME);
+	// 回避SE
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_EVASION).handleId_;
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, SE_VOLUME);
+	// 攻撃SE
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WEAPON_1).handleId_;
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_WEPON_SE1, seHandlId, SE_VOLUME);
+	// 攻撃SE2
+	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_DAMAGE).handleId_;
+	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, SE_VOLUME);
 }
 
 void Player::InitUI(void)
@@ -337,8 +351,7 @@ void Player::InitState(void)
 
 	// 各ステートの登録
 	states_.emplace(STATE::IDLE, std::make_unique<PlayerIdleState>());
-	states_.emplace(STATE::WALK, std::make_unique<PlayerWalkState>());
-	states_.emplace(STATE::RUN, std::make_unique<PlayerRunState>());
+	states_.emplace(STATE::MOVE, std::make_unique<PlayerMoveState>());
 	states_.emplace(STATE::ATTACK, std::make_unique<PlayerAttackState>());
 	states_.emplace(STATE::EVASION, std::make_unique<PlayerEvasionState>());
 	states_.emplace(STATE::DOWN, std::make_unique<PlayerDownState>());
@@ -358,53 +371,7 @@ void Player::ProcessMove(void)
 	moveSpeed_ = 0.0f;
 	movePow_ = AsoUtility::VECTOR_ZERO;
 
-	// 共通化した関数から方向（カメラ/ターゲット変換済み）を取得
-	VECTOR inputDir = GetInputDirection();
-
-	if (!AsoUtility::EqualsVZero(inputDir))
-	{
-		state_ = STATE::RUN;
-		moveDir_ = inputDir;
-
-		// ダッシュ入力判定
-		auto& ins = InputManager::GetInstance();
-		bool isR = ins.IsNew(KEY_INPUT_LSHIFT)
-			|| ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::DOWN);
-
-		// スタミナが回復中で、かつスタミナが残っている場合はダッシュ可能
-		if (isR && stRecoverTime_ <= 0.0f) {
-			moveSpeed_ = SPEED_DASH;
-			state_ = STATE::FAST_RUN;
-			uiSt_->SetSt(CONSUMPTION_ST_FAST_RUN * SceneManager::GetInstance().GetDeltaTime());
-			animationController_->Play(static_cast<int>(ANIM_TYPE::FAST_RUN));
-			SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
-			int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RUN).handleId_;
-			SoundManager::GetInstance().PlayLoopSE(SoundManager::SE_ID::PLAYER_RAN, bgm_, SE_VOLUME_RUN);
-		}
-		else {
-			moveSpeed_ = SPEED_MOVE;
-			animationController_->Play(static_cast<int>(ANIM_TYPE::RUN));
-			SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
-			int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
-			SoundManager::GetInstance().PlayLoopSE(SoundManager::SE_ID::PLAYER_WAKE, bgm_, SE_VOLUME_WALK);
-		}
-
-		movePow_ = VAdd(movePow_, VScale(moveDir_, moveSpeed_));
-		float currentSpeed = VSize(movePow_);
-		if (currentSpeed > 100.0f)
-		{
-			movePow_ = VScale(VNorm(movePow_), 100.0f);
-		}
-	}
-	else {
-		state_ = STATE::IDLE;
-		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_WAKE);
-		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
-		animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
-	}
-
-	//移動量の減速処理
-	movePow_ = AsoUtility::Lerp(movePow_, AsoUtility::VECTOR_ZERO, 0.0001f);
+	
 }
 
 void Player::ProcessAttack(void)
@@ -942,9 +909,10 @@ VECTOR Player::GetInputDirection(void)
 	}
 	else
 	{
-		// 通常時：カメラ方向を基準に変換
+		// カメラ方向を基準に変換
 		Quaternion cameraRot = scnMng_.GetCamera()->GetQuaRotY();
 		worldDir = Quaternion::PosAxis(cameraRot, dir);
 	}
+
 	return worldDir;
 }

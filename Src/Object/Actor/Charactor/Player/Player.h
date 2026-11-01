@@ -16,8 +16,7 @@ class Player :
 	// 各状態クラスからPlayerの内部にアクセスできるようにする
 	friend class PlayerStateBase;
 	friend class PlayerIdleState;
-	friend class PlayerWalkState;
-	friend class PlayerRunState;
+	friend class PlayerMoveState;
 	friend class PlayerAttackState;
 	friend class PlayerEvasionState;
 	friend class PlayerDownState;
@@ -46,8 +45,7 @@ public:
 	enum class STATE
 	{
 		IDLE,
-		WALK,
-		RUN,
+		MOVE,
 		ATTACK,
 		EVASION,
 		DOWN,
@@ -167,17 +165,7 @@ public:
 	static constexpr int CONSUME_RECOVERY_BOTTLE_COUNT = 1;
 
 	// プレイヤー被ダメージSE音量
-	static constexpr int SE_VOLUME_DAMAGE = 50;
-	// 歩きSE音量
-	static constexpr int SE_VOLUME_WALK = 50;
-	// 走りSE音量
-	static constexpr int SE_VOLUME_RUN = 50;
-	// 回避SE音量
-	static constexpr int SE_VOLUME_EVASION = 50;
-	// 攻撃SE音量
-	static constexpr int SE_VOLUME_ATTACK = 30;
-	// 回復SE音量
-	static constexpr int SE_VOLUME_RECOVERY = 50;
+	static constexpr int SE_VOLUME = 50;
 
 	// 被弾時出血エフェクトスケール
 	static constexpr VECTOR EFFECT_BLOOD_SCALE = { 5.0f, 5.0f, 5.0f };
@@ -383,24 +371,6 @@ private:
 
 	// ステート初期化処理
 	void InitState(void);
-
-	// 移動入力判定および移動処理
-	void ProcessMove(void);
-
-	// 攻撃アクションおよびコンボ継続処理
-	void ProcessAttack(void);
-
-	// 回避アクション処理
-	void ProcessEvasion(void);
-
-	// ダウンおよび起き上がり復帰処理
-	void ProcessDownUp(void);
-
-	// 回復処理
-	void ProcessRecovery(void);
-
-	// 死亡演出処理
-	void ProcessDie(void);
 
 	// ダメージ処理
 	void ApplyDamage(float damageAmount);
