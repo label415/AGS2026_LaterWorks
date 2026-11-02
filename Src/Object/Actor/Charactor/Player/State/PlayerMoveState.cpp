@@ -8,6 +8,7 @@
 #include "PlayerMoveState.h"
 
 PlayerMoveState::PlayerMoveState(void)
+	:moveType_(MOVE_TYPE::NONE)
 {
 }
 
@@ -21,17 +22,14 @@ void PlayerMoveState::StartState(Player& player)
 	player.moveSpeed_ = 0.0f;
 	player.movePow_ = AsoUtility::VECTOR_ZERO;
 
-	// アニメーション再生
-	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::RUN));
-
-	// 歩きSE再生
-	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_WAKE, true);
+	// 状態の初期化
+	moveType_ = MOVE_TYPE::NONE;
 }
 
 void PlayerMoveState::Update(Player& player)
 {
 	// 共通化した関数から方向を取得
-	VECTOR inputDir = player.GetInputDirection();
+	VECTOR inputDir = player.GetInputMoveDir();
 
 	// 入力がない場合は、移動状態を終了して待機状態に遷移
 	if (AsoUtility::EqualsVZero(inputDir))
@@ -40,50 +38,85 @@ void PlayerMoveState::Update(Player& player)
 		return;
 	}
 
+	// playerの移動方向を更新
 	player.moveDir_ = inputDir;
 
-	// ダッシュ入力判定
-	auto& ins = InputManager::GetInstance();
-	bool isR = ins.IsNew(KEY_INPUT_LSHIFT)
-		|| ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::DOWN);
+	// ダッシュフラグを取得
+	bool canDash = player.GetInputDash() && player.stamina_ <= 0.0f;
 
 	// スタミナが回復中で、かつスタミナが残っている場合はダッシュ可能
-	if (isR && player.stRecoverTime_ <= 0.0f) {
-		player.moveSpeed_ = player.SPEED_DASH;
-		player.uiSt_->SetSt(player.CONSUMPTION_ST_FAST_RUN * player.scnMng_.GetDeltaTime());
-		player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::FAST_RUN));
+	if (canDash) {
+		ChangeMoveType(player, MOVE_TYPE::RUN);
 	}
-	else {
-		
-		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_RAN);
-		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
-		SoundManager::GetInstance().PlayLoopSE(SoundManager::SE_ID::PLAYER_WAKE, bgm_, SE_VOLUME_WALK);
+	else
+	{
+		ChangeMoveType(player, MOVE_TYPE::WALK);
 	}
 
-	movePow_ = VAdd(movePow_, VScale(moveDir_, moveSpeed_));
-	float currentSpeed = VSize(movePow_);
+	// 移動量の更新
+	player.movePow_ = VAdd(player.movePow_, VScale(player.moveDir_, player.moveSpeed_));
+
+	// 移動量の最大値を制限
+	float currentSpeed = VSize(player.movePow_);
+
+	// 移動量が100を超える場合は、移動量を正規化して100にスケーリング
 	if (currentSpeed > 100.0f)
 	{
-		movePow_ = VScale(VNorm(movePow_), 100.0f);
+		player.movePow_ = VScale(VNorm(player.movePow_), 100.0f);
 	}
 
 	//移動量の減速処理
-	movePow_ = AsoUtility::Lerp(movePow_, AsoUtility::VECTOR_ZERO, 0.0001f);
+	player.movePow_ = AsoUtility::Lerp(player.movePow_, AsoUtility::VECTOR_ZERO, 0.1f);
 }
 
 void PlayerMoveState::EndState(Player& player)
 {
 	// 歩きSE停止
 	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_WAKE);
+	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_RAN);
 }
 
-void PlayerMoveState::SetWalk(void)
+void PlayerMoveState::SetWalk(Player& player)
 {
+	// 移動速度を設定
 	player.moveSpeed_ = player.SPEED_MOVE;
+
+	// アニメーションを再生
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::RUN));
+
+	// 走りSEを止めてから歩きSE再生
+	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_RAN);
+	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_WAKE, true);
 }
 
-void PlayerMoveState::SetRun(void)
+void PlayerMoveState::SetRun(Player& player)
 {
+	// 移動速度を設定
 	player.moveSpeed_ = player.SPEED_DASH;
+
+	// アニメーションを再生
+	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::FAST_RUN));
+
+	// 歩きSEを止めてから走りSE再生
+	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_WAKE);
+	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_RAN, true);
 }
+
+void PlayerMoveState::ChangeMoveType(Player& player, MOVE_TYPE newType)
+{
+	// すでに同じ移動タイプの場合は処理しない
+	if (moveType_ == newType) return;
+
+	// 移動タイプに応じた処理を実行
+	if(newType == MOVE_TYPE::WALK)
+	{
+		SetWalk(player);
+	}
+	else if(newType == MOVE_TYPE::RUN)
+	{
+		SetRun(player);
+	}
+
+	// 移動タイプを更新
+	moveType_ = newType;
+}		

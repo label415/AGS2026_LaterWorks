@@ -22,15 +22,11 @@
 #include "../../UI/UIRecovery.h"
 #include "State/PlayerStateBase.h"
 #include "State/PlayerMoveState.h"
-//#include "State/PlayerIdleState.h"
-//#include "State/PlayerRunState.h"
-//#include "State/PlayerAttackState.h"
-//#include "State/PlayerEvasionState.h"
-//#include "State/PlayerDownState.h"
-//#include "State/PlayerUpState.h"
-//#include "State/PlayerRecoveryState.h"
-//#include "State/PlayerDieState.h"
-//#include "State/PlayerEndState.h"
+#include "State/PlayerIdleState.h"
+#include "State/PlayerAttackState.h"
+#include "State/PlayerEvasionState.h"
+#include "State/PlayerDamageState.h"
+#include "State/PlayerRecoveryState.h"
 #include "Player.h"
 
 Player::Player(void)
@@ -40,12 +36,14 @@ Player::Player(void)
 	, deathAnimationTime_(0.0f)
 	, invincibleTimer_(0.0f)
 	, isComboNext_(false)
-	, isVinclible_(false)
 	, stateAtkCombo_(STATE_ATTACK_COMBO::COMBO_1)
 	, state_(STATE::IDLE)
 	, isChangeState_(false)
 	, uiRecovery_(nullptr)
 	, uiSt_(nullptr)
+	, stamina_(0.0f)
+	, currentState_(nullptr)
+	, nextState_(STATE::IDLE)
 {
 }
 
@@ -186,16 +184,6 @@ void Player::InitAnimation(void)
 
 void Player::InitPost(void)
 {
-	// 移動方向
-	moveDir_ = AsoUtility::DIR_F;
-	// 移動スピード
-	moveSpeed_ = 0.0f;
-	// 移動量
-	movePow_ = AsoUtility::VECTOR_ZERO;
-
-	// 状態
-	state_ = STATE::IDLE;
-
 	// 武器
 	for (const auto& weapon : weapons_) {
 		weapon->LoadEnd();
@@ -289,6 +277,9 @@ void Player::InitPost(void)
 	stateAtkCombo_ = STATE_ATTACK_COMBO::COMBO_1;
 	// 攻撃コンボの次の攻撃を受け付けるかどうかのフラグを初期化
 	isComboNext_ = false;
+
+	// 各状態格納
+	InitState();
 }
 
 void Player::InitWeapon(void)
@@ -350,390 +341,40 @@ void Player::InitState(void)
 	states_.clear();
 
 	// 各ステートの登録
+	// 待機状態
 	states_.emplace(STATE::IDLE, std::make_unique<PlayerIdleState>());
+	// 移動状態
 	states_.emplace(STATE::MOVE, std::make_unique<PlayerMoveState>());
+	// 攻撃状態
 	states_.emplace(STATE::ATTACK, std::make_unique<PlayerAttackState>());
+	// 回避状態
 	states_.emplace(STATE::EVASION, std::make_unique<PlayerEvasionState>());
-	states_.emplace(STATE::DOWN, std::make_unique<PlayerDownState>());
-	states_.emplace(STATE::UP, std::make_unique<PlayerUpState>());
+	// ダメージ状態
+	states_.emplace(STATE::DAMAGE, std::make_unique<PlayerDamageState>());
+	// 回復状態
 	states_.emplace(STATE::RECOVERY, std::make_unique<PlayerRecoveryState>());
-	states_.emplace(STATE::DIE, std::make_unique<PlayerDieState>());
-	states_.emplace(STATE::END, std::make_unique<PlayerEndState>());
 
 	// ステートを設定
 	currentState_ = states_.at(state_).get();
 	currentState_->StartState(*this);
 }
 
-void Player::ProcessMove(void)
-{
-	// 移動量の初期化
-	moveSpeed_ = 0.0f;
-	movePow_ = AsoUtility::VECTOR_ZERO;
-
-	
-}
-
-void Player::ProcessAttack(void)
-{
-	// 攻撃入力判定
-	auto& ins = InputManager::GetInstance();
-	bool isAttackInput = false;
-
-	// 攻撃入力判定
-	if (uiSt_->GetSt() >= 0) {
-		isAttackInput = ins.IsClickMouseLeft()
-			|| ins.IsPadBtnTrgDown(
-				InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::R_TRIGGER);
-	}
-
-	if (isAttackInput) {
-		for (const auto& weapon : weapons_) {
-			auto* weponSaw = static_cast<WeaponSaw*>(weapon.get());
-			weponSaw->SetIsTransformation(true);
-		}
-	}
-
-	// 通常状態からの新規攻撃開始
-	if (isAttackInput && !isJump_
-		&& (state_ == STATE::IDLE
-			|| state_ == STATE::RUN
-			|| state_ == STATE::FAST_RUN))
-	{
-		// 攻撃状態に遷移
-		state_ = STATE::ATTACK;
-		stateAtkCombo_ = STATE_ATTACK_COMBO::COMBO_1;
-
-		// データの参照と初期設定
-		auto& comboData = atkComboData_.at(stateAtkCombo_);
-		comboData.isNextCombo = false;
-
-		uiSt_->SetSt(CONSUMPTION_ST_ATTACK);
-
-		// 追加の初期処理があれば実行
-		if (comboData.extraInit) {
-			comboData.extraInit();
-		}
-
-		// 攻撃アニメーション再生
-		animationController_->Play(static_cast<int>(comboData.animType), false);
-	}
-
-	// 攻撃状態でなければ処理終了
-	if (state_ != STATE::ATTACK) return;
-
-	// 現在のコンボデータを取得
-	auto& comboData = atkComboData_.at(stateAtkCombo_);
-	float currentStep = animationController_->GetPlayAnim().step;
-
-	if (comboData.moveSpeed > 0.0f && currentStep < comboData.stepCollisionStart)
-	{
-		// 入力方向を取得
-		VECTOR inputDir = GetInputDirection();
-
-		// 入力方向がゼロベクトルでない場合のみ処理
-		if (!AsoUtility::EqualsVZero(inputDir))
-		{
-			// 入力方向へ回転
-			float targetAngleY = atan2f(inputDir.x, inputDir.z);
-			Quaternion targetRot = Quaternion::AngleAxis(targetAngleY, AsoUtility::AXIS_Y);
-			transform_.quaRot = targetRot;
-
-			// 向いた正面方向へ向かって踏み込み移動
-			VECTOR forward = transform_.GetForward();
-			VECTOR targetPos = VAdd(transform_.pos, VScale(forward, comboData.moveSpeed));
-
-			transform_.pos = AsoUtility::Lerp(transform_.pos, targetPos, ATTACK_STEP_LERP_RATE);
-		}
-	}
-
-	// 追加更新処理
-	if (comboData.extraUpdate) {
-		comboData.extraUpdate();
-	}
-
-	// コンボ入力受付判定
-	if (comboData.IsValidCombo(currentStep)) {
-		// 通常の攻撃入力、または固有の条件（actionNextCombo）を満たした場合
-		bool isCustomAction = comboData.actionNextCombo ? comboData.actionNextCombo() : false;
-		if (isAttackInput || isCustomAction) {
-			comboData.isNextCombo = true;
-		}
-	}
-
-	// 衝突判定の処理
-	if (comboData.IsValidCollsion(currentStep)) {
-		for (const auto& weapon : weapons_) {
-			weapon->SetCollider();
-		}
-
-	}
-	else {
-		for (const auto& weapon : weapons_) {
-			weapon->ClearCollider();
-		}
-	}
-
-	// SE再生処理
-	if (currentStep == ATTACK_SE_TRIGGER_STEP) {
-		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WEAPON_1).handleId_;
-		SoundManager::GetInstance().PlaySE(
-			SoundManager::SE_ID::PLAYER_WEPON_SE1, bgm_, SE_VOLUME_ATTACK);
-	}
-
-	// コンボ遷移チェック
-	bool canInterrupt = comboData.IsValidInterrupt(currentStep);
-	bool isAnimEnd = animationController_->IsEnd();
-
-	// 追加割込条件のチェック
-	if (comboData.isExtraInterrupt && comboData.isExtraInterrupt(comboData)) {
-		canInterrupt = true;
-	}
-
-	// 次のコンボへ繋ぐ場合、またはアニメーションが終了した場合に処理
-	if ((canInterrupt && comboData.isNextCombo) || isAnimEnd) {
-		// 次のコンボへ繋ぐ場合
-		if (comboData.isNextCombo && comboData.nextCombo != STATE_ATTACK_COMBO::MAX) {
-			// 次のコンボへ状態遷移
-			stateAtkCombo_ = comboData.nextCombo;
-
-			for (const auto& weapon : weapons_) {
-				weapon->ClearCollider();
-			}
-
-			// 新しいコンボデータのセットアップ
-			auto& nextData = atkComboData_.at(stateAtkCombo_);
-			nextData.isNextCombo = false;
-
-			uiSt_->SetSt(CONSUMPTION_ST_ATTACK);
-
-			if (nextData.extraInit) {
-				nextData.extraInit();
-			}
-
-			animationController_->Play(static_cast<int>(nextData.animType), false);
-		}
-		// アニメーションが終了した場合、または追加終了条件を満たした場合
-		else if (isAnimEnd || (comboData.isExtraEnd && comboData.isExtraEnd()))
-		{
-			state_ = STATE::IDLE;
-			stateAtkCombo_ = STATE_ATTACK_COMBO::COMBO_1;
-			comboData.isNextCombo = false;
-
-			for (const auto& weapon : weapons_) {
-				weapon->ClearCollider();
-			}
-		}
-	}
-}
-
-void Player::ProcessEvasion(void)
-{
-	bool isP = false;
-	auto& ins = InputManager::GetInstance();
-
-	if (uiSt_->GetSt() >= 0) {
-		isP = ins.IsTrgDown(KEY_INPUT_SPACE)
-			|| ins.IsPadBtnNew(
-				InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::RIGHT);
-	}
-
-	if (isP && !isJump_
-		&& (state_ == STATE::IDLE || state_ == STATE::RUN || state_ == STATE::FAST_RUN))
-	{
-		state_ = STATE::EVASION;
-		lastQrot_ = transform_.quaRotLocal;
-		transform_.quaRotLocal =
-			Quaternion::Mult(transform_.quaRotLocal,
-				Quaternion::AngleAxis(
-					AsoUtility::Deg2RadF(AVOIDANCE_ANGLE_AXIS_Y), AsoUtility::AXIS_Y));
-
-		uiSt_->SetSt(CONSUMPTION_ST_EVASION);
-		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_EVASION).handleId_;
-		SoundManager::GetInstance().PlaySE(SoundManager::SE_ID::PLAYER_AVE, bgm_, SE_VOLUME_EVASION);
-
-		isVinclible_ = true;
-	}
-
-	if (state_ != STATE::EVASION) return;
-
-	animationController_->Play(static_cast<int>(ANIM_TYPE::EVASION), false);
-	moveSpeed_ = SPEED_EVASION;
-	movePow_ = VScale(moveDir_, moveSpeed_);
-
-	if (animationController_->IsEnd())
-	{
-		transform_.quaRotLocal = lastQrot_;
-		state_ = STATE::IDLE;
-		isVinclible_ = false;
-	}
-}
-
-void Player::ProcessDownUp(void)
-{
-	// ダウン状態の処理
-	if (state_ == STATE::DOWN)
-	{
-		isVinclible_ = true;
-		state_ = STATE::DOWN;
-
-		effect_->SetEffectPos(
-			static_cast<int>(effType_),
-			MV1GetFramePosition(transform_.modelId, HIT_EFFECT_FRAME_NO));
-
-		if (animationController_->GetPlayType() == static_cast<int>(ANIM_TYPE::DOWN)
-			&& animationController_->IsEnd()) {
-
-			if (!uiHp_->IsActive()) {
-				state_ = STATE::DIE;
-			}
-			else {
-				animationController_->Play(
-					static_cast<int>(ANIM_TYPE::UP), false);
-				invincibleTimer_ = INVINCIBLE_TIME;
-				state_ = STATE::UP;
-			}
-		}
-	}
-
-	// アップ状態の処理
-	if (state_ == STATE::UP)
-	{
-		state_ = STATE::UP;
-		if (animationController_->IsEnd()) {
-			state_ = STATE::IDLE;
-		}
-	}
-}
-
-void Player::ProcessRecovery(void)
-{
-	// 回復入力判定
-	bool isP = false;
-	auto& ins = InputManager::GetInstance();
-	if (state_ != STATE::IDLE
-		&& state_ != STATE::RUN
-		&& state_ != STATE::FAST_RUN
-		&& state_ != STATE::RECOVERY) {
-		return;
-	}
-
-	// 回復入力判定
-	isP = ins.IsTrgDown(KEY_INPUT_R)
-		|| ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::LEFT);
-
-	// 回復入力があり、かつ回復瓶が残っている場合、かつ回復アニメーションが再生されていない場合に回復開始
-	if (isP && uiRecovery_->GetBottlcCnt() > 0
-		&& animationController_->GetPlayType() != static_cast<int>(EFFECT::HP_ABSOLUTE)
-		&& state_ != STATE::RECOVERY) {
-
-		state_ = STATE::RECOVERY;
-		effect_->Play(
-			static_cast<int>(EFFECT::HP_ABSOLUTE),
-			VGet(transform_.pos.x, transform_.pos.y 
-				+ EFFECT_RECOVERY_OFFSET_Y, transform_.pos.z),
-			AsoUtility::VECTOR_ZERO,
-			VScale(AsoUtility::VECTOR_ONE, EFFECT_RECOVERY_SCALE));
-	}
-
-	// 回復状態でなければ処理終了
-	if (state_ != STATE::RECOVERY) return;
-
-	// 回復アニメーション再生
-	animationController_->Play(static_cast<int>(ANIM_TYPE::RECOVERY), false);
-
-	// 回復アニメーションの特定のステップで回復処理を実行
-	if (animationController_->GetPlayAnim().step == RECOVERY_TRIGGER_STEP) {
-		uiHp_->SetHpAbsolute(HEAL_HP_AMOUNT);
-		uiRecovery_->SetBottleCnt(CONSUME_RECOVERY_BOTTLE_COUNT);
-		int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RECOVERY).handleId_;
-		SoundManager::GetInstance().PlaySE(
-			SoundManager::SE_ID::PLAYER_HER, bgm_, SE_VOLUME_RECOVERY);
-	}
-
-	// 回復アニメーションが終了したら通常状態に遷移
-	if (animationController_->IsEnd()) {
-		state_ = STATE::IDLE;
-		SoundManager::GetInstance().StopSE(SoundManager::SE_ID::PLAYER_HER);
-	}
-}
-
-void Player::ProcessDie(void)
-{
-	// 死亡アニメーション再生
-	deathAnimationTime_ += DIE_FADE_SPEED 
-		* SceneManager::GetInstance().GetDeltaTime();
-	if (deathAnimationTime_ > DIE_END_THRESHOLD) {
-		deathAnimationTime_ = DIE_END_THRESHOLD;
-		state_ = STATE::END;
-	}
-}
-
-void Player::ApplyDamage(float damageAmount)
-{
-	animationController_->Play(static_cast<int>(ANIM_TYPE::DOWN), false);
-	state_ = STATE::DOWN;
-	uiHp_->SetHp(damageAmount);
-
-	effType_ = EFFECT::BLOOD;
-	effect_->Play(static_cast<int>(effType_));
-	effect_->SetEffectScl(static_cast<int>(EFFECT::BLOOD), EFFECT_BLOOD_SCALE);
-
-	int bgm_ = resMng_.Load(ResourceManager::SRC::SE_PLAYER_DAMAGE).handleId_;
-	SoundManager::GetInstance().PlaySE(
-		SoundManager::SE_ID::PLAYER_DMAGE, bgm_, SE_VOLUME_DAMAGE);
-}
-
 void Player::UpdateProcess(void)
 {
-	// 前フレームの当たり判定などで予約された遷移を反映
+	// 前フレームの状態遷移処理
 	ApplyChangeState();
-
-	// エフェクトの位置をプレイヤーの位置に設定
-	effect_->SetEffectPos(static_cast<int>(effType_), transform_.pos);
-
-	// 無敵時間の処理
-	if (isVinclible_ && invincibleTimer_ >= 0.0f)
-	{
-		invincibleTimer_ -= 1.0f * SceneManager::GetInstance().GetDeltaTime();
-	}
-	else {
-		// 無敵時間が終了したら無敵状態を解除
-		isVinclible_ = false;
-	}
-
-	// スタミナ回復処理
-	if (uiSt_->GetSt() <= UISt::MIN_ST) {
-		stRecoverTime_ = CT;
-	}
-
-	// スタミナ回復処理
-	if (state_ == STATE::IDLE
-		|| state_ == STATE::RUN
-		|| state_ == STATE::DOWN
-		|| state_ == STATE::UP
-		|| state_ == STATE::RECOVERY) {
-		uiSt_->SetHpAbsolute(RECOVERY_ST_SPEED 
-			* SceneManager::GetInstance().GetDeltaTime());
-	}
-
-	// スタミナ回復クールタイムの処理
-	if (stRecoverTime_ > 0.0f) {
-		stRecoverTime_ -= 1.0f * SceneManager::GetInstance().GetDeltaTime();
-	}
 
 	// 状態ごとの更新
 	currentState_->Update(*this);
-	ApplyChangeState();
 
-	// 武器のコライダーを攻撃中以外では無効化
-	if (state_ != STATE::ATTACK)
-	{
-		for (const auto& weapon : weapons_)
-		{
-			weapon->ClearCollider();
-		}
-	}
+	// 無敵時間処理
+	ProcessVinclible();
+
+	// スタミナ回復処理
+	ProcessStaminaRecovery();
+
+	// 状態遷移処理
+	ApplyChangeState();
 
 	// 武器処理
 	for (const auto& weapon : weapons_)
@@ -760,7 +401,7 @@ void Player::UpdateProcessPost(void)
 
 void Player::UpdateHitCollider(void)
 {
-	if (isVinclible_) return;
+	if (!GetIsInvincible()) return;
 
 	int capsuleType = static_cast<int>(ColliderBase::SHAPE::CAPSULE);
 	if (ownColliders_.count(capsuleType) == 0) return;
@@ -822,12 +463,11 @@ void Player::UpdateHitCollider(void)
 		}
 	}
 
-	// ダメージが発生していればループの外で1回だけ適用
-	if (damage > 0.0f)
+	if(damage > 0.0f)
 	{
-		ApplyDamage(damage);
+		// ダメージを受ける
+		ChangeState(STATE::DAMAGE);
 	}
-
 }
 
 void Player::ChangeState(STATE state)
@@ -851,7 +491,7 @@ void Player::ApplyChangeState(void)
 	currentState_->StartState(*this);
 }
 
-VECTOR Player::GetInputDirection(void)
+VECTOR Player::GetInputMoveDir(void)
 {
 	VECTOR dir = AsoUtility::VECTOR_ZERO;
 	auto& ins = InputManager::GetInstance();
@@ -868,17 +508,19 @@ VECTOR Player::GetInputDirection(void)
 	}
 	else
 	{
-		// キーボード入力（WASD）
+		// キーボード入力
 		bool isUp = ins.IsNew(KEY_INPUT_W);
 		bool isDown = ins.IsNew(KEY_INPUT_S);
 		bool isLeft = ins.IsNew(KEY_INPUT_A);
 		bool isRight = ins.IsNew(KEY_INPUT_D);
 
+		// 入力方向の計算
 		if (isUp) { dir = AsoUtility::DIR_F; }
 		if (isLeft) { dir = AsoUtility::DIR_L; }
 		if (isDown) { dir = AsoUtility::DIR_B; }
 		if (isRight) { dir = AsoUtility::DIR_R; }
 
+		// 斜め入力の計算
 		if (isUp && isLeft) { dir = VAdd(AsoUtility::DIR_F, AsoUtility::DIR_L); }
 		if (isUp && isRight) { dir = VAdd(AsoUtility::DIR_F, AsoUtility::DIR_R); }
 		if (isDown && isLeft) { dir = VAdd(AsoUtility::DIR_B, AsoUtility::DIR_L); }
@@ -915,4 +557,72 @@ VECTOR Player::GetInputDirection(void)
 	}
 
 	return worldDir;
+}
+
+bool Player::GetInputDash(void)
+{
+	// ダッシュ入力判定
+	auto& ins = InputManager::GetInstance();
+	bool isR = ins.IsNew(KEY_INPUT_LSHIFT) || ins.IsPadBtnNew(
+		InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::DOWN);
+
+	return isR;
+}
+
+bool Player::GetInputAttack(void)
+{
+	// スタミナがないときは処理しない
+	if (stamina_ <= 0)return false;
+
+	// 攻撃入力判定
+	auto& ins = InputManager::GetInstance();
+	bool isAttackInput = ins.IsClickMouseLeft() || ins.IsPadBtnTrgDown(
+		InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::R_TRIGGER);
+
+	return isAttackInput;
+}
+
+bool Player::GetInputEvasion(void)
+{
+	// スタミナがないときは処理しない
+	if (stamina_ <= 0)return false;
+
+	// 回避入力判定
+	auto& ins = InputManager::GetInstance();
+	bool isEvasion = ins.IsTrgDown(KEY_INPUT_SPACE) || ins.IsPadBtnNew(
+		InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::RIGHT);
+
+	return isEvasion;
+}
+
+bool Player::GetInputRecovery(void)
+{
+	// 回復入力判定
+	auto& ins = InputManager::GetInstance();
+	bool isRecovery = ins.IsTrgDown(KEY_INPUT_R) || ins.IsPadBtnNew(
+		InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::LEFT);
+
+	return isRecovery;
+}
+
+void Player::ProcessVinclible(void)
+{
+	// 無敵時間が0以下の場合は処理を行わない
+	if (invincibleTimer_ <= 0.0f)return;
+
+	// 無敵時間の更新
+	invincibleTimer_ -= scnMng_.GetDeltaTime();
+}
+
+void Player::ProcessStaminaRecovery(void)
+{
+	// スタミナが最大値に達している場合は処理を行わない
+	if (stamina_ >= MAX_STAMINA)
+	{
+		stamina_ = MAX_STAMINA;
+		return;
+	}
+
+	// スタミナ回復処理
+	stamina_ += RECOVERY_ST_SPEED * scnMng_.GetDeltaTime();
 }

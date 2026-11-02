@@ -4,6 +4,7 @@
 class PlayerMoveState : public PlayerStateBase
 {
 public:
+
 	// コンストラクタ  
 	PlayerMoveState(void);
 
@@ -19,7 +20,26 @@ public:
 	// 終了
 	void EndState(Player& player)override;
 
-	void SetWalk(void);
-	void SetRun(void);
+	// 歩き時の設定
+	void SetWalk(Player& player);
+
+	// 走り時の設定
+	void SetRun(Player& player);
+
+private:
+
+	// 移動タイプ
+	enum class MOVE_TYPE
+	{
+		NONE,
+		WALK,
+		RUN,
+	};
+
+	// 現在の移動タイプ
+	MOVE_TYPE moveType_;
+
+	// 移動処理の変更
+	void ChangeMoveType(Player& player, MOVE_TYPE newType);
 };
 

@@ -1,6 +1,4 @@
 #pragma once
-#include <map>
-#include <vector>
 #include <functional>
 #include "../CharactorBase.h"
 
@@ -19,11 +17,8 @@ class Player :
 	friend class PlayerMoveState;
 	friend class PlayerAttackState;
 	friend class PlayerEvasionState;
-	friend class PlayerDownState;
-	friend class PlayerUpState;
+	friend class PlayerDamageState;
 	friend class PlayerRecoveryState;
-	friend class PlayerDieState;
-	friend class PlayerEndState;
 public:
 	// アニメーションタイプ
 	enum class ANIM_TYPE
@@ -48,8 +43,7 @@ public:
 		MOVE,
 		ATTACK,
 		EVASION,
-		DOWN,
-		UP,
+		DAMAGE,
 		RECOVERY,
 		DIE,
 		END,
@@ -141,6 +135,8 @@ public:
 	// 移動速度(回避)
 	static constexpr float SPEED_EVASION = 10.0f;
 
+	// 最大スタミナ量
+	static constexpr float MAX_STAMINA = 100.0f;
 	// スタミナ回復速度
 	static constexpr float RECOVERY_ST_SPEED = 20.0f;
 	// ダッシュ時スタミナ消費量
@@ -265,11 +261,13 @@ public:
 	void DrawHp(void) override;
 
 	// 無敵状態かどうかを取得
-	const bool GetIsInvincible(void) const { return isVinclible_; }
+	const bool GetIsInvincible(void) const { return invincibleTimer_ > 0.0f; }
 
 	// 死亡演出タイム取得
 	const float GetDesath(void)const { return deathAnimationTime_; }
+
 protected:
+
 	// プレイヤーリソースロード
 	void InitLoad(void) override;
 
@@ -293,7 +291,9 @@ protected:
 
 	// 当たり判定衝突時の更新処理
 	void UpdateHitCollider(void) override;
+
 private:
+
 	// スタミナ UI
 	std::unique_ptr<UISt> uiSt_;
 
@@ -358,7 +358,7 @@ private:
 	static constexpr float COL_CAPSULE_RADIUS = 20.0f;
 
 	// 無敵時間
-	static constexpr float INVINCIBLE_TIME = 2.0f;
+	static constexpr float INVINCIBLE_TIME = 3.0f;
 
 	// 武器初期化処理
 	void InitWeapon(void);
@@ -372,14 +372,11 @@ private:
 	// ステート初期化処理
 	void InitState(void);
 
-	// ダメージ処理
-	void ApplyDamage(float damageAmount);
-
-	// 無敵
-	bool isVinclible_;
-
 	// 無敵時間
 	float invincibleTimer_;
+
+	// スタミナ
+	float stamina_;
 
 	// スタミナ回復時間
 	float stRecoverTime_;
@@ -390,6 +387,24 @@ private:
 	// アニメーションを固定化する座標
 	VECTOR animLockPos_;
 
-	// 入力方向を取得
-	VECTOR GetInputDirection(void);
+	// 移動入力方向を取得
+	VECTOR GetInputMoveDir(void);
+
+	// ダッシュ入力を取得
+	bool GetInputDash(void);
+
+	// 攻撃入力を取得
+	bool GetInputAttack(void);
+
+	// 回避入力を取得
+	bool GetInputEvasion(void);
+
+	// 回復入力を取得
+	bool GetInputRecovery(void);
+
+	// 無敵処理
+	void ProcessVinclible(void);
+
+	// スタミナ回復処理
+	void ProcessStaminaRecovery(void);
 };
