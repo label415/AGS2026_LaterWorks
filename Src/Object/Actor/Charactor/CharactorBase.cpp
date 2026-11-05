@@ -12,7 +12,6 @@
 CharactorBase::CharactorBase(void)
 	: ActorBase()
 	, targetPos_(nullptr)
-	, uiHp_(nullptr)
 	, animationController_(nullptr)
 	, moveDir_(AsoUtility::VECTOR_ZERO)
 	, movePow_(AsoUtility::VECTOR_ZERO)
@@ -80,6 +79,7 @@ void CharactorBase::Release(void)
 	for (const auto& weapon : weapons_) {
 		weapon->Release();
 	}
+
 	weapons_.clear();
 }
 

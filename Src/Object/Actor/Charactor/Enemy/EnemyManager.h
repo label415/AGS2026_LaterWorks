@@ -8,6 +8,7 @@ class ColliderBase;
 class EnemyManager
 {
 public:
+
 	// コンストラクタ
 	EnemyManager(void);
 
@@ -32,13 +33,13 @@ public:
 	// エネミー
 	const std::vector<std::shared_ptr<EnemyBase>>& GetEnemys() const {return enemys_;}
 
-	// CSVから敵情報の読取を行う
-	void LoadCsvData(void);
-
 	// エネミー生成
-	void Create(const EnemyBase::EnemyData& data);
+	void Create(void);
+
 private:
+
 	// エネミー
 	std::vector<std::shared_ptr<EnemyBase>> enemys_;
+
 };
 

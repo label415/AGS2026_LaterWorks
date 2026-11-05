@@ -127,9 +127,10 @@ public:
 	bool GetIsMouseInput(void) { return isMouseInput_; }
 
 	// シーン切り替え時のリセット
-	// (前のシーンのオブジェクトを指すポインタを破棄し、リソースと当たり判定を再登録する)
 	void ResetForScene(void);
+
 protected:
+
 	// リソースロード
 	void InitLoad(void) override;
 
@@ -147,7 +148,9 @@ protected:
 
 	// 当たり判定衝突時の更新処理
 	void UpdateHitCollider(void) override;
+
 private:
+
 	// ロックオン切り替え方向
 	enum class SWITCH_DIR {
 		NONE,
@@ -239,4 +242,5 @@ private:
 
 	// ターゲット切り替え入力
 	void HandleTargetSwitching(void);
+
 };

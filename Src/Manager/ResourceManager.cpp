@@ -63,6 +63,9 @@ void ResourceManager::Init(void)
 	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Drinking.mv1");
 	resourcesMap_.emplace(SRC::ANIM_PLAYER_RECOVERY, res);
 
+	// エネミーモデル
+	res = new RES(RES_T::MODEL, PATH_MDL + L"Enemy/Dragon/Dragon.mv1");
+
 	// ステージモデル
 	res = new RES(RES_T::MODEL, PATH_MDL + L"Stage/Stage.mv1");
 	resourcesMap_.emplace(SRC::MODEL_MAIN_STAGE, res);

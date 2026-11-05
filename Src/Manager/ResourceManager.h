@@ -30,6 +30,9 @@ public:
 		ANIM_PLAYER_UP,
 		ANIM_PLAYER_RECOVERY,
 
+		// エネミー
+		MODEL_ENEMY_DRAGON,
+
 		// ステージモデル
 		MODEL_MAIN_STAGE,
 		// スカイドーム

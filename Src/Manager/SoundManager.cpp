@@ -10,6 +10,13 @@ void SoundManager::Add(SOUND_ID soundId, int bgmHandle, int volume)
 
 void SoundManager::Release(void)
 {
+	for (const auto& sound : sounds_)
+	{
+		// 停止するハンドル
+		int stopHandle = sound.second.handle;
+		DeleteSoundMem(stopHandle);
+	}
+
 	// 動的配列をクリア
 	sounds_.clear();
 }
@@ -17,12 +24,13 @@ void SoundManager::Release(void)
 void SoundManager::PlaySoundId(SOUND_ID soundId, bool isLoop)
 {
 	// サウンドがないまたは再生中であれば処理しない
-	if (sounds_[soundId].handle == -1 
+	if (sounds_[soundId].handle == -1
 		|| CheckSoundMem(sounds_[soundId].handle))return;
 
 	// サウンドを再生させる
-	SetVolume(soundId, sounds_[soundId].handle);
-	PlaySoundMem(sounds_[soundId].handle, isLoop, TRUE);
+	SetVolume(soundId, sounds_[soundId].volume);
+	PlaySoundMem(sounds_[soundId].handle
+		, isLoop ? DX_PLAYTYPE_LOOP : DX_PLAYTYPE_BACK);
 }
 
 void SoundManager::StopSound(SOUND_ID soundId)
@@ -50,7 +58,7 @@ void SoundManager::AllStopSound(void)
 void SoundManager::SetVolume(SOUND_ID id, int volume)
 {
 	// サウンド音量設定
-	ChangeVolumeSoundMem(volume, sounds_[id].handle);
+	ChangeVolumeSoundMem(CalcVolume(volume), sounds_[id].handle);
 }
 
 void SoundManager::SetSpeed(SOUND_ID id, float speed)

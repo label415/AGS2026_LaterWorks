@@ -11,7 +11,51 @@
       "z": 1.0
     },
     "angleY": 180.0
+  },
+
+  "combo": {
+    "combo1": {
+      "animType": 4,
+      "inputStart": 20.0,
+      "inputEnd": 50.0,
+      "colStart": 15.0,
+      "colEnd": 38.0,
+      "stepInterrupt": 55.0,
+      "moveSpeed": 8.0,
+      "nextCombo": 1
+    },
+    "combo2": {
+      "animType": 5,
+      "inputStart": 15.0,
+      "inputEnd": 40.0,
+      "colStart": 18.0,
+      "colEnd": 32.0,
+      "stepInterrupt": 50.0,
+      "moveSpeed": 5.0,
+      "nextCombo": 2
+    },
+    "combo3": {
+      "animType": 6,
+      "inputStart": 0.0,
+      "inputEnd": 0.0,
+      "colStart": 26.0,
+      "colEnd": 34.0,
+      "stepInterrupt": 95.0,
+      "moveSpeed": 12.0,
+      "nextCombo": 2
+    }
+  },
+
+  "animationSpeed": {
+    "idle": 30.0,
+    "run": 25.0,
+    "fastRun": 30.0,
+    "attack1": 40.0,
+    "attack2": 40.0,
+    "attack3": 40.0,
+    "evasion": 80.0,
+    "down": 50.0,
+    "up": 100.0,
+    "recovery": 40.0
   }
-
-
 }

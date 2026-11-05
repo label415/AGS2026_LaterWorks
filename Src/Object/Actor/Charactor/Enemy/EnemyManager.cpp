@@ -11,8 +11,11 @@ EnemyManager::~EnemyManager(void){}
 
 void EnemyManager::Load(void)
 {
-	// エネミーのデータ読み込み
-	LoadCsvData();
+	// エネミーのロード
+	for (auto& enemy : enemys_)
+	{
+		enemy->Load();
+	}
 }
 
 void EnemyManager::Init(void)
@@ -51,71 +54,6 @@ void EnemyManager::Release(void)
 	}
 }
 
-void EnemyManager::LoadCsvData(void)
+void EnemyManager::Create(void)
 {
-	//// ファイルの読込
-	//std::ifstream ifs = std::ifstream(Application::PATH_CSV + L"EnemyData.csv");
-	//if (!ifs)
-	//{
-	//	// エラーが発生
-	//	return;
-	//}
-	//// ファイルを１行ずつ読み込む
-	//std::string line;// 1行の文字情報
-	//std::vector<std::string> strSplit; // 1行を1文字の動的配列に分割
-	//bool isHeader = true;
-	//while (getline(ifs, line))
-	//{
-	//	if (isHeader)
-	//	{
-	//		isHeader = false;
-	//		continue;
-	//	}
-	//	// １行をカンマ区切りで分割
-	//	strSplit = AsoUtility::Split(line, ',');
-	//	EnemyBase* enemy = nullptr;
-	//	// 構造体に合わせて読込データを格納
-	//	EnemyBase::EnemyData data = EnemyBase::EnemyData();
-	//	int idx1 = 0;
-	//	// ID
-	//	data.id = stoi(strSplit[idx1++]);
-	//	// 種別
-	//	data.type = static_cast<EnemyBase::TYPE>(stoi(strSplit[idx1++]));
-	//	// HP
-	//	data.hp = stoi(strSplit[idx1++]);
-	//	// 初期座標
-	//	data.defaultPos =
-	//	{
-	//	stof(strSplit[idx1++]),
-	//	stof(strSplit[idx1++]),
-	//	stof(strSplit[idx1++])
-	//	};
-	//	//移動可能範囲
-	//	data.moveRadius = stoi(strSplit[idx1++]);
-
-	//	// エネミー生成
-	//	Create(data);
-	//}
-	//ifs.close();
-}
-
-
-void EnemyManager::Create(const EnemyBase::EnemyData& data)
-{
-	// エネミー生成
-	std::shared_ptr<EnemyBase> enemy = nullptr;
-
-	switch (data.type)
-	{
-	case EnemyBase::TYPE::DRAGON:
-		break;
-	default:
-		break;
-	}
-
-	if(enemy != nullptr)
-	{
-		enemy->Load();
-		enemys_.push_back(enemy);
-	}
 }

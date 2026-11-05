@@ -39,7 +39,9 @@ private:
 	// 現在の移動タイプ
 	MOVE_TYPE moveType_;
 
+	MOVE_TYPE nextMoveType_;
+
 	// 移動処理の変更
-	void ChangeMoveType(Player& player, MOVE_TYPE newType);
+	void SetMoveType(Player& player);
 };
 

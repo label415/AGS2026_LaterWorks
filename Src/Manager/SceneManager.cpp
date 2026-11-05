@@ -106,7 +106,7 @@ void SceneManager::PopScene(void)
 
 void SceneManager::Update(void)
 {
-	// ロード画面の更新(完了フラグを1フレームで下ろすため毎フレーム呼ぶ)
+	// ロード画面の更新
 	load_->Update();
 
 	// ロード画面を表示した次のフレームで、非同期読み込みを開始する

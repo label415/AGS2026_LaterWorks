@@ -18,10 +18,6 @@ TitleScene::~TitleScene(void) {}
 
 void TitleScene::Load(void)
 {
-	// BGM登録
-	auto bgm = resMng_.Load(ResourceManager::SRC::BGM_TITLE).handleId_;
-	sonMng_.Add(SoundManager::SOUND_ID::BGM_TITLI, bgm, BGM_VOLUME);
-
 	// フォントのロード
 	resMng_.Load(ResourceManager::SRC::FONT);
 	pauseFont_ = fontMng_.GetInstance().CreateMyFont(fontName_, FONT_SIZE, FONT_THICKNESS);
@@ -45,6 +41,8 @@ void TitleScene::Load(void)
 void TitleScene::LoadEnd(void)
 {
 	// BGM再生
+	auto bgm = resMng_.Load(ResourceManager::SRC::BGM_TITLE).handleId_;
+	sonMng_.Add(SoundManager::SOUND_ID::BGM_TITLI, bgm, BGM_VOLUME);
 	sonMng_.PlaySoundId(SoundManager::SOUND_ID::BGM_TITLI, true);
 }
 

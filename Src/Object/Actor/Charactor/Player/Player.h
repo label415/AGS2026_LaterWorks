@@ -19,6 +19,7 @@ class Player :
 	friend class PlayerEvasionState;
 	friend class PlayerDamageState;
 	friend class PlayerRecoveryState;
+
 public:
 	// アニメーションタイプ
 	enum class ANIM_TYPE
@@ -84,20 +85,8 @@ public:
 		float moveSpeed = 0.0f;
 		// 次のコンボ状態
 		STATE_ATTACK_COMBO nextCombo = STATE_ATTACK_COMBO::MAX;
-		// 次のコンボに必要なアクション
-		std::function<bool(void)> actionNextCombo = nullptr;
 		// 次のコンボに繋げるか
 		bool isNextCombo = false;
-		// ノックバックするか
-		bool isKnockBack = false;
-		// 追加の初期処理
-		std::function<void(void)> extraInit = nullptr;
-		// 追加の更新処理
-		std::function<void(void)> extraUpdate = nullptr;
-		// 追加の割込条件
-		std::function<bool(ATTACK_COMBO&)> isExtraInterrupt = nullptr;
-		// 追加の終了条件
-		std::function<bool(void)> isExtraEnd = nullptr;
 		// 更新ステップ
 		float step = 0.0f;
 
@@ -123,17 +112,20 @@ public:
 
 	};
 
-	// 初期Y軸角度
-	static constexpr float ANGLE_AXIS_Y = 180.0f;
 	// 回避Y軸角度
 	static constexpr float AVOIDANCE_ANGLE_AXIS_Y = 100.0f;
 
 	// 移動速度(通常)
-	static constexpr float SPEED_MOVE = 6.0f;
+	static constexpr float SPEED_MOVE = 8.0f;
 	// 移動速度(ダッシュ)
 	static constexpr float SPEED_DASH = 12.0f;
 	// 移動速度(回避)
 	static constexpr float SPEED_EVASION = 10.0f;
+	// 移動量減少値
+	static constexpr float MOVE_POW_DECREASE = 0.25f;
+
+	// 最大HP量
+	static constexpr float MAX_HP = 100.0f;
 
 	// 最大スタミナ量
 	static constexpr float MAX_STAMINA = 100.0f;
@@ -145,8 +137,9 @@ public:
 	static constexpr float CONSUMPTION_ST_EVASION = 40.0f;
 	// 攻撃時スタミナ消費量
 	static constexpr float CONSUMPTION_ST_ATTACK = 23.0f;
-	//スタミナ枯渇時のクールタイム
-	static constexpr float CT = 2.0f;
+
+	// スタミナ切れ時の硬直時間
+	static constexpr float STAMINA_EXHAUSTION_TIME = 1.5f;
 
 	// 敵本体接触時の被ダメージ
 	static constexpr float DAMAGE_ENEMY_BODY = 20.0f;
@@ -183,46 +176,10 @@ public:
 	// 死亡ステート完了し終了遷移する閾値
 	static constexpr float DIE_END_THRESHOLD = 1.8f;
 
-	// アニメーション再生速度(FPS)
-	static constexpr float ANIM_SPEED_IDLE = 30.0f;
-	static constexpr float ANIM_SPEED_RUN = 25.0f;
-	static constexpr float ANIM_SPEED_FAST_RUN = 30.0f;
-	static constexpr float ANIM_SPEED_ATTACK_1 = 40.0f;
-	static constexpr float ANIM_SPEED_ATTACK_2 = 40.0f;
-	static constexpr float ANIM_SPEED_ATTACK_3 = 40.0f;
-	static constexpr float ANIM_SPEED_EVASION = 80.0f;
-	static constexpr float ANIM_SPEED_DOWN = 50.0f;
-	static constexpr float ANIM_SPEED_UP = 100.0f;
-	static constexpr float ANIM_SPEED_RECOVERY = 40.0f;
-
 	// 攻撃時SE再生ステップ
 	static constexpr float ATTACK_SE_TRIGGER_STEP = 10.0f;
 	// 回復アクション発動ステップ
 	static constexpr float RECOVERY_TRIGGER_STEP = 10.0f;
-
-	// コンボ1 (横切り)
-	static constexpr float COMBO1_STEP_INPUT_START = 20.0f;
-	static constexpr float COMBO1_STEP_INPUT_END = 50.0f;
-	static constexpr float COMBO1_STEP_COL_START = 15.0f;
-	static constexpr float COMBO1_STEP_COL_END = 38.0f;
-	static constexpr float COMBO1_STEP_INTERRUPT = 55.0f;
-	static constexpr float COMBO1_MOVE_SPEED = 8.0f;
-
-	// コンボ2 (縦切り)
-	static constexpr float COMBO2_STEP_INPUT_START = 15.0f;
-	static constexpr float COMBO2_STEP_INPUT_END = 40.0f;
-	static constexpr float COMBO2_STEP_COL_START = 18.0f;
-	static constexpr float COMBO2_STEP_COL_END = 32.0f;
-	static constexpr float COMBO2_STEP_INTERRUPT = 50.0f;
-	static constexpr float COMBO2_MOVE_SPEED = 5.0f;
-
-	// コンボ3 (回転)
-	static constexpr float COMBO3_STEP_INPUT_START = 0.0f;
-	static constexpr float COMBO3_STEP_INPUT_END = 0.0f;
-	static constexpr float COMBO3_STEP_COL_START = 26.0f;
-	static constexpr float COMBO3_STEP_COL_END = 34.0f;
-	static constexpr float COMBO3_STEP_INTERRUPT = 95.0f;
-	static constexpr float COMBO3_MOVE_SPEED = 12.0f;
 
 	// 武器アタッチ先フレーム番号
 	static constexpr int WEAPON_ATTACH_FRAME_NO = 46;
@@ -230,20 +187,6 @@ public:
 	static constexpr int HIT_EFFECT_FRAME_NO = 2;
 	// 起き上がり時LockPosのY軸上昇速度
 	static constexpr float UP_LOCK_POS_Y_ADD = 0.7f;
-
-	// HP UI X座標 (画面幅に対する除数)
-	static constexpr int UI_HP_POS_X_DIV = 4;
-	// HP UI Y座標
-	static constexpr int UI_HP_POS_Y = 20;
-	// スタミナ UI Y座標
-	static constexpr int UI_ST_POS_Y = 60;
-	// UIスケール
-	static constexpr float UI_SCALE_X = 0.7f;
-	static constexpr float UI_SCALE_Y = 2.9f;
-	static constexpr float UI_SCALE_Z = 4.0f;
-
-	// 攻撃判定発生時間
-	static constexpr float STATE_ATTACK_CILLIDER = 18.0f;
 
 	// コンストラクタ
 	Player(void);
@@ -257,14 +200,17 @@ public:
 	// リソースの解放処理
 	void Release(void) override;
 
-	// HPおよび各種UIの描画
-	void DrawHp(void) override;
-
 	// 無敵状態かどうかを取得
 	const bool GetIsInvincible(void) const { return invincibleTimer_ > 0.0f; }
 
-	// 死亡演出タイム取得
-	const float GetDesath(void)const { return deathAnimationTime_; }
+	// スタミナを消費できるか判定する
+	const bool GetCanConsumeStamina(void) const { return stamina_ > 0.0f && stCoolTime_ <= 0.0f; }
+
+	// スタミナを取得
+	const float GetStamina(void) const { return stamina_; }
+
+	// HPを取得
+	const float GetHp(void) const { return hp_; }
 
 protected:
 
@@ -294,20 +240,14 @@ protected:
 
 private:
 
-	// スタミナ UI
-	std::unique_ptr<UISt> uiSt_;
-
-	// 回復
-	std::unique_ptr<UIRecovery> uiRecovery_;
-
-	// 状態
-	STATE state_;
-
-	// 状態クラス(最初に全て生成して使い回す)
+	// 各状態クラスのインスタンスを保持するマップ
 	std::map<STATE, std::unique_ptr<PlayerStateBase>> states_;
 
 	// 現在の状態クラス
 	PlayerStateBase* currentState_;
+
+	// 状態
+	STATE state_;
 
 	// 遷移予約された状態
 	STATE nextState_;
@@ -330,17 +270,26 @@ private:
 	// 攻撃コンボの更新ステップ
 	bool isComboNext_;
 
-	// 初期角度を保存
-	Quaternion lastQrot_;
-
 	// エフェクト種別
 	EFFECT effType_;
 
+	// 無敵時間
+	float invincibleTimer_;
+
+	// スタミナ
+	float stamina_;
+
+	// HP
+	float hp_;
+
+	// スタミナ硬直時間
+	float stCoolTime_;
+
+	// アニメーションを固定化する座標
+	VECTOR animLockPos_;
+
 	//アニメーションを固定化する座標
 	static constexpr VECTOR LOCK_POS1 = { 0.0f, 78.0f, 0.0f };
-	static constexpr VECTOR LOCK_POS2 = { 0.0f, 20.0f, 0.0f };
-	static constexpr VECTOR LOCK_POS3 = { 0.0f, 20.0f, 0.0f };
-	static constexpr VECTOR LOCK_POS4 = { 0.0f, 30.0f, 0.0f };
 
 	//アニメーションを固定化するフレーム
 	static constexpr int LOCK_FRAME_NO = 1;
@@ -366,26 +315,14 @@ private:
 	// サウンド初期化処理
 	void InitSound(void);
 
-	// UI初期化処理
-	void InitUI(void);
-
 	// ステート初期化処理
 	void InitState(void);
 
-	// 無敵時間
-	float invincibleTimer_;
+	// 無敵処理
+	void ProcessVinclible(void);
 
-	// スタミナ
-	float stamina_;
-
-	// スタミナ回復時間
-	float stRecoverTime_;
-
-	// 死亡演出時間
-	float deathAnimationTime_;
-
-	// アニメーションを固定化する座標
-	VECTOR animLockPos_;
+	// スタミナ回復処理
+	void ProcessStaminaRecovery(void);
 
 	// 移動入力方向を取得
 	VECTOR GetInputMoveDir(void);
@@ -401,10 +338,4 @@ private:
 
 	// 回復入力を取得
 	bool GetInputRecovery(void);
-
-	// 無敵処理
-	void ProcessVinclible(void);
-
-	// スタミナ回復処理
-	void ProcessStaminaRecovery(void);
 };

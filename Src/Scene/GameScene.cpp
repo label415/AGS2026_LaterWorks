@@ -216,9 +216,4 @@ void GameScene::UpdateResult(void)
 
 void GameScene::DrawUI(void)
 {
-	// プレイヤーとエネミーのHP描画
-	player_->DrawHp();
-	for (const auto& enemy : enemys_->GetEnemys()) {
-		enemy->DrawHp();
-	}
 }

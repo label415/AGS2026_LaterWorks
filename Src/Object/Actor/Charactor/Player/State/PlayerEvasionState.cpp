@@ -18,7 +18,7 @@ PlayerEvasionState::~PlayerEvasionState(void)
 void PlayerEvasionState::StartState(Player& player)
 {
 	// 回避開始時の回転を保存
-	player.lastQrot_ = player.transform_.quaRotLocal;
+	lastQrot_ = player.transform_.quaRotLocal;
 	player.transform_.quaRotLocal =
 		Quaternion::Mult(player.transform_.quaRotLocal, Quaternion::AngleAxis(
 			AsoUtility::Deg2RadF(Player::AVOIDANCE_ANGLE_AXIS_Y), AsoUtility::AXIS_Y));
@@ -45,7 +45,7 @@ void PlayerEvasionState::Update(Player& player)
 	if (player.animationController_->IsEnd())
 	{
 		// 回避終了時の回転を復元
-		player.transform_.quaRotLocal = player.lastQrot_;
+		player.transform_.quaRotLocal = lastQrot_;
 
 		// 待機状態に遷移
 		player.ChangeState(Player::STATE::IDLE);

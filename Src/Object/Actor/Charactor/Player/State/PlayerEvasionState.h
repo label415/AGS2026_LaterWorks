@@ -1,5 +1,7 @@
 #pragma once
+#include "../../../../../Common/Quaternion.h"
 #include "PlayerStateBase.h"
+
 class PlayerEvasionState :
     public PlayerStateBase
 {
@@ -19,5 +21,10 @@ public:
 
     // I—¹
 	void EndState(Player& player)override;
+
+private:
+
+    // ‰ŠúŠp“x‚ğ•Û‘¶
+    Quaternion lastQrot_;
 };
 

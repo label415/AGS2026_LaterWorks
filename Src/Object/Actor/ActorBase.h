@@ -14,6 +14,7 @@ class ColliderBase;
 class ActorBase
 {
 public:
+
 	// コンストラクタ
 	ActorBase(void);
 
@@ -43,7 +44,9 @@ public:
 
 	// 特定の自身の衝突情報取得
 	const std::vector<std::shared_ptr<ColliderBase>> GetOwnCollider(int key) const;
+
 protected:
+
 	// 生存フラグ
 	bool isAlive_;
 

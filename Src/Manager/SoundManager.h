@@ -12,9 +12,10 @@ public:
 	struct Sound
 	{
 		// サウンドハンドル
-		int handle;
+		int handle = -1;
+
 		// 音量
-		int volume;
+		int volume = MaxVolumeValue;
 	};
 
 	// サウンドID

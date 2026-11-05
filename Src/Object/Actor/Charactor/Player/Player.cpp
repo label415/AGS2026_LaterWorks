@@ -31,19 +31,17 @@
 
 Player::Player(void)
 	: animLockPos_(AsoUtility::VECTOR_ZERO)
-	, stRecoverTime_(0.0f)
 	, effType_(EFFECT::NONE)
-	, deathAnimationTime_(0.0f)
 	, invincibleTimer_(0.0f)
 	, isComboNext_(false)
 	, stateAtkCombo_(STATE_ATTACK_COMBO::COMBO_1)
 	, state_(STATE::IDLE)
 	, isChangeState_(false)
-	, uiRecovery_(nullptr)
-	, uiSt_(nullptr)
-	, stamina_(0.0f)
+	, stamina_(MAX_STAMINA)
+	, stCoolTime_(0.0f)
 	, currentState_(nullptr)
 	, nextState_(STATE::IDLE)
+	, hp_(MAX_HP)
 {
 }
 
@@ -66,16 +64,6 @@ void Player::Release(void)
 	CharactorBase::Release();
 }
 
-void Player::DrawHp(void)
-{
-	// HPとスタミナのUI描画
-	if (uiHp_) { uiHp_->Draw(); }
-	if (uiSt_) { uiSt_->Draw(); }
-
-	// 回復瓶のUI描画
-	/*if (uiRecovery_) { uiRecovery_->Draw(); }*/
-}
-
 void Player::InitLoad(void)
 {
 	//プレイヤーモデル
@@ -84,9 +72,6 @@ void Player::InitLoad(void)
 
 	// 武器初期化
 	InitWeapon();
-
-	// UI初期化
-	InitUI();
 
 	// サウンド初期化
 	InitSound();
@@ -159,26 +144,34 @@ void Player::InitAnimation(void)
 	// アニメーション
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
 
+	// アニメーション速度の読み込み
+	const auto& playerData =
+		resMng_.Load(ResourceManager::SRC::JSON_PLAYER).jsonData_;
+	const auto& anim = playerData["animationSpeed"];
+
+	// アニメーションの登録
 	animationController_->Add(static_cast<int>(ANIM_TYPE::IDLE),
-		ANIM_SPEED_IDLE, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_IDLE));
+		anim["idle"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_IDLE));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
-		ANIM_SPEED_RUN, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RUN));
+		anim["run"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RUN));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::FAST_RUN),
-		ANIM_SPEED_FAST_RUN, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RUN));
+		anim["fastRun"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RUN));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_1),
-		ANIM_SPEED_ATTACK_1, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_1));
+		anim["attack1"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_1));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_2),
-		ANIM_SPEED_ATTACK_2, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_2));
+		anim["attack2"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_2));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_3),
-		ANIM_SPEED_ATTACK_3, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_3));
+		anim["attack3"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_3));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::EVASION),
-		ANIM_SPEED_EVASION, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_EVASION));
+		anim["evasion"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_EVASION));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::DOWN),
-		ANIM_SPEED_DOWN, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_DOWN));
+		anim["down"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_DOWN));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::UP),
-		ANIM_SPEED_UP, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_UP));
+		anim["up"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_UP));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::RECOVERY),
-		ANIM_SPEED_RECOVERY, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RECOVERY));
+		anim["recovery"].get<float>(), resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RECOVERY));
+
+	// 初期アニメーション再生
 	animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
 }
 
@@ -188,24 +181,6 @@ void Player::InitPost(void)
 	for (const auto& weapon : weapons_) {
 		weapon->LoadEnd();
 	}
-
-	// HPUI
-	uiHp_->LoadEnd();
-
-	// スタミナUI
-	uiSt_->LoadEnd();
-
-	// クールタイム
-	stRecoverTime_ = 0.0f;
-
-	// 死亡アニメーション再生時間
-	deathAnimationTime_ = 0.0f;
-
-	// 無敵時間
-	invincibleTimer_ = 0.0f;
-
-	// 回復瓶UI
-	uiRecovery_->LoadEnd();
 
 	// エフェクト
 	effType_ = EFFECT::NONE;
@@ -217,64 +192,35 @@ void Player::InitPost(void)
 		static_cast<int>(EFFECT::HP_ABSOLUTE),
 		(Application::PATH_EFFECT + L"Absolute.efkefc"));
 
-	// 攻撃コンボデータの初期化
+	// 攻撃コンボデータの読み込み
+	const auto& playerData =
+		resMng_.Load(ResourceManager::SRC::JSON_PLAYER).jsonData_;
+	const auto& playerCombo = playerData.at("combo");
+
+	// 攻撃コンボデータの登録
 	ATTACK_COMBO data;
-	// 横切り攻撃
-	data = {
-		ANIM_TYPE::ATTACK_1,
-		COMBO1_STEP_INPUT_START,
-		COMBO1_STEP_INPUT_END,
-		COMBO1_STEP_COL_START,
-		COMBO1_STEP_COL_END,
-		COMBO1_STEP_INTERRUPT,
-		COMBO1_MOVE_SPEED,
-		STATE_ATTACK_COMBO::COMBO_2,
-		[this](void) { return false; },
-		false,
-		false,
-		nullptr, nullptr, nullptr, nullptr,
-	};
-	atkComboData_.emplace(
-		STATE_ATTACK_COMBO::COMBO_1, data);
+	int cont = 0;
+	for (const auto& combo : playerCombo)
+	{
+		data = {
+			static_cast<ANIM_TYPE>(combo.at("animType").get<int>()),
+			combo.at("inputStart").get<float>(),
+			combo.at("inputEnd").get<float>(),
+			combo.at("colStart").get<float>(),
+			combo.at("colEnd").get<float>(),
+			combo.at("stepInterrupt").get<float>(),
+			combo.at("moveSpeed").get<float>(),
+			static_cast<STATE_ATTACK_COMBO>(combo.at("nextCombo").get<int>()),
+		};
 
-	// 縦切り攻撃
-	data = {
-		ANIM_TYPE::ATTACK_2,
-		COMBO2_STEP_INPUT_START,
-		COMBO2_STEP_INPUT_END,
-		COMBO2_STEP_COL_START,
-		COMBO2_STEP_COL_END,
-		COMBO2_STEP_INTERRUPT,
-		COMBO2_MOVE_SPEED,
-		STATE_ATTACK_COMBO::COMBO_3,
-		[this](void) { return false; },
-		false,
-		false,
-		nullptr, nullptr, nullptr, nullptr,
-	};
-	atkComboData_.emplace(
-		STATE_ATTACK_COMBO::COMBO_2, data);
+		atkComboData_.emplace(static_cast<STATE_ATTACK_COMBO>(cont), data);
 
-	// 回転攻撃
-	data = {
-		ANIM_TYPE::ATTACK_3,
-		COMBO3_STEP_INPUT_START,
-		COMBO3_STEP_INPUT_END,
-		COMBO3_STEP_COL_START,
-		COMBO3_STEP_COL_END,
-		COMBO3_STEP_INTERRUPT,
-		COMBO3_MOVE_SPEED,
-		STATE_ATTACK_COMBO::MAX,
-		[this]() { return false; },
-		false,
-		true,
-		nullptr, nullptr, nullptr, nullptr,
-	};
-	atkComboData_.emplace(
-		STATE_ATTACK_COMBO::COMBO_3, data);
+		cont++;
+	}
 
 	// 攻撃コンボ状態の初期化
 	stateAtkCombo_ = STATE_ATTACK_COMBO::COMBO_1;
+
 	// 攻撃コンボの次の攻撃を受け付けるかどうかのフラグを初期化
 	isComboNext_ = false;
 
@@ -314,25 +260,6 @@ void Player::InitSound(void)
 	// 攻撃SE2
 	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_DAMAGE).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, SE_VOLUME);
-}
-
-void Player::InitUI(void)
-{
-	// 回復瓶UI
-	uiRecovery_ = std::make_unique<UIRecovery>(INITIAL_RECOVERY_BOTTLE_COUNT);
-	uiRecovery_->Load();
-
-	// HP UI を画面左上に表示
-	uiHp_ = std::make_unique<UIHp>(
-		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_HP_POS_Y,
-		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
-	uiHp_->Load();
-
-	// スタミナUIを HP の下に表示
-	uiSt_ = std::make_unique<UISt>(
-		Application::ASPECT_RATIO_X / UI_HP_POS_X_DIV, UI_ST_POS_Y,
-		UI_SCALE_X, UI_SCALE_Y, UI_SCALE_Z);
-	uiSt_->Load();
 }
 
 void Player::InitState(void)
@@ -382,6 +309,10 @@ void Player::UpdateProcess(void)
 		weapon->Update();
 	}
 
+	//移動量の減速処理
+	movePow_ = AsoUtility::Lerp(
+		movePow_, AsoUtility::VECTOR_ZERO, MOVE_POW_DECREASE);
+
 	//アニメーションの移動量を無効
 	SetFrameUserLocalPos(LOCK_POS1, LOCK_FRAME_NO);
 }
@@ -401,7 +332,7 @@ void Player::UpdateProcessPost(void)
 
 void Player::UpdateHitCollider(void)
 {
-	if (!GetIsInvincible()) return;
+	if (GetIsInvincible()) return;
 
 	int capsuleType = static_cast<int>(ColliderBase::SHAPE::CAPSULE);
 	if (ownColliders_.count(capsuleType) == 0) return;
@@ -463,7 +394,7 @@ void Player::UpdateHitCollider(void)
 		}
 	}
 
-	if(damage > 0.0f)
+	if (damage > 0.0f)
 	{
 		// ダメージを受ける
 		ChangeState(STATE::DAMAGE);

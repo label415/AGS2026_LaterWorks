@@ -36,6 +36,7 @@ void PlayerRecoveryState::StartState(Player& player)
 
 void PlayerRecoveryState::Update(Player& player)
 {
+	// アニメーションが終了したら待機状態に遷移
 	if(player.animationController_->IsEnd())
 	{
 		player.ChangeState(Player::STATE::IDLE);
