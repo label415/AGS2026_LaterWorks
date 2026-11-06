@@ -28,10 +28,10 @@ void PlayerMoveState::Update(Player& player)
 	// ‹¤’Ê‰»‚µ‚½ŠÖ”‚©‚ç•ûŒü‚ğæ“¾
 	VECTOR inputDir = player.GetInputMoveDir();
 
-	// “ü—Í‚ª‚È‚¢ê‡‚ÍAˆÚ“®ó‘Ô‚ğI—¹‚µ‚Ä‘Ò‹@ó‘Ô‚É‘JˆÚ
-	if (AsoUtility::EqualsVZero(inputDir))
+	Player::STATE next = player.GetNextStateByInput();
+	if (next != Player::STATE::MOVE)
 	{
-		player.ChangeState(Player::STATE::IDLE);
+		player.ChangeState(next);
 		return;
 	}
 

@@ -6,6 +6,7 @@
 #include "Manager/SceneManager.h"
 #include "Manager/FontManager.h"
 #include "Manager/CollisionManager.h"
+#include "Manager/UiManager.h"
 #include "Common/FpsController.h"
 #include "Libs/ImGuiWrapper.h"
 #include "Application.h"
@@ -68,6 +69,9 @@ bool Application::Init(void)
 	// コリジョンマネージャーインスタンス生成
 	CollisionManager::CreateInstance();
 
+	// UIマネージャーインスタンス生成
+	UiManager::CreateInstance();
+
 	// シーン管理初期化
 	SceneManager::CreateInstance();
 	SceneManager::GetInstance().Init();
@@ -82,6 +86,7 @@ void Application::Run(void)
 	ImGuiWrapper& imGuiWrapper = ImGuiWrapper::GetInstance();
 	CollisionManager& collisionManager = CollisionManager::GetInstance();
 	SceneManager& sceneManager = SceneManager::GetInstance();
+	UiManager& uiManager = UiManager::GetInstance();
 
 	// ゲームループ
 	while (ProcessMessage() == 0 && !isGameEnd_)
@@ -92,15 +97,23 @@ void Application::Run(void)
 		//GUI更新処理
 		imGuiWrapper.Update();
 
-		collisionManager.Update();
-
 		// シーン更新処理
 		sceneManager.Update();
+
+		// コリジョン更新処理
+		collisionManager.Update();
+
+		// UI更新処理
+		uiManager.Update();
 
 		// シーン描画処理
 		sceneManager.Draw();
 
+		// コリジョンでバッグ描画処理
 		collisionManager.DrawDebug();
+
+		// UI描画処理
+		uiManager.Draw();
 
 		RenderVertex();
 
@@ -120,6 +133,8 @@ bool Application::Release(void)
 	InputManager::GetInstance().Destroy();
 	CollisionManager::GetInstance().Release();
 	CollisionManager::GetInstance().Destroy();
+	UiManager::GetInstance().Release();
+	UiManager::GetInstance().Destroy();
 	SceneManager::GetInstance().Release();
 	SceneManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();

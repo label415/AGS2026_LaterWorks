@@ -82,6 +82,7 @@ public:
 
 		// データ
 		JSON_PLAYER,
+		JSON_ENEMY,
 	};
 
 	// 明示的にインステンスを生成する

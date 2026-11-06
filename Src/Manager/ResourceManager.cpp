@@ -65,6 +65,7 @@ void ResourceManager::Init(void)
 
 	// エネミーモデル
 	res = new RES(RES_T::MODEL, PATH_MDL + L"Enemy/Dragon/Dragon.mv1");
+	resourcesMap_.emplace(SRC::MODEL_ENEMY_DRAGON, res);
 
 	// ステージモデル
 	res = new RES(RES_T::MODEL, PATH_MDL + L"Stage/Stage.mv1");
@@ -154,6 +155,8 @@ void ResourceManager::Init(void)
 	// JSONデータ
 	res = new RES(RES_T::JSON, PATH_JSON + L"PlayerData.json");
 	resourcesMap_.emplace(SRC::JSON_PLAYER, res);
+	res = new RES(RES_T::JSON, PATH_JSON + L"EnemyData.json");
+	resourcesMap_.emplace(SRC::JSON_ENEMY, res);
 }
 
 void ResourceManager::Release(void)

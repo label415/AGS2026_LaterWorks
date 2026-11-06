@@ -12,6 +12,7 @@
 #include "../Manager/ResourceManager.h"
 #include "../Manager/SoundManager.h"
 #include "../Manager/CollisionManager.h"
+#include "../Manager/UiManager.h"
 #include "../Application.h"
 #include "GameScene.h"
 
@@ -70,7 +71,7 @@ void GameScene::LoadEnd(void)
 	// プレイヤー初期化
 	player_->LoadEnd();
 	// エネミー初期化
-	enemys_->Init();
+	enemys_->LoadEnd();
 
 	// シャドーマップ初期化
 	shadowMap_->AddShadowMapLight(GetLightDirection());
@@ -141,9 +142,6 @@ void GameScene::Draw(void)
 
 	// Effekseerにより再生中のエフェクトを描画する。
 	DrawEffekseer3D();
-
-	// 各UI描画
-	DrawUI();
 }
 
 void GameScene::ObjectDraw(void)
@@ -212,8 +210,4 @@ void GameScene::UpdateResult(void)
 	{
 		sceMng_.PushScene(SceneManager::SCENE_ID::PAUSE);
 	}
-}
-
-void GameScene::DrawUI(void)
-{
 }

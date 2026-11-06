@@ -2,35 +2,40 @@
 #include "../../../Manager/SceneManager.h"
 #include "../../../Manager/FontManager.h"
 #include "../../../Application.h"
-#include "UIHp.h"
+#include "UiHp.h"
 
-UIHp::UIHp(float posX, float posY,
-	float flameScl, float hpSclX, float hpSclY, float hp)
-	:
-	uiPos_(posX, posY),
-	hpCurrent_(hp),
-	flameScl_(flameScl),
-	hpSclX_(hpSclX),
-	hpSclY_(hpSclY)
+UiHp::UiHp(const float* hpCurrent,
+	float posX, float posY,
+	float sclX, float sclY, float flameScl)
+    : UiBase()
+	, hpCurrent_(hpCurrent)
+    , uiPos_(posX, posY)
+    , hpSclX_(sclX)
+    , hpSclY_(sclY)
+	, flameScl_(flameScl)
+	, flameImg_(-1)
+	, hpImg_(-1)
 {
-	// 初期化
-	active_ = true;
+	// リソースのロード
+	flameImg_ = ResourceManager::GetInstance()
+		.Load(ResourceManager::SRC::UI_BAR_FRAME).handleId_;
+	hpImg_ = ResourceManager::GetInstance()
+		.Load(ResourceManager::SRC::UI_HP_BAR).handleId_;
 }
 
-UIHp::~UIHp(void){}
+UiHp::~UiHp(void){}
 
-void UIHp::Update(void){}
+void UiHp::Update(void){}
 
-void UIHp::Draw(void)
+void UiHp::Draw(void)
 {
 	// 背景バーの描画
 	DrawRotaGraph(
-		uiPos_.x,
-		uiPos_.y,
+		uiPos_.x, uiPos_.y,
 		flameScl_, 0.0f, flameImg_, true);
 
 	// HPバーの描画
-	float hpRate = hpCurrent_ / MAX_HP;
+	float hpRate = *hpCurrent_ / MAX_HP;
 	float realHalfWidth  = IMG_SIZE_X / hpSclX_;
 	float realHalfHeight = IMG_SIZE_Y / hpSclY_;
 
@@ -50,31 +55,4 @@ void UIHp::Draw(void)
 		hpImg_, true);
 }
 
-void UIHp::SetHp(float delta)
-{
-	// HPを減少させる
-	hpCurrent_ -= delta;
-	if (hpCurrent_ <= 0.0f)
-	{
-		hpCurrent_ = 0.0f;
-		active_ = false;
-	}
-}
-
-void UIHp::SetHpAbsolute(float hp)
-{
-	// HPを回復させる
-	hpCurrent_ += hp;
-	if (hpCurrent_ >= MAX_HP) hpCurrent_ = MAX_HP;
-}
-
-void UIHp::InitLoad(void)
-{
-	// リソースのロード
-	flameImg_ = resMng_.Load(ResourceManager::SRC::UI_BAR_FRAME).handleId_;
-	hpImg_ = resMng_.Load(ResourceManager::SRC::UI_HP_BAR).handleId_;
-}
-
-void UIHp::InitTransform(void){}
-
-void UIHp::InitPost(void){}
+void UiHp::Release(void){}

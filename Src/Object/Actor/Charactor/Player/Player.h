@@ -21,6 +21,7 @@ class Player :
 	friend class PlayerRecoveryState;
 
 public:
+
 	// アニメーションタイプ
 	enum class ANIM_TYPE
 	{
@@ -210,7 +211,7 @@ public:
 	const float GetStamina(void) const { return stamina_; }
 
 	// HPを取得
-	const float GetHp(void) const { return hp_; }
+	const float& GetHp(void) const { return hp_; }
 
 protected:
 
@@ -243,23 +244,14 @@ private:
 	// 各状態クラスのインスタンスを保持するマップ
 	std::map<STATE, std::unique_ptr<PlayerStateBase>> states_;
 
-	// 現在の状態クラス
+	//状態クラス
 	PlayerStateBase* currentState_;
 
 	// 状態
 	STATE state_;
 
-	// 遷移予約された状態
-	STATE nextState_;
-
-	// 遷移予約があるか
-	bool isChangeState_;
-
 	// 状態遷移
 	void ChangeState(STATE state);
-
-	// 予約された状態遷移を反映
-	void ApplyChangeState(void);
 
 	// 攻撃コンボデータ
 	std::map<STATE_ATTACK_COMBO, ATTACK_COMBO> atkComboData_;
@@ -279,11 +271,11 @@ private:
 	// スタミナ
 	float stamina_;
 
-	// HP
-	float hp_;
-
 	// スタミナ硬直時間
 	float stCoolTime_;
+
+	// 回復瓶数
+	int recoveryBottleCount_;
 
 	// アニメーションを固定化する座標
 	VECTOR animLockPos_;
@@ -338,4 +330,7 @@ private:
 
 	// 回復入力を取得
 	bool GetInputRecovery(void);
+
+	// 入力に応じた次の状態を取得
+	STATE GetNextStateByInput(void);
 };

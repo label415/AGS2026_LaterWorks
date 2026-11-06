@@ -15,8 +15,5 @@ void EnemyBase::Draw(void)
 
 void EnemyBase::ChangeState(int state)
 {
-	stateBase_ = state;
-	// Šeó‘Ô‘JˆÚ‚Ì‰Šúˆ—
-	stateChanges_[stateBase_]();
 }
 

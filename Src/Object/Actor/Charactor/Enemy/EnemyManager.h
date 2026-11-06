@@ -18,8 +18,8 @@ public:
 	// “Ç‚İ‚İ
 	void Load(void);
 
-	// ‰Šú‰»
-	void Init(void);
+	// “Ç‚İ‚İŒã‚Ì‰Šú‰»
+	void LoadEnd(void);
 
 	// XV
 	void Update(void);

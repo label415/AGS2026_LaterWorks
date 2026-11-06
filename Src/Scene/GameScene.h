@@ -14,6 +14,7 @@ class ShadowMap;
 class GameScene : public SceneBase
 {
 public:
+
 	// コンストラクタ
 	GameScene(void);
 
@@ -37,7 +38,9 @@ public:
 
 	// 解放
 	void Release(void) override;
+
 private:
+
 	// BGMの音量
 	static constexpr int BGM_VOLUME = 40;
 
@@ -75,9 +78,8 @@ private:
 
 	// 追尾対象更新
 	void UpdateAutoLockOn(void);
+
 	// シーン変更
 	void UpdateResult(void);
 
-	//UI描画
-	void DrawUI(void);
 };

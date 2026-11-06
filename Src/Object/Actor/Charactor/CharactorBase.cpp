@@ -20,7 +20,9 @@ CharactorBase::CharactorBase(void)
 	, moveSpeed_(0.0f)
 	, stepJump_(0.0f)
 	, isJump_(false)
+	, hp_(100.0f)
 {
+	// •Ší‚Ì‰Šú‰»
 	weapons_.clear();
 }
 

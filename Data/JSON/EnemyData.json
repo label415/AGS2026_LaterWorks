@@ -1,0 +1,26 @@
+{
+  "Transform": {
+    "Position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1000.0
+    },
+    "Rotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "Scale": {
+      "x": 500.0,
+      "y": 500.0,
+      "z": 500.0
+    }
+  },
+
+  "animationSpeed": {
+    "idle": 10.0,
+    "walk": 20.0,
+    "run": 20.0,
+    "sweepAttack": 15.0
+  }
+}

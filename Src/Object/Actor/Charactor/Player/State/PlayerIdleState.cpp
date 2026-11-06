@@ -18,26 +18,12 @@ void PlayerIdleState::StartState(Player& player)
 
 void PlayerIdleState::Update(Player& player)
 {
-	if (player.GetInputAttack()) {
-		player.ChangeState(Player::STATE::ATTACK);
-		return;
-	}
-	if(player.GetInputEvasion()){
-		player.ChangeState(Player::STATE::EVASION);
-		return;
-	}
-	if(player.GetInputRecovery()){
-		player.ChangeState(Player::STATE::RECOVERY);
-		return;
-	}
-	if(!AsoUtility::Equals(
-		player.GetInputMoveDir(),AsoUtility::VECTOR_ZERO))
+	// “ü—Í‚É‰‚¶‚Äó‘Ô‘JˆÚ
+	Player::STATE next = player.GetNextStateByInput();
+	if (next != Player::STATE::IDLE)
 	{
-		player.ChangeState(Player::STATE::MOVE);
-		return;
+		player.ChangeState(next);
 	}
 }
 
-void PlayerIdleState::EndState(Player& player)
-{
-}
+void PlayerIdleState::EndState(Player& player){}

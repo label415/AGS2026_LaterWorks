@@ -1,44 +1,30 @@
 #pragma once
 #include "../../../Template/Vector2Template.h"
-#include "UIBase.h"
+#include "UiBase.h"
 
-class UIHp : public UIBase
+class UiHp : public UiBase
 {
 public:
+
     // コンストラクタ
-    UIHp(float posX, float posY,float flameScl = 1.0f,
-        float hpSclX = 1.0f, float hpSclY = 1.0f, float hp = MAX_HP);
+    UiHp(const float* hpCurrent
+        , float posX, float posY
+        , float sclX, float sclY, float flameScl);
 
     // デストラクタ
-    ~UIHp(void) override;
+    ~UiHp(void)override;
 
     // 更新
-    void Update(void) override;
+    void Update(void)override;
 
     // 描画
-    void Draw(void) override;
+    void Draw(void)override;
 
-    // ダメージ
-    void SetHp(float delta);
+    // 解放
+    void Release(void)override;
 
-    //回復
-    void SetHpAbsolute(float hp);
-protected:
-    // リソースロード
-    void InitLoad(void) override;
-
-    // 大きさ、回転、座標の初期化
-    void InitTransform(void) override;
-
-    // 衝突判定の初期化
-    void InitCollider(void) override {}
-
-    // アニメーションの初期化
-    void InitAnimation(void) override {}
-
-    // 初期化後の個別処理
-    void InitPost(void) override;
 private:
+
     //最大HP
     static constexpr float MAX_HP = 100.0f;
 
@@ -54,7 +40,7 @@ private:
     Vector2 uiPos_;
 
 	// HP
-    float hpCurrent_;
+    const float* hpCurrent_;
 
 	// 枠の大きさ
     float flameScl_;
@@ -62,5 +48,6 @@ private:
 	// HPの大きさ
     float hpSclX_;
     float hpSclY_;
+
 };
 

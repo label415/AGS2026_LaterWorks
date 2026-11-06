@@ -1,31 +1,35 @@
 #pragma once
-#include "../ActorBase.h"
+#include "../../../Template/Vector2Template.h"
 
-class UIBase : public ActorBase
+class UiBase
 {
 public:
+
     // コンストラクタ
-    UIBase(void);
+    UiBase(void);
 
     // デストラクタ
-    virtual ~UIBase(void) override;
+    virtual ~UiBase(void) = default;
+
+    // 更新
+    virtual void Update(void){}
+
+    // 描画
+    virtual void Draw(void) = 0;
+
+    // 解放
+    virtual void Release(void) = 0;
 
     // 有効・無効判定
-    bool IsActive(void) const;
+    bool IsActive(void) const { return isAlive_; }
 
     // 有効・無効設定
-    void SetActive(bool active);
+    void SetActive(bool active){ isAlive_  = active; }
 
-    // 更新ステップ
-    float GetStep(void) const;
 protected:
-    // 画像のハンドルID
-    int img_;
+  
+    // 生存フラグ
+    bool isAlive_;
 
-    // 有効・無効
-    bool active_;
-
-    // 更新ステップ
-    float step_;
 };
 

@@ -43,6 +43,4 @@ void PlayerRecoveryState::Update(Player& player)
 	}
 }
 
-void PlayerRecoveryState::EndState(Player& player)
-{
-}
+void PlayerRecoveryState::EndState(Player& player){}

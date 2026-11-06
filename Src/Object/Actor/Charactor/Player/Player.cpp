@@ -6,6 +6,7 @@
 #include "../../../../Manager/Camera.h"
 #include "../../../../Manager/InputManager.h"
 #include "../../../../Manager/SoundManager.h"
+#include "../../../../Manager/UiManager.h"
 #include "../../../../Utility/AsoUtility.h"
 #include "../../../../Utility/ColliderUtility.h"
 #include "../../../../Utility/MatrixUtility.h"
@@ -17,9 +18,9 @@
 #include "../../../Common/Collider/ColliderModel.h"
 #include "../Libs/nlohmann/json.hpp"
 #include "../../Weapon/WeaponSaw.h"
-#include "../../UI/UISt.h"
-#include "../../UI/UIHp.h"
-#include "../../UI/UIRecovery.h"
+#include "../../UI/UiSt.h"
+#include "../../UI/UiHp.h"
+#include "../../UI/UiRecovery.h"
 #include "State/PlayerStateBase.h"
 #include "State/PlayerMoveState.h"
 #include "State/PlayerIdleState.h"
@@ -30,18 +31,17 @@
 #include "Player.h"
 
 Player::Player(void)
-	: animLockPos_(AsoUtility::VECTOR_ZERO)
+	: CharactorBase()
+	, animLockPos_(AsoUtility::VECTOR_ZERO)
 	, effType_(EFFECT::NONE)
 	, invincibleTimer_(0.0f)
 	, isComboNext_(false)
 	, stateAtkCombo_(STATE_ATTACK_COMBO::COMBO_1)
 	, state_(STATE::IDLE)
-	, isChangeState_(false)
 	, stamina_(MAX_STAMINA)
 	, stCoolTime_(0.0f)
 	, currentState_(nullptr)
-	, nextState_(STATE::IDLE)
-	, hp_(MAX_HP)
+	, recoveryBottleCount_(INITIAL_RECOVERY_BOTTLE_COUNT)
 {
 }
 
@@ -75,6 +75,20 @@ void Player::InitLoad(void)
 
 	// サウンド初期化
 	InitSound();
+
+	// プレイヤーUI
+	auto& ui = UiManager::GetInstance();
+
+	// プレイヤーHPバー
+	auto platerHp = std::make_unique<UiHp>(
+		&hp_, Application::ASPECT_RATIO_X / 4, 20.0f, 2.9f, 4.0f, 0.7f);
+	ui.Add(std::move(platerHp));
+
+	// プレイヤーSTバー
+	auto platerSt = std::make_unique<UiSt>(
+		&stamina_, Application::ASPECT_RATIO_X / 4, 60.0f, 2.9f, 4.0f, 0.7f);
+	ui.Add(std::move(platerSt));
+
 }
 
 void Player::InitTransform(void)
@@ -288,9 +302,6 @@ void Player::InitState(void)
 
 void Player::UpdateProcess(void)
 {
-	// 前フレームの状態遷移処理
-	ApplyChangeState();
-
 	// 状態ごとの更新
 	currentState_->Update(*this);
 
@@ -299,9 +310,6 @@ void Player::UpdateProcess(void)
 
 	// スタミナ回復処理
 	ProcessStaminaRecovery();
-
-	// 状態遷移処理
-	ApplyChangeState();
 
 	// 武器処理
 	for (const auto& weapon : weapons_)
@@ -403,21 +411,14 @@ void Player::UpdateHitCollider(void)
 
 void Player::ChangeState(STATE state)
 {
-	nextState_ = state;
-	isChangeState_ = true;
-}
+	// 状態が同じ場合は処理しない
+	if (state == state_) return;
 
-void Player::ApplyChangeState(void)
-{
-	if (!isChangeState_) return;
-	isChangeState_ = false;
+	// 前の状態の終了処理
+	currentState_->EndState(*this);
 
-	if (currentState_ != nullptr)
-	{
-		currentState_->EndState(*this);
-	}
-
-	state_ = nextState_;
+	// 次の状態の開始処理
+	state_ = state;
 	currentState_ = states_.at(state_).get();
 	currentState_->StartState(*this);
 }
@@ -528,12 +529,49 @@ bool Player::GetInputEvasion(void)
 
 bool Player::GetInputRecovery(void)
 {
+	// 回復瓶がないときは処理しない
+	if (recoveryBottleCount_ <= 0)return false;
+
 	// 回復入力判定
 	auto& ins = InputManager::GetInstance();
 	bool isRecovery = ins.IsTrgDown(KEY_INPUT_R) || ins.IsPadBtnNew(
 		InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::LEFT);
 
 	return isRecovery;
+}
+
+Player::STATE Player::GetNextStateByInput(void)
+{
+	// 入力と遷移先の対応表(上にあるものほど優先)
+	struct InputToState
+	{
+		bool (Player::* isInput)(void);
+		STATE nextState;
+	};
+	static const InputToState INPUT_TABLE[] =
+	{
+		{ &Player::GetInputAttack,   STATE::ATTACK },
+		{ &Player::GetInputEvasion,  STATE::EVASION },
+		{ &Player::GetInputRecovery, STATE::RECOVERY },
+	};
+
+	// アクション入力
+	for (const auto& entry : INPUT_TABLE)
+	{
+		if ((this->*entry.isInput)())
+		{
+			return entry.nextState;
+		}
+	}
+
+	// 移動入力
+	if (!AsoUtility::EqualsVZero(GetInputMoveDir()))
+	{
+		return STATE::MOVE;
+	}
+
+	// 入力なし
+	return STATE::IDLE;
 }
 
 void Player::ProcessVinclible(void)
@@ -553,6 +591,10 @@ void Player::ProcessStaminaRecovery(void)
 		stamina_ = MAX_STAMINA;
 		return;
 	}
+
+	if (state_ != STATE::IDLE 
+		&& state_ != STATE::MOVE
+		&& state_ != STATE::RECOVERY)return;
 
 	// スタミナ回復処理
 	stamina_ += RECOVERY_ST_SPEED * scnMng_.GetDeltaTime();

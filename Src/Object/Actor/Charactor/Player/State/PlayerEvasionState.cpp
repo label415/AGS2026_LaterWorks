@@ -17,6 +17,8 @@ PlayerEvasionState::~PlayerEvasionState(void)
 
 void PlayerEvasionState::StartState(Player& player)
 {
+	player.stamina_ -= Player::SPEED_EVASION;
+
 	// ‰ñ”ğŠJn‚Ì‰ñ“]‚ğ•Û‘¶
 	lastQrot_ = player.transform_.quaRotLocal;
 	player.transform_.quaRotLocal =
@@ -33,7 +35,7 @@ void PlayerEvasionState::StartState(Player& player)
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::EVASION), false);
 
 	// ‰ñ”ğSEÄ¶
-	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_AVE, true);
+	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_AVE);
 }
 
 void PlayerEvasionState::Update(Player& player)

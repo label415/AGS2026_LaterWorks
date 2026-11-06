@@ -23,6 +23,7 @@ void PlayerAttackState::StartState(Player& player)
 	// 攻撃アニメーション再生
 	auto& comboData = player.atkComboData_.at(player.stateAtkCombo_);
 	player.animationController_->Play(static_cast<int>(comboData.animType), false);
+	player.stamina_ -= Player::CONSUMPTION_ST_ATTACK;
 }
 
 void PlayerAttackState::Update(Player& player)
@@ -98,6 +99,7 @@ void PlayerAttackState::Update(Player& player)
 			nextData.isNextCombo = false;
 
 			player.animationController_->Play(static_cast<int>(nextData.animType), false);
+			player.stamina_ -= Player::CONSUMPTION_ST_ATTACK;
 		}
 		// アニメーションが終了した場合、または追加終了条件を満たした場合
 		else if (isAnimEnd)

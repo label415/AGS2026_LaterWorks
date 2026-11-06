@@ -9,6 +9,7 @@
 #include "../Manager/SoundManager.h"
 #include "../Manager/InputManager.h"
 #include "../Manager/CollisionManager.h"
+#include "../Manager/UiManager.h"
 #include "../Application.h"
 #include "Camera.h"
 #include "ResourceManager.h"
@@ -133,6 +134,7 @@ void SceneManager::Update(void)
 		scenes_.back()->Update();
 	}
 
+	// カメラ更新
 	camera_->Update();
 }
 
@@ -159,6 +161,7 @@ void SceneManager::Draw(void)
 		scene->Draw();
 	}
 
+	// カメラでバッグ描画
 	camera_->DrawDebug();
 }
 
@@ -221,9 +224,11 @@ void SceneManager::ReleaseAllScenes(void)
 
 void SceneManager::ResetResource(void)
 {
+	// サウンド・リソース・当たり判定・UIの解放
 	SoundManager::GetInstance().Release();
 	ResourceManager::GetInstance().Release();
 	CollisionManager::GetInstance().Release();
+	UiManager::GetInstance().Release();
 	Application::GetInstance().InitEffekseer();
 
 	camera_->Release();

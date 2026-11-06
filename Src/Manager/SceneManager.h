@@ -10,6 +10,7 @@ class SceneBase;
 class Fader;
 class Camera;
 class Loading;
+class UIManager;
 
 class SceneManager : public Singleton<SceneManager>
 {
@@ -31,7 +32,7 @@ public:
 	// ディレクショナルライトの方向
 	static constexpr VECTOR LIGHT_DIRECTION = { -0.5f, -1.0f, -0.5f };
 	// ライトのディフューズカラー値
-	static constexpr COLOR_F LIGHT_DIFF_COLOR = { 0.5f, 0.5f, 0.5f, 1.0f };
+	static constexpr COLOR_F LIGHT_DIFF_COLOR = { 1.0f, 1.0f, 1.0f, 1.0f };
 	// ライトのアンビエントカラー値
 	static constexpr COLOR_F LIGHT_AMB_COLOR = { 1.0f, 1.0f, 1.0f, 1.0f };
 

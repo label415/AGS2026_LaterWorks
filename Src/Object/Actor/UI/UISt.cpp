@@ -2,40 +2,48 @@
 #include "../../../Manager/SceneManager.h"
 #include "../../../Manager/FontManager.h"
 #include "../../../Application.h"
-#include "UISt.h"
+#include "UiSt.h"
 
-UISt::UISt(float posX, float posY, float flameScl,
-	float stSclX, float stSclY, float st)
-	:
-	stPos_(posX, posY),
-	stCurrent_(st),
-	flameScl_(flameScl),
-	stSclX_(stSclX),
-	stSclY_(stSclY)
+UiSt::UiSt(
+	const float* stCurrent,
+	float posX, float posY,
+	float sclX, float sclY, float flameScl)
+	: UiBase()
+	,stCurrent_(stCurrent)
+	, pos_( posX, posY )
+	, flameScl_(flameScl)
+	, stSclX_(sclX)
+	, stSclY_(sclY)
+	, flameImg_(-1)
+	, suUiImg_(-1)
 {
-	active_ = true;
+	// リソースのロード
+	flameImg_ = ResourceManager::GetInstance()
+		.Load(ResourceManager::SRC::UI_BAR_FRAME).handleId_;
+	suUiImg_ = ResourceManager::GetInstance()
+		.Load(ResourceManager::SRC::UI_ST_BAR).handleId_;
 }
 
-UISt::~UISt(void){}
+UiSt::~UiSt(void){}
 
-void UISt::Update(void){}
+void UiSt::Update(void){}
 
-void UISt::Draw(void)
+void UiSt::Draw(void)
 {
 	// 背景バーの描画
 	DrawRotaGraph(
-		stPos_.x,
-		stPos_.y,
+		pos_.x,
+		pos_.y,
 		flameScl_, 0.0f, flameImg_, true);
 
 	// 現在のスタミナ値に応じたバーの描画
-	float hpRate = stCurrent_ / MAX_ST;
+	float hpRate = *stCurrent_ / MAX_ST;
 	float realHalfWidth = IMG_SIZE_X / stSclX_;
 	float realHalfHeight = IMG_SIZE_Y / stSclY_;
 
-	float left = stPos_.x - realHalfWidth;
-	float top = stPos_.y - realHalfHeight;
-	float bottom = stPos_.y + realHalfHeight;
+	float left = pos_.x - realHalfWidth;
+	float top = pos_.y - realHalfHeight;
+	float bottom = pos_.y + realHalfHeight;
 
 	int srcWidth = static_cast<int>(IMG_SIZE_X * hpRate);
 	float currentBarRight = left + (realHalfWidth * 2.0f * hpRate);
@@ -49,30 +57,4 @@ void UISt::Draw(void)
 		suUiImg_, true);
 }
 
-void UISt::SetSt(float delta)
-{
-	// スタミナの増減
-	stCurrent_ -= delta;
-	if (stCurrent_ < MIN_ST)
-	{
-		stCurrent_ = MIN_ST;
-	}
-}
-
-void UISt::SetHpAbsolute(float hp)
-{
-	// スタミナの絶対値設定
-	stCurrent_ += hp;
-	if (stCurrent_ > MAX_ST) stCurrent_ = MAX_ST;
-}
-
-void UISt::InitLoad(void)
-{
-	// リソースのロード
-	flameImg_ = resMng_.Load(ResourceManager::SRC::UI_BAR_FRAME).handleId_;
-	suUiImg_ = resMng_.Load(ResourceManager::SRC::UI_ST_BAR).handleId_;
-}
-
-void UISt::InitTransform(void){}
-
-void UISt::InitPost(void){}
+void UiSt::Release(void){}
