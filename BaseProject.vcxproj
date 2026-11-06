@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyMoveState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\EnemyDragon.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateBase.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\Player.cpp" />
@@ -85,6 +86,7 @@
     <ClCompile Include="Src\Manager\UiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyMoveState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\EnemyDragon.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateBase.h" />
     <ClInclude Include="Src\Libs\nlohmann\adl_serializer.hpp" />

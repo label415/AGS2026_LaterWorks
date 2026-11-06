@@ -71,6 +71,8 @@ void EnemyDragon::InitAnimation(void)
 	int type = -1;
 	type = static_cast<int>(ANIM_TYPE::IDLE);
 	animationController_->AddInFbx(type, anim["idle"].get<float>(), type);
+	type = static_cast<int>(ANIM_TYPE::IDLE);
+	animationController_->AddInFbx(type, anim["idle"].get<float>(), type);
 }
 
 void EnemyDragon::InitPost(void)
