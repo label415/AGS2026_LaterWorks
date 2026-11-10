@@ -22,9 +22,9 @@ void PlayerRecoveryState::StartState(Player& player)
 
 	// 回復エフェクト再生
 	VECTOR effectPos =
-		MV1GetFramePosition(player.transform_.modelId, Player::HIT_EFFECT_FRAME_NO);
+		MV1GetFramePosition(player.transform_.modelId, player.param_.hitEffectFrameNo);
 	VECTOR effectScale =
-		VScale(AsoUtility::VECTOR_ONE, Player::EFFECT_RECOVERY_SCALE);
+		VScale(AsoUtility::VECTOR_ONE, player.param_.effectRecoveryScale);
 	VECTOR effectRot = AsoUtility::VECTOR_ZERO;
 	player.effect_->Play(
 		static_cast<int>(Player::EFFECT::HP_ABSOLUTE),

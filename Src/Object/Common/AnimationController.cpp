@@ -255,6 +255,19 @@ void AnimationController::SetIsStopFlager(bool isStop)
 	isStop_ = isStop;
 }
 
+void AnimationController::SetSpeed(int type, float speed)
+{
+	auto it = animations_.find(type);
+	if (it != animations_.end())
+	{
+		it->second.speed = speed;
+	}
+	if (playType_ == type)
+	{
+		playAnim_.speed = speed;
+	}
+}
+
 void AnimationController::Add(int type, float speed, Animation& animation)
 {
 	// アニメーション追加の共通処理

@@ -8,6 +8,7 @@
 #include "../Manager/InputManager.h"
 #include "../Manager/CollisionManager.h"
 #include "../Manager/UiManager.h"
+#include "../Manager/EditorManager.h"
 #include "../Application.h"
 #include "Camera.h"
 #include "ResourceManager.h"
@@ -81,17 +82,30 @@ void SceneManager::Update(void)
 	// ロード中はシーンを更新しない
 	if (UpdateLoading()) return;
 
+	// デバッグシーン展開中かつ一時停止していない場合は、下のシーン(GameScene等)も更新する
+	if (sceneId_ == SCENE_ID::DEBUG
+		&& scenes_.size() >= 2
+		&& !EditorManager::GetInstance().GetIsPauseGame())
+	{
+		scenes_[scenes_.size() - 2]->Update();
+	}
+
 	// 最上位シーンの更新
 	if (!scenes_.empty())
 	{
 		scenes_.back()->Update();
 	}
 
-	for (auto& scene : scenes_)
+#ifdef _DEBUG
+	// デバッグシーン展開中はGUIを更新する
+	if (sceneId_ == SCENE_ID::DEBUG)
 	{
-		if (sceneId_ != SCENE_ID::DEBUG)break;
-		scene->UpdateGui();
+		for (auto& scene : scenes_)
+		{
+			scene->UpdateGui();
+		}
 	}
+#endif
 
 	// カメラ更新
 	camera_->Update();
@@ -149,7 +163,7 @@ void SceneManager::ChangeScene(SCENE_ID sceneId)
 
 void SceneManager::PushScene(SCENE_ID sceneId)
 {
-	// ロード中は受け付けない
+	// ロード中または既にサブシーンが積まれている場合は受け付けない
 	if (load_->GetIsLoading()
 		|| sceneIds_.size() > 1) return;
 
@@ -158,12 +172,13 @@ void SceneManager::PushScene(SCENE_ID sceneId)
 	scenes_.back()->Load();
 	scenes_.back()->LoadEnd();
 
+	// サブシーン(ポーズ・デバッグ)中はマウスカーソルを表示する
 	SetGameMouseMode(false);
 }
 
 void SceneManager::PopScene(void)
 {
-	// シーン遷移の要求が優先
+	// シーン遷移の要求が優先(遷移時に全シーン解放されるため)
 	if (request_ == REQUEST::CHANGE) return;
 
 	// 実行中のシーンを破棄しないよう、要求だけ受け付ける
@@ -200,6 +215,7 @@ void SceneManager::AddScene(SCENE_ID sceneId)
 
 void SceneManager::UpdateDebugInput(void)
 {
+#ifdef _DEBUG
 	// デバッグシーンを開く入力
 	auto& ins = InputManager::GetInstance();
 	bool isOpenDebug = ins.IsTrgDown(KEY_INPUT_1)
@@ -210,6 +226,7 @@ void SceneManager::UpdateDebugInput(void)
 	{
 		PushScene(SCENE_ID::DEBUG);
 	}
+#endif
 }
 
 bool SceneManager::UpdateLoading(void)
@@ -301,7 +318,8 @@ void SceneManager::ReleaseAllScenes(void)
 
 void SceneManager::ResetResource(void)
 {
-	// サウンド・リソース・当たり判定・UIの解放
+	// サウンド・リソース・当たり判定・UI・エディタの解放
+	EditorManager::GetInstance().Release();
 	SoundManager::GetInstance().Release();
 	ResourceManager::GetInstance().Release();
 	CollisionManager::GetInstance().Release();

@@ -1,5 +1,127 @@
 {
+  "animationSpeed": {
+    "attack1": 40.0,
+    "attack2": 40.0,
+    "attack3": 40.0,
+    "down": 50.0,
+    "evasion": 80.0,
+    "fastRun": 30.0,
+    "idle": 30.0,
+    "recovery": 40.0,
+    "run": 25.0,
+    "up": 100.0
+  },
+  "collider": {
+    "capsule": {
+      "downPos": {
+        "x": 0.0,
+        "y": 30.0,
+        "z": 0.0
+      },
+      "radius": 20.0,
+      "topPos": {
+        "x": 0.0,
+        "y": 110.0,
+        "z": 0.0
+      }
+    },
+    "line": {
+      "endPos": {
+        "x": 0.0,
+        "y": -10.0,
+        "z": 0.0
+      },
+      "startPos": {
+        "x": 0.0,
+        "y": 80.0,
+        "z": 0.0
+      }
+    }
+  },
+  "combat": {
+    "damageEnemyBody": 20.0,
+    "damageEnemyWeapon": 35.0,
+    "pushBackPower": 20
+  },
+  "combo": {
+    "combo1": {
+      "animType": 4,
+      "colEnd": 38.0,
+      "colStart": 15.0,
+      "inputEnd": 50.0,
+      "inputStart": 20.0,
+      "moveSpeed": 8.0,
+      "nextCombo": 1,
+      "stepInterrupt": 55.0
+    },
+    "combo2": {
+      "animType": 5,
+      "colEnd": 32.0,
+      "colStart": 18.0,
+      "inputEnd": 40.0,
+      "inputStart": 15.0,
+      "moveSpeed": 5.0,
+      "nextCombo": 2,
+      "stepInterrupt": 50.0
+    },
+    "combo3": {
+      "animType": 6,
+      "colEnd": 34.0,
+      "colStart": 26.0,
+      "inputEnd": 0.0,
+      "inputStart": 0.0,
+      "moveSpeed": 12.0,
+      "nextCombo": 2,
+      "stepInterrupt": 95.0
+    }
+  },
+  "effectAndSound": {
+    "attackSeTriggerStep": 10.0,
+    "dieEndThreshold": 1.7999999523162842,
+    "dieFadeSpeed": 0.30000001192092896,
+    "effectBloodScale": {
+      "x": 5.0,
+      "y": 5.0,
+      "z": 5.0
+    },
+    "effectRecoveryOffsetY": 100.0,
+    "effectRecoveryScale": 10.0,
+    "hitEffectFrameNo": 2,
+    "lockFrameNo": 1,
+    "lockPos1": {
+      "x": 0.0,
+      "y": 78.0,
+      "z": 0.0
+    },
+    "recoveryTriggerStep": 10.0,
+    "seVolume": 50,
+    "upLockPosYAdd": 0.699999988079071,
+    "weaponAttachFrameNo": 46
+  },
+  "movement": {
+    "attackStepLerpRate": 0.20000000298023224,
+    "avoidanceAngleAxisY": 100.0,
+    "movePowDecrease": 0.25,
+    "rotTargetSlerpRate": 0.10000000149011612,
+    "speedDash": 12.0,
+    "speedEvasion": 10.0,
+    "speedMove": 8.0
+  },
+  "status": {
+    "consumeRecoveryBottleCount": 1,
+    "consumptionStAttack": 23.0,
+    "consumptionStEvasion": 40.0,
+    "consumptionStFastRun": 20.0,
+    "healHpAmount": 40.0,
+    "initialRecoveryBottleCount": 6,
+    "invincibleTime": 3.0,
+    "maxHp": 100.0,
+    "maxStamina": 100.0,
+    "recoveryStSpeed": 20.0,
+    "staminaExhaustionTime": 1.5
+  },
   "transform": {
+    "angleY": 180.0,
     "position": {
       "x": 0.0,
       "y": 0.0,
@@ -9,53 +131,6 @@
       "x": 1.0,
       "y": 1.0,
       "z": 1.0
-    },
-    "angleY": 180.0
-  },
-
-  "combo": {
-    "combo1": {
-      "animType": 4,
-      "inputStart": 20.0,
-      "inputEnd": 50.0,
-      "colStart": 15.0,
-      "colEnd": 38.0,
-      "stepInterrupt": 55.0,
-      "moveSpeed": 8.0,
-      "nextCombo": 1
-    },
-    "combo2": {
-      "animType": 5,
-      "inputStart": 15.0,
-      "inputEnd": 40.0,
-      "colStart": 18.0,
-      "colEnd": 32.0,
-      "stepInterrupt": 50.0,
-      "moveSpeed": 5.0,
-      "nextCombo": 2
-    },
-    "combo3": {
-      "animType": 6,
-      "inputStart": 0.0,
-      "inputEnd": 0.0,
-      "colStart": 26.0,
-      "colEnd": 34.0,
-      "stepInterrupt": 95.0,
-      "moveSpeed": 12.0,
-      "nextCombo": 2
     }
-  },
-
-  "animationSpeed": {
-    "idle": 30.0,
-    "run": 25.0,
-    "fastRun": 30.0,
-    "attack1": 40.0,
-    "attack2": 40.0,
-    "attack3": 40.0,
-    "evasion": 80.0,
-    "down": 50.0,
-    "up": 100.0,
-    "recovery": 40.0
   }
 }

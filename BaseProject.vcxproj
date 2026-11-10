@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -88,6 +88,7 @@
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponSaw.cpp" />
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponGan.cpp" />
     <ClCompile Include="Src\Manager\UiManager.cpp" />
+    <ClCompile Include="Src\Manager\EditorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Scene\DebugScene.h" />
@@ -241,6 +242,7 @@
     <ClInclude Include="Src\Template\Vector2Template.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponGan.h" />
     <ClInclude Include="Src\Manager\UiManager.h" />
+    <ClInclude Include="Src\Manager\EditorManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -7,6 +7,7 @@
 #include "Manager/FontManager.h"
 #include "Manager/CollisionManager.h"
 #include "Manager/UiManager.h"
+#include "Manager/EditorManager.h"
 #include "Common/FpsController.h"
 #include "Libs/ImGuiWrapper.h"
 #include "Application.h"
@@ -72,6 +73,9 @@ bool Application::Init(void)
 	// UIマネージャーインスタンス生成
 	UiManager::CreateInstance();
 
+	// エディタマネージャーインスタンス生成
+	EditorManager::CreateInstance();
+
 	// シーン管理初期化
 	SceneManager::CreateInstance();
 	SceneManager::GetInstance().Init();
@@ -126,15 +130,19 @@ void Application::Run(void)
 
 bool Application::Release(void)
 {
-	//インスタンス破棄
-	InputManager::GetInstance().Destroy();
+	// 各インスタンス解放処理
 	CollisionManager::GetInstance().Release();
-	CollisionManager::GetInstance().Destroy();
 	UiManager::GetInstance().Release();
-	UiManager::GetInstance().Destroy();
+	EditorManager::GetInstance().Release();
 	SceneManager::GetInstance().Release();
-	SceneManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();
+
+	// 各インスタンス破棄
+	InputManager::GetInstance().Destroy();
+	CollisionManager::GetInstance().Destroy();
+	UiManager::GetInstance().Destroy();
+	EditorManager::GetInstance().Destroy();
+	SceneManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Destroy();
 	ResourceManager::GetInstance().Destroy();
 	FontManager::GetInstance().Destroy();

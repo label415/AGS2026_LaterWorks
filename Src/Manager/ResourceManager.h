@@ -105,6 +105,15 @@ public:
 
 	// リソースの複製ロード(モデル用)
 	int LoadModelDuplicate(SRC src);
+
+	// JSONデータの取得(編集用)
+	Json& GetJson(SRC src);
+
+	// JSONデータのファイル保存
+	bool SaveJson(SRC src);
+
+	// JSONデータのファイル再読み込み
+	bool ReloadJson(SRC src);
 private:
 	// 静的インスタンス
 	static ResourceManager* instance_;

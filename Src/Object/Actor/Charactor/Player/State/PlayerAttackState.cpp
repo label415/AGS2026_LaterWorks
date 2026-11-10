@@ -23,7 +23,7 @@ void PlayerAttackState::StartState(Player& player)
 	// 攻撃アニメーション再生
 	auto& comboData = player.atkComboData_.at(player.stateAtkCombo_);
 	player.animationController_->Play(static_cast<int>(comboData.animType), false);
-	player.stamina_ -= Player::CONSUMPTION_ST_ATTACK;
+	player.stamina_ -= player.param_.consumptionStAttack;
 }
 
 void PlayerAttackState::Update(Player& player)
@@ -49,7 +49,7 @@ void PlayerAttackState::Update(Player& player)
 		VECTOR forward = player.transform_.GetForward();
 		VECTOR targetPos = VAdd(player.transform_.pos, VScale(forward, comboData.moveSpeed));
 
-		player.transform_.pos = AsoUtility::Lerp(player.transform_.pos, targetPos, Player::ATTACK_STEP_LERP_RATE);
+		player.transform_.pos = AsoUtility::Lerp(player.transform_.pos, targetPos, player.param_.attackStepLerpRate);
 	}
 
 	// コンボ入力受付判定
@@ -74,7 +74,7 @@ void PlayerAttackState::Update(Player& player)
 	}
 
 	// SE再生処理
-	if (currentStep == Player::ATTACK_SE_TRIGGER_STEP)
+	if (currentStep == player.param_.attackSeTriggerStep)
 	{
 		player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_WEPON_SE1);
 	}
@@ -99,7 +99,7 @@ void PlayerAttackState::Update(Player& player)
 			nextData.isNextCombo = false;
 
 			player.animationController_->Play(static_cast<int>(nextData.animType), false);
-			player.stamina_ -= Player::CONSUMPTION_ST_ATTACK;
+			player.stamina_ -= player.param_.consumptionStAttack;
 		}
 		// アニメーションが終了した場合、または追加終了条件を満たした場合
 		else if (isAnimEnd)

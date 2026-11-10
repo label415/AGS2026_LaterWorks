@@ -69,16 +69,10 @@ void Resource::Load(void)
 		break;
 	case Resource::TYPE::FONT:
 		//フォント
-		if (AddFontResourceEx(
-			path_.c_str(),
-			FR_PRIVATE,
-			NULL)
-			== -1)
-		{
-			return;
-		}
+		if (AddFontResourceEx(path_.c_str(), FR_PRIVATE, NULL) == -1)return;
 		break;
 	case Resource::TYPE::EFFEKSEER:
+		// エフェクト
 		handleId_ = LoadEffekseerEffect(path_.c_str());
 		break;
 	case Resource::TYPE::SOUND:
@@ -87,15 +81,25 @@ void Resource::Load(void)
 		break;
 	case Resource::TYPE::JSON:
 		// JSON
-		std::ifstream ifs;
-		ifs.open(path_.c_str());
+		std::ifstream ifs(path_.c_str());
 
 		// ファイルが開けなかった場合は処理しない
-		if (!ifs)return;
+		if (!ifs) return;
 
 		jsonData_ = Json::parse(ifs);
 		break;
 	}
+}
+
+bool Resource::Save(void) const
+{
+	if (type_ != TYPE::JSON) return false;
+
+	std::ofstream ofs(path_.c_str());
+	if (!ofs) return false;
+
+	ofs << jsonData_.dump(2) << std::endl;
+	return true;
 }
 
 void Resource::Release(void)

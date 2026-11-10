@@ -211,6 +211,33 @@ int ResourceManager::LoadModelDuplicate(SRC src)
 	return duId;
 }
 
+Json& ResourceManager::GetJson(SRC src)
+{
+	Resource& res = _Load(src);
+	return res.jsonData_;
+}
+
+bool ResourceManager::SaveJson(SRC src)
+{
+	const auto& rPair = resourcesMap_.find(src);
+	if (rPair == resourcesMap_.end())
+	{
+		return false;
+	}
+	return rPair->second->Save();
+}
+
+bool ResourceManager::ReloadJson(SRC src)
+{
+	const auto& rPair = resourcesMap_.find(src);
+	if (rPair == resourcesMap_.end())
+	{
+		return false;
+	}
+	rPair->second->Load();
+	return true;
+}
+
 ResourceManager::ResourceManager(void){}
 
 Resource& ResourceManager::_Load(SRC src)

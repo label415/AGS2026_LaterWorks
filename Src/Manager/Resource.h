@@ -37,6 +37,9 @@ public:
 	// “Ç‚İ‚İ
 	void Load(void);
 
+	// •Û‘¶(JSON—p)
+	bool Save(void) const;
+
 	// ‰ğ•ú
 	void Release(void);
 

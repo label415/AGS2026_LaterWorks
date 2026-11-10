@@ -128,17 +128,6 @@ void GameScene::Update(void)
 
 void GameScene::UpdateGui(void)
 {
-	// スカイドーム更新
-	skydome_->UpdateGui();
-
-	//ステージ更新
-	stage_->UpdateGui();
-
-	// エネミー更新
-	enemys_->UpdateGui();
-
-	// プレイヤー更新
-	player_->UpdateGui();
 }
 
 void GameScene::Draw(void)

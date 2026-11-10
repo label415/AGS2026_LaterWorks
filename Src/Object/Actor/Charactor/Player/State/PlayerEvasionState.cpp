@@ -17,19 +17,19 @@ PlayerEvasionState::~PlayerEvasionState(void)
 
 void PlayerEvasionState::StartState(Player& player)
 {
-	player.stamina_ -= Player::SPEED_EVASION;
+	player.stamina_ -= player.param_.consumptionStEvasion;
 
 	// 回避開始時の回転を保存
 	lastQrot_ = player.transform_.quaRotLocal;
 	player.transform_.quaRotLocal =
 		Quaternion::Mult(player.transform_.quaRotLocal, Quaternion::AngleAxis(
-			AsoUtility::Deg2RadF(Player::AVOIDANCE_ANGLE_AXIS_Y), AsoUtility::AXIS_Y));
+			AsoUtility::Deg2RadF(player.param_.avoidanceAngleAxisY), AsoUtility::AXIS_Y));
 
 	// 無敵状態にする
-	player.invincibleTimer_ = Player::INVINCIBLE_TIME;
+	player.invincibleTimer_ = player.param_.invincibleTime;
 
 	// 回避速度を設定
-	player.moveSpeed_ = Player::SPEED_EVASION;
+	player.moveSpeed_ = player.param_.speedEvasion;
 
 	// 回避アニメーション再生
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::EVASION), false);

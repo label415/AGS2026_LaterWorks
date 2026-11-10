@@ -32,6 +32,14 @@ void ImGuiWrapper::Init(void)
 	// ImGui‚Ì‰Šú‰»
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImFont* font = io.Fonts->AddFontFromFileTTF(
+		"C:\\Windows\\Fonts\\meiryo.ttc", 16.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+	if (font == nullptr)
+	{
+		io.Fonts->AddFontDefault();
+	}
 	
 	ImGui_ImplWin32_Init(DxLib::GetMainWindowHandle());
 	ImGui_ImplDX11_Init(

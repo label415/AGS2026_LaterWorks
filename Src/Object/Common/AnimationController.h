@@ -58,6 +58,9 @@ public:
 
 	// アニメーションを止めるフラグを設定
 	void SetIsStopFlager(bool isStop);
+
+	// 指定アニメーションの再生速度を変更
+	void SetSpeed(int type, float speed);
 private:
 	// アニメーションするモデルのハンドルID
 	int modelId_;

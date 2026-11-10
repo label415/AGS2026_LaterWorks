@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include "../../../../Manager/Resource.h"
 #include "../CharactorBase.h"
 
 class Camara;
@@ -51,7 +52,7 @@ public:
 		END,
 	};
 
-	//各部位のタグ
+	// 各部位のタグ
 	enum class EFFECT {
 		NONE,
 		BLOOD,
@@ -110,84 +111,77 @@ public:
 		{
 			return step > stepInterrupt;
 		}
-
 	};
 
-	// 回避Y軸角度
-	static constexpr float AVOIDANCE_ANGLE_AXIS_Y = 100.0f;
+	// データ駆動パラメータ構造体(PlayerData.jsonと対応)
+	struct PARAM
+	{
+		// Transform初期値
+		VECTOR initPos = { 0.0f, 0.0f, -1000.0f };
+		VECTOR initScale = { 1.0f, 1.0f, 1.0f };
+		float initAngleY = 180.0f;
 
-	// 移動速度(通常)
-	static constexpr float SPEED_MOVE = 8.0f;
-	// 移動速度(ダッシュ)
-	static constexpr float SPEED_DASH = 12.0f;
-	// 移動速度(回避)
-	static constexpr float SPEED_EVASION = 10.0f;
-	// 移動量減少値
-	static constexpr float MOVE_POW_DECREASE = 0.25f;
+		// コライダー設定
+		VECTOR colLineStart = { 0.0f, 80.0f, 0.0f };
+		VECTOR colLineEnd = { 0.0f, -10.0f, 0.0f };
+		VECTOR colCapsuleTop = { 0.0f, 110.0f, 0.0f };
+		VECTOR colCapsuleDown = { 0.0f, 30.0f, 0.0f };
+		float colCapsuleRadius = 20.0f;
 
-	// 最大HP量
-	static constexpr float MAX_HP = 100.0f;
+		// ステータス関連
+		float maxHp = 100.0f;
+		float maxStamina = 100.0f;
+		float recoveryStSpeed = 20.0f;
+		float consumptionStFastRun = 20.0f;
+		float consumptionStEvasion = 40.0f;
+		float consumptionStAttack = 23.0f;
+		float staminaExhaustionTime = 1.5f;
+		float invincibleTime = 3.0f;
+		float healHpAmount = 40.0f;
+		int initialRecoveryBottleCount = 6;
+		int consumeRecoveryBottleCount = 1;
 
-	// 最大スタミナ量
-	static constexpr float MAX_STAMINA = 100.0f;
-	// スタミナ回復速度
-	static constexpr float RECOVERY_ST_SPEED = 20.0f;
-	// ダッシュ時スタミナ消費量
-	static constexpr float CONSUMPTION_ST_FAST_RUN = 20.0f;
-	// 回避時スタミナ消費量
-	static constexpr float CONSUMPTION_ST_EVASION = 40.0f;
-	// 攻撃時スタミナ消費量
-	static constexpr float CONSUMPTION_ST_ATTACK = 23.0f;
+		// 移動・回避・補間関連
+		float speedMove = 8.0f;
+		float speedDash = 12.0f;
+		float speedEvasion = 10.0f;
+		float movePowDecrease = 0.25f;
+		float avoidanceAngleAxisY = 100.0f;
+		float rotTargetSlerpRate = 0.1f;
+		float attackStepLerpRate = 0.2f;
 
-	// スタミナ切れ時の硬直時間
-	static constexpr float STAMINA_EXHAUSTION_TIME = 1.5f;
+		// 戦闘・被ダメージ関連
+		float damageEnemyBody = 20.0f;
+		float damageEnemyWeapon = 35.0f;
+		int pushBackPower = 20;
 
-	// 敵本体接触時の被ダメージ
-	static constexpr float DAMAGE_ENEMY_BODY = 20.0f;
-	// 敵武器接触時の被ダメージ
-	static constexpr float DAMAGE_ENEMY_WEAPON = 35.0f;
+		// エフェクト・サウンド・フレーム関連
+		int seVolume = 50;
+		VECTOR effectBloodScale = { 5.0f, 5.0f, 5.0f };
+		float effectRecoveryScale = 10.0f;
+		float effectRecoveryOffsetY = 100.0f;
+		float dieFadeSpeed = 0.3f;
+		float dieEndThreshold = 1.8f;
+		float attackSeTriggerStep = 10.0f;
+		float recoveryTriggerStep = 10.0f;
+		int weaponAttachFrameNo = 46;
+		int hitEffectFrameNo = 2;
+		float upLockPosYAdd = 0.7f;
+		VECTOR lockPos1 = { 0.0f, 78.0f, 0.0f };
+		int lockFrameNo = 1;
 
-	// HP回復アイテム使用時の回復量
-	static constexpr float HEAL_HP_AMOUNT = 40.0f;
-	// 回復ボトル初期所持数
-	static constexpr int INITIAL_RECOVERY_BOTTLE_COUNT = 6;
-	// 1回あたりの回復ボトル消費量
-	static constexpr int CONSUME_RECOVERY_BOTTLE_COUNT = 1;
-
-	// プレイヤー被ダメージSE音量
-	static constexpr int SE_VOLUME = 50;
-
-	// 被弾時出血エフェクトスケール
-	static constexpr VECTOR EFFECT_BLOOD_SCALE = { 5.0f, 5.0f, 5.0f };
-	// 回復エフェクトスケール
-	static constexpr float EFFECT_RECOVERY_SCALE = 10.0f;
-	// 回復エフェクトY軸オフセット
-	static constexpr float EFFECT_RECOVERY_OFFSET_Y = 100.0f;
-
-	// 敵接触時の押し出し量
-	static constexpr int PUSH_BACK_POWER = 20;
-
-	// ターゲット追従時の回転Slerp補間係数
-	static constexpr float ROT_TARGET_SLERP_RATE = 0.1f;
-	// 攻撃踏み込み時のLerp補間係数
-	static constexpr float ATTACK_STEP_LERP_RATE = 0.2f;
-
-	// 死亡時のフェード進行速度
-	static constexpr float DIE_FADE_SPEED = 0.3f;
-	// 死亡ステート完了し終了遷移する閾値
-	static constexpr float DIE_END_THRESHOLD = 1.8f;
-
-	// 攻撃時SE再生ステップ
-	static constexpr float ATTACK_SE_TRIGGER_STEP = 10.0f;
-	// 回復アクション発動ステップ
-	static constexpr float RECOVERY_TRIGGER_STEP = 10.0f;
-
-	// 武器アタッチ先フレーム番号
-	static constexpr int WEAPON_ATTACH_FRAME_NO = 46;
-	// 被弾エフェクト発生フレーム番号
-	static constexpr int HIT_EFFECT_FRAME_NO = 2;
-	// 起き上がり時LockPosのY軸上昇速度
-	static constexpr float UP_LOCK_POS_Y_ADD = 0.7f;
+		// アニメーション再生速度
+		float animSpeedIdle = 30.0f;
+		float animSpeedRun = 25.0f;
+		float animSpeedFastRun = 30.0f;
+		float animSpeedAttack1 = 40.0f;
+		float animSpeedAttack2 = 40.0f;
+		float animSpeedAttack3 = 40.0f;
+		float animSpeedEvasion = 80.0f;
+		float animSpeedDown = 50.0f;
+		float animSpeedUp = 100.0f;
+		float animSpeedRecovery = 40.0f;
+	};
 
 	// コンストラクタ
 	Player(void);
@@ -195,8 +189,8 @@ public:
 	// デストラクタ
 	~Player(void);
 
-	// GUi更新
-	void UpdateGui(void)override;
+	// GUI更新(統合エディタから呼ばれる)
+	void UpdateGui(void) override;
 
 	// 描画処理
 	void Draw(void) override;
@@ -215,6 +209,9 @@ public:
 
 	// HPを取得
 	const float& GetHp(void) const { return hp_; }
+
+	// パラメータを取得
+	const PARAM& GetParam(void) const { return param_; }
 
 protected:
 
@@ -244,10 +241,13 @@ protected:
 
 private:
 
+	// パラメータ
+	PARAM param_;
+
 	// 各状態クラスのインスタンスを保持するマップ
 	std::map<STATE, std::unique_ptr<PlayerStateBase>> states_;
 
-	//状態クラス
+	// 状態クラス
 	PlayerStateBase* currentState_;
 
 	// 状態
@@ -283,26 +283,14 @@ private:
 	// アニメーションを固定化する座標
 	VECTOR animLockPos_;
 
-	//アニメーションを固定化する座標
-	static constexpr VECTOR LOCK_POS1 = { 0.0f, 78.0f, 0.0f };
+	// JSONからパラメータを読み込む
+	void LoadParam(const Json& json);
 
-	//アニメーションを固定化するフレーム
-	static constexpr int LOCK_FRAME_NO = 1;
+	// パラメータをJSONへ書き出す
+	void SaveParam(Json& json) const;
 
-	// 衝突判定用線分開始
-	static constexpr VECTOR COL_LINE_START_LOCAL_POS = { 0.0f, 80.0f, 0.0f };
-	// 衝突判定用線分終了
-	static constexpr VECTOR COL_LINE_END_LOCAL_POS = { 0.0f, -10.0f, 0.0f };
-
-	// 衝突判定用カプセル上部球体
-	static constexpr VECTOR COL_CAPSULE_TOP_LOCAL_POS = { 0.0f, 110.0f, 0.0f };
-	// 衝突判定用カプセル下部球体
-	static constexpr VECTOR COL_CAPSULE_DOWN_LOCAL_POS = { 0.0f, 30.0f, 0.0f };
-	// 衝突判定用カプセル球体半径
-	static constexpr float COL_CAPSULE_RADIUS = 20.0f;
-
-	// 無敵時間
-	static constexpr float INVINCIBLE_TIME = 3.0f;
+	// パラメータの変更をTransform・コライダー・アニメ速度等へ即時反映する
+	void ApplyParam(bool resetTransformPos = false);
 
 	// 武器初期化処理
 	void InitWeapon(void);
