@@ -19,8 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Scene\DebugScene.cpp" />
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\BehaviorTree\NodeBase.cpp" />
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyThnik.cpp" />
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\BehaviorTree\BehaviorTree.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyMoveState.cpp" />
-    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\EnemyDragon.cpp" />
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\EnemyKnight.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateBase.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\Player.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerAttackState.cpp" />
@@ -86,8 +90,12 @@
     <ClCompile Include="Src\Manager\UiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Scene\DebugScene.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\BehaviorTree\NodeBase.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyThnik.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\BehaviorTree\BehaviorTree.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyMoveState.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\EnemyDragon.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\EnemyKnight.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateBase.h" />
     <ClInclude Include="Src\Libs\nlohmann\adl_serializer.hpp" />
     <ClInclude Include="Src\Libs\nlohmann\byte_container_with_subtype.hpp" />

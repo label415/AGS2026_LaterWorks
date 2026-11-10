@@ -104,6 +104,10 @@ void TitleScene::Update(void)
 	}
 }
 
+void TitleScene::UpdateGui(void)
+{
+}
+
 void TitleScene::Draw(void)
 {
 	// タイトル画像
@@ -147,8 +151,6 @@ void TitleScene::Draw(void)
 
 void TitleScene::Release(void)
 {
-	// フォントハンドルはFontManagerが共有管理しているため削除しない
-	// (ここで削除すると、次にタイトルやポーズを開いた時に
-	//  削除済みのハンドルが返されて文字が表示されなくなる)
+	// フォントハンドル削除
 	pauseFont_ = -1;
 }

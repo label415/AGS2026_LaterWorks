@@ -1,5 +1,4 @@
 #pragma once
-#include <chrono>
 #include <vector>
 #include <memory>
 #include <DxLib.h>
@@ -7,10 +6,8 @@
 #include "../Template/Vector2Template.h"
 
 class SceneBase;
-class Fader;
 class Camera;
 class Loading;
-class UIManager;
 
 class SceneManager : public Singleton<SceneManager>
 {
@@ -22,6 +19,7 @@ public:
 		TITLE,
 		GAME,
 		PAUSE,
+		DEBUG
 	};
 
 	// 背景色
@@ -45,6 +43,9 @@ public:
 	static constexpr float FOG_START = 10000.0f;
 	static constexpr float FOG_END = 20000.0f;
 
+	// デルタタイム(60FPS固定)
+	static constexpr float DELTA_TIME = 1.0f / 60.0f;
+
 	// 初期化
 	void Init(void);
 
@@ -63,48 +64,46 @@ public:
 	// シーン遷移(要求のみ受け付け、Updateの最後に実行する)
 	void ChangeScene(SCENE_ID sceneId);
 
-	// シーン追加
+	// シーン追加(現在のシーンの上に積む)
 	void PushScene(SCENE_ID sceneId);
 
 	// シーン解放(要求のみ受け付け、Updateの最後に実行する)
 	void PopScene(void);
 
 	// デルタタイムの取得
-	float GetDeltaTime(void) const { return 1.0f / 60.0f; }
+	float GetDeltaTime(void) const { return DELTA_TIME; }
 
 	// カメラの取得
 	std::shared_ptr<Camera> GetCamera(void) const { return camera_; }
 
-	//現在のシーンID
-	const SCENE_ID GetSceneID(void)const { return sceneId_; }
+	// 現在のシーンID
+	const SCENE_ID GetSceneID(void) const { return sceneId_; }
+
 private:
-	// ロード状態
-	enum class LOAD_STATE
+	// シーン操作の要求種別
+	enum class REQUEST
 	{
-		NONE,		// ロードしていない(通常更新)
-		START,		// ロード画面を表示した直後(次のフレームで読み込み開始)
-		LOADING,	// 非同期読み込み中
+		NONE,	// 要求なし
+		CHANGE,	// シーン遷移
+		POP,	// 最上位シーンの解放
 	};
 
-	// 現在のロード状態
-	LOAD_STATE loadState_;
-
-	// 現在のシーンID
+	// 現在のシーンID(最上位シーンのID)
 	SCENE_ID sceneId_;
 
 	// 次に遷移するシーンID
 	SCENE_ID nextSceneId_;
 
+	// 保留中のシーン操作要求
+	REQUEST request_;
+
 	// ロード画面を表示した次のフレームで読み込みを開始するフラグ
 	bool isLoadStart_;
 
-	// シーン遷移要求フラグ
-	bool isChangeRequest_;
-
-	// 各種シーン
+	// 積まれているシーン(末尾が最上位)
 	std::vector<std::unique_ptr<SceneBase>> scenes_;
 
-	// 各種シーンのID(scenes_と同じ並び)
+	// 積まれているシーンのID(scenes_と同じ並び)
 	std::vector<SCENE_ID> sceneIds_;
 
 	// カメラ
@@ -112,12 +111,6 @@ private:
 
 	// ロード画面
 	std::unique_ptr<Loading> load_;
-
-	// デルタタイム
-	std::chrono::system_clock::time_point preTime_;
-
-	// フレーム間の経過時間（デルタタイム）
-	float deltaTime_;
 
 	// デフォルトコンストラクタをprivateにして、外部から生成できない様にする
 	SceneManager(void);
@@ -131,18 +124,30 @@ private:
 	// 指定されたシーンIDのインスタンスを生成する
 	std::unique_ptr<SceneBase> CreateScene(SCENE_ID sceneId);
 
+	// シーンを最上位に積む
+	void AddScene(SCENE_ID sceneId);
+
+	// デバッグ用の入力処理
+	void UpdateDebugInput(void);
+
+	// ロード処理の更新(ロード中はtrueを返す)
+	bool UpdateLoading(void);
+
+	// 保留中のシーン操作要求を実行する
+	void ProcessRequest(void);
+
 	// シーン遷移の実行
-	void DoChangeScene(void);
+	void ExecuteChangeScene(SCENE_ID sceneId);
+
+	// 最上位シーン解放の実行
+	void ExecutePopScene(void);
 
 	// 積まれている全シーンの解放
 	void ReleaseAllScenes(void);
 
-	// リソース解放
+	// サウンド・リソース・当たり判定・カメラ等のリセット
 	void ResetResource(void);
 
-	// ロード中の更新
-	void UpdateLoading(void);
-
-	// ロード中か
-	bool IsLoading(void) const { return loadState_ != LOAD_STATE::NONE; }
-};
+	// ゲーム操作用のマウス設定(カーソル非表示・カメラ操作有効)
+	void SetGameMouseMode(bool isGame);
+};

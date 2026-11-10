@@ -25,6 +25,9 @@ public:
 	// 更新
 	virtual void Update(void) = 0;
 
+	// GUI更新
+	virtual void UpdateGui(void) = 0;
+
 	// 描画
 	virtual void Draw(void) = 0;
 

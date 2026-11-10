@@ -41,7 +41,6 @@ void PauseScene::LoadEnd(void)
 
 void PauseScene::Update(void)
 {
-
 	// 入力管理インスタンスを取得
 	auto& ins = InputManager::GetInstance();
 
@@ -98,6 +97,10 @@ void PauseScene::Update(void)
 			Application::GetInstance().SetIsEnd();
 		}
 	}
+}
+
+void PauseScene::UpdateGui(void)
+{
 }
 
 void PauseScene::Draw(void)

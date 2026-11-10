@@ -13,18 +13,6 @@ void Stage::Update(void)
 
 void Stage::Draw(void)
 {
-#ifdef _DEBUG
-	// 所有しているコライダの描画
-	for (const auto& own : ownColliders_){
-		for (const auto& collider : own.second){
-			if (collider)
-			{
-				collider->Draw();
-			}
-		}
-	}
-#endif // _DEBUG
-
 	// モデル描画
 	if (transform_.modelId != -1)
 	{

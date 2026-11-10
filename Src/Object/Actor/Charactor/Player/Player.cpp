@@ -47,6 +47,14 @@ Player::Player(void)
 
 Player::~Player(void) {}
 
+void Player::UpdateGui(void)
+{
+	// •Ší•`‰æ
+	for (const auto& weapon : weapons_) {
+		weapon->UpdateGui();
+	}
+}
+
 void Player::Draw(void)
 {
 	// Šî’êƒNƒ‰ƒX‚Ì•`‰æˆ—

@@ -25,7 +25,6 @@ ImGuiWrapper& ImGuiWrapper::GetInstance(void)
 
 void ImGuiWrapper::Init(void)
 {
-
 	// ウインドウへのメッセージ(イベント)を
 	// フックするウインドウプロージャを登録する
 	DxLib::SetHookWinProc(WndProc);

@@ -24,10 +24,6 @@ void WeaponSaw::Update(void)
 
 	// •Ší‚Ì•ÏŒ`ˆ—
 	UpdateTransformation();
-
-#ifdef _DEBUG
-	UpdateGui();
-#endif
 }
 
 void WeaponSaw::InitLoad(void)

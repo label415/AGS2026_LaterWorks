@@ -3,7 +3,7 @@
 #include "../../../../Application.h"
 #include "../../../../Utility/AsoUtility.h"
 #include "../../../Common/Collider/ColliderBase.h"
-#include "EnemyDragon.h"
+#include "EnemyKnight.h"
 #include "EnemyManager.h"
 
 EnemyManager::EnemyManager(void){}
@@ -38,6 +38,15 @@ void EnemyManager::Update(void)
 	}
 }
 
+void EnemyManager::UpdateGui(void)
+{
+	// エネミーの更新
+	for (auto& enemy : enemys_)
+	{
+		enemy->UpdateGui();
+	}
+}
+
 void EnemyManager::Draw(void)
 {
 	// エネミーの描画
@@ -58,6 +67,6 @@ void EnemyManager::Release(void)
 
 void EnemyManager::Create(void)
 {
-	auto enemy = std::make_shared<EnemyDragon>();
+	auto enemy = std::make_shared<EnemyKnight>();
 	enemys_.push_back(enemy);
 }

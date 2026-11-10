@@ -109,16 +109,13 @@ void Application::Run(void)
 		// シーン描画処理
 		sceneManager.Draw();
 
-		// コリジョンでバッグ描画処理
-		collisionManager.DrawDebug();
+		// GUI描画処理
+		imGuiWrapper.Draw();
 
 		// UI描画処理
 		uiManager.Draw();
 
 		RenderVertex();
-
-		// GUI描画処理
-		imGuiWrapper.Draw();
 
 		ScreenFlip();
 

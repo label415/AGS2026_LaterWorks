@@ -18,7 +18,6 @@ void CollisionManager::Release(void)
 
 void CollisionManager::DrawDebug(void)
 {
-#ifdef _DEBUG
 	for (auto& collider : colliders_)
 	{
 		if (collider.lock())
@@ -26,7 +25,6 @@ void CollisionManager::DrawDebug(void)
 			collider.lock()->Draw();
 		}
 	}
-#endif
 }
 
 void CollisionManager::Update(void)

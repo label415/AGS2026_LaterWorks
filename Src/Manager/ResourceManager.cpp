@@ -64,7 +64,7 @@ void ResourceManager::Init(void)
 	resourcesMap_.emplace(SRC::ANIM_PLAYER_RECOVERY, res);
 
 	// エネミーモデル
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Enemy/Dragon/Dragon.mv1");
+	res = new RES(RES_T::MODEL, PATH_MDL + L"Enemy/Dragon/Great Sword Slash.mv1");
 	resourcesMap_.emplace(SRC::MODEL_ENEMY_DRAGON, res);
 
 	// ステージモデル

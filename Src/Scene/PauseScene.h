@@ -31,6 +31,9 @@ public:
 	// 更新
 	void Update(void) override;
 
+	// GUI更新
+	void UpdateGui(void) override;
+
 	// 描画
 	void Draw(void) override;
 

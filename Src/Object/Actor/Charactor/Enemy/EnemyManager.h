@@ -24,6 +24,9 @@ public:
 	// 更新
 	void Update(void);
 
+	// GUi更新
+    void UpdateGui(void);
+
 	// 描画
 	void Draw(void);
 

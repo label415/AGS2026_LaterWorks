@@ -17,6 +17,9 @@ public:
 	// 更新
 	void Update(void) override;
 
+	// GUi更新
+	void UpdateGui(void)override;
+
 	// コライダーを設定
 	void SetCollider(void) override;
 
@@ -28,7 +31,9 @@ public:
 
 	// 武器変形フラグ取得
 	const bool GetIsTransformation(void) const { return isTransformation_; }
+
 protected:
+
 	// リソースロード
 	void InitLoad(void) override;
 
@@ -44,8 +49,6 @@ protected:
 	// 初期化後の個別処理
 	void InitPost(void) override{}
 
-	// GUi更新
-	void UpdateGui(void) override;
 private:
 	// 武器アニメーション番号
 	static constexpr int ANIM_WEAPON_ATTACH_NO = 5;

@@ -1,11 +1,9 @@
-#include <chrono>
 #include <DxLib.h>
-#include <EffekseerForDXLib.h>
 #include "../Scene/Loading/Loading.h"
-#include "../Common/Fader.h"
 #include "../Scene/TitleScene.h"
 #include "../Scene/GameScene.h"
 #include "../Scene/PauseScene.h"
+#include "../Scene/DebugScene.h"
 #include "../Manager/SoundManager.h"
 #include "../Manager/InputManager.h"
 #include "../Manager/CollisionManager.h"
@@ -13,8 +11,15 @@
 #include "../Application.h"
 #include "Camera.h"
 #include "ResourceManager.h"
-#include "FontManager.h"
 #include "SceneManager.h"
+
+SceneManager::SceneManager(void)
+	: sceneId_(SCENE_ID::TITLE)
+	, nextSceneId_(SCENE_ID::TITLE)
+	, request_(REQUEST::NONE)
+	, isLoadStart_(false)
+{
+}
 
 void SceneManager::Init(void)
 {
@@ -26,14 +31,11 @@ void SceneManager::Init(void)
 	camera_ = std::make_shared<Camera>();
 	camera_->LoadEnd();
 
-	// デルタタイム
-	preTime_ = std::chrono::system_clock::now();
-
 	// 3D用の設定
 	Init3D();
 
 	// 初期シーン(ロード画面を経由して読み込む)
-	ChangeScene(SCENE_ID::GAME);
+	ExecuteChangeScene(SCENE_ID::GAME);
 }
 
 void SceneManager::Init3D(void)
@@ -71,71 +73,31 @@ void SceneManager::Init3D(void)
 	SetFogStartEnd(FOG_START, FOG_END);
 }
 
-void SceneManager::ChangeScene(SCENE_ID sceneId)
-{
-	// 実行中のシーンを破棄しないよう、要求だけ受け付ける
-	nextSceneId_ = sceneId;
-	DoChangeScene();
-}
-
-void SceneManager::PushScene(SCENE_ID sceneId)
-{
-	// ロード中は受け付けない
-	if (load_->GetIsLoading()) return;
-
-	scenes_.push_back(CreateScene(sceneId));
-
-	scenes_.back()->Load();
-	scenes_.back()->LoadEnd();
-}
-
-void SceneManager::PopScene(void)
-{
-	// 最後の1シーンは残す
-	if (scenes_.size() <= 1) return;
-
-	// 末尾のシーンを解放して削除する
-	scenes_.back()->Release();
-	scenes_.pop_back();
-
-	// ポーズはゲームシーンの上にしか積まないため、
-	// ゲームシーンに戻す
-	sceneId_ = SCENE_ID::GAME;
-	camera_->SetIsMouseInput(true);
-	InputManager::GetInstance().SetMouseFlage(false);
-}
-
 void SceneManager::Update(void)
 {
-	// ロード画面の更新
-	load_->Update();
-
-	// ロード画面を表示した次のフレームで、非同期読み込みを開始する
-	if (isLoadStart_)
-	{
-		isLoadStart_ = false;
-		load_->StartAsyncLoad();
-		scenes_.back()->Load();
-		load_->EndAsyncLoad();
-		return;
-	}
-
-	// ロードが終わったフレームで一度だけ、読み込み後の初期化を行う
-	if (load_->GetIsLoadEnd())
-	{
-		scenes_.back()->LoadEnd();
-	}
+	// デバッグ用の入力処理
+	UpdateDebugInput();
 
 	// ロード中はシーンを更新しない
-	if (load_->GetIsLoading()) return;
+	if (UpdateLoading()) return;
 
+	// 最上位シーンの更新
 	if (!scenes_.empty())
 	{
 		scenes_.back()->Update();
 	}
 
+	for (auto& scene : scenes_)
+	{
+		if (sceneId_ != SCENE_ID::DEBUG)break;
+		scene->UpdateGui();
+	}
+
 	// カメラ更新
 	camera_->Update();
+
+	// シーン更新中に受け付けた遷移・解放要求を実行する
+	ProcessRequest();
 }
 
 void SceneManager::Draw(void)
@@ -156,12 +118,13 @@ void SceneManager::Draw(void)
 	// カメラの描画前設定を行う
 	camera_->SetBeforeDraw();
 
+	// 下に積まれているシーンから順に描画する
 	for (auto& scene : scenes_)
 	{
 		scene->Draw();
 	}
 
-	// カメラでバッグ描画
+	// カメラのデバッグ描画
 	camera_->DrawDebug();
 }
 
@@ -177,13 +140,40 @@ void SceneManager::Release(void)
 	load_->Release();
 }
 
+void SceneManager::ChangeScene(SCENE_ID sceneId)
+{
+	// 実行中のシーンを破棄しないよう、要求だけ受け付ける
+	nextSceneId_ = sceneId;
+	request_ = REQUEST::CHANGE;
+}
+
+void SceneManager::PushScene(SCENE_ID sceneId)
+{
+	// ロード中は受け付けない
+	if (load_->GetIsLoading()
+		|| sceneIds_.size() > 1) return;
+
+	// シーンを積んで、即座に読み込みと初期化を行う
+	AddScene(sceneId);
+	scenes_.back()->Load();
+	scenes_.back()->LoadEnd();
+
+	SetGameMouseMode(false);
+}
+
+void SceneManager::PopScene(void)
+{
+	// シーン遷移の要求が優先
+	if (request_ == REQUEST::CHANGE) return;
+
+	// 実行中のシーンを破棄しないよう、要求だけ受け付ける
+	request_ = REQUEST::POP;
+}
+
 std::unique_ptr<SceneBase> SceneManager::CreateScene(SCENE_ID sceneId)
 {
-	// 現在のシーンIDを更新
-	sceneId_ = sceneId;
-
 	// シーンIDに応じたインスタンスを生成して返す
-	switch (sceneId_)
+	switch (sceneId)
 	{
 	case SCENE_ID::TITLE:
 		return std::make_unique<TitleScene>();
@@ -191,12 +181,81 @@ std::unique_ptr<SceneBase> SceneManager::CreateScene(SCENE_ID sceneId)
 		return std::make_unique<GameScene>();
 	case SCENE_ID::PAUSE:
 		return std::make_unique<PauseScene>();
+	case SCENE_ID::DEBUG:
+		return std::make_unique<DebugScene>();
 	default:
 		return nullptr;
 	}
 }
 
-void SceneManager::DoChangeScene(void)
+void SceneManager::AddScene(SCENE_ID sceneId)
+{
+	// シーンとIDを同じ並びで積む
+	scenes_.push_back(CreateScene(sceneId));
+	sceneIds_.push_back(sceneId);
+
+	// 現在のシーンIDを最上位のシーンに合わせる
+	sceneId_ = sceneId;
+}
+
+void SceneManager::UpdateDebugInput(void)
+{
+	// デバッグシーンを開く入力
+	auto& ins = InputManager::GetInstance();
+	bool isOpenDebug = ins.IsTrgDown(KEY_INPUT_1)
+		|| ins.IsPadBtnNew(InputManager::JOYPAD_NO::PAD1, InputManager::JOYPAD_BTN::TOP);
+
+	// デバッグシーンを積む
+	if (isOpenDebug)
+	{
+		PushScene(SCENE_ID::DEBUG);
+	}
+}
+
+bool SceneManager::UpdateLoading(void)
+{
+	// ロード画面の更新
+	load_->Update();
+
+	// ロード画面を表示した次のフレームで、非同期読み込みを行う
+	if (isLoadStart_)
+	{
+		isLoadStart_ = false;
+		load_->StartAsyncLoad();
+		scenes_.back()->Load();
+		load_->EndAsyncLoad();
+		return true;
+	}
+
+	// ロードが終わったフレームで一度だけ、読み込み後の初期化を行う
+	if (load_->GetIsLoadEnd())
+	{
+		scenes_.back()->LoadEnd();
+	}
+
+	return load_->GetIsLoading();
+}
+
+void SceneManager::ProcessRequest(void)
+{
+	// 要求を取り出してクリアする
+	REQUEST request = request_;
+	request_ = REQUEST::NONE;
+
+	switch (request)
+	{
+	case REQUEST::CHANGE:
+		ExecuteChangeScene(nextSceneId_);
+		break;
+	case REQUEST::POP:
+		ExecutePopScene();
+		break;
+	default:
+		break;
+	}
+}
+
+void SceneManager::ExecuteChangeScene(SCENE_ID sceneId)
 {
 	// 積まれている全シーンを解放する
 	ReleaseAllScenes();
@@ -205,21 +264,39 @@ void SceneManager::DoChangeScene(void)
 	ResetResource();
 
 	// 新しいシーンを生成(読み込みは次のフレームで行う)
-	scenes_.push_back(CreateScene(nextSceneId_));
+	AddScene(sceneId);
 
 	// ロード画面の表示開始
 	load_->StartLoading();
 	isLoadStart_ = true;
 }
 
+void SceneManager::ExecutePopScene(void)
+{
+	// 最後の1シーンは残す
+	if (scenes_.size() <= 1) return;
+
+	// 最上位のシーンを解放して削除する
+	scenes_.back()->Release();
+	scenes_.pop_back();
+	sceneIds_.pop_back();
+
+	// 現在のシーンIDを、下にあったシーンに戻す
+	sceneId_ = sceneIds_.back();
+
+	// ポーズ・デバッグから戻った際はゲーム操作用のマウス設定に戻す
+	SetGameMouseMode(true);
+}
+
 void SceneManager::ReleaseAllScenes(void)
 {
-	// 上に積まれているシーンから順に解放する
+	// 積まれている全シーンを解放する
 	for (auto& scene : scenes_)
 	{
 		scene->Release();
 	}
 	scenes_.clear();
+	sceneIds_.clear();
 }
 
 void SceneManager::ResetResource(void)
@@ -229,19 +306,20 @@ void SceneManager::ResetResource(void)
 	ResourceManager::GetInstance().Release();
 	CollisionManager::GetInstance().Release();
 	UiManager::GetInstance().Release();
+
+	// エフェクトの再初期化
 	Application::GetInstance().InitEffekseer();
 
+	// カメラの解放
 	camera_->Release();
 
-	camera_->SetIsMouseInput(false);
-	InputManager::GetInstance().SetMouseFlage(true);
+	// ロード中・メニュー操作用のマウス設定にする
+	SetGameMouseMode(false);
 }
 
-SceneManager::SceneManager(void) :
-	sceneId_(SCENE_ID::TITLE)
-	, nextSceneId_(SCENE_ID::TITLE)
-	, isChangeRequest_(false)
-	, isLoadStart_(false)
-	, deltaTime_(0.0f)
+void SceneManager::SetGameMouseMode(bool isGame)
 {
+	// ゲーム中はカメラをマウス操作し、カーソルを非表示にする
+	camera_->SetIsMouseInput(isGame);
+	InputManager::GetInstance().SetMouseFlage(!isGame);
 }

@@ -30,6 +30,9 @@ public:
 	// 更新
 	virtual void Update(void) = 0;
 
+	// GUi更新
+	virtual void UpdateGui(void) {};
+
 	// 描画
 	virtual void Draw(void);
 
@@ -83,7 +86,4 @@ protected:
 	// 当たり判定衝突時の更新処理
 	virtual void Collision(void);
 	virtual void UpdateHitCollider(void){}
-
-	// GUi更新
-	virtual void UpdateGui(void) {};
 };

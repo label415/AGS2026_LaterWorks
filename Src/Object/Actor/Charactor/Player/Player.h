@@ -195,6 +195,9 @@ public:
 	// デストラクタ
 	~Player(void);
 
+	// GUi更新
+	void UpdateGui(void)override;
+
 	// 描画処理
 	void Draw(void) override;
 
