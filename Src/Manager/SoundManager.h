@@ -13,7 +13,6 @@ public:
 	{
 		// サウンドハンドル
 		int handle = -1;
-
 		// 音量
 		int volume = MaxVolumeValue;
 	};

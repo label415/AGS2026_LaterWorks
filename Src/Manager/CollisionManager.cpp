@@ -8,16 +8,19 @@
 
 void CollisionManager::AddCollider(const std::shared_ptr<ColliderBase>& col)
 {
+	// 各コライダーを登録
 	colliders_.push_back(col);
 }
 
 void CollisionManager::Release(void)
 {
+	// コライダー配列をクリア
 	colliders_.clear();
 }
 
 void CollisionManager::DrawDebug(void)
 {
+	// Debug時のみ、各コライダーを描画
 	for (auto& collider : colliders_)
 	{
 		if (collider.lock())
@@ -29,6 +32,9 @@ void CollisionManager::DrawDebug(void)
 
 void CollisionManager::Update(void)
 {
+	// 配列が空の場合は処理しない
+	if (colliders_.empty()) return;
+
 	// 有効期限切れコライダーを配列から除外する
 	colliders_.erase(
 		std::remove_if(colliders_.begin(), colliders_.end(),
@@ -37,8 +43,6 @@ void CollisionManager::Update(void)
 			}),
 		colliders_.end()
 	);
-
-	if (colliders_.empty()) return;
 
 	// 前回の衝突結果を全コライダークリア
 	for (auto& col : colliders_) { col.lock()->ClearHitCollider(); }

@@ -1,7 +1,14 @@
+#include <unordered_map>
+#include <vector>
+#include <fstream>
 #include <DxLib.h>
+#include "../Libs/nlohmann/json.hpp"
 #include "../Application.h"
 #include "Resource.h"
 #include "ResourceManager.h"
+
+// namespaceの省略
+using Json = nlohmann::json;
 
 ResourceManager* ResourceManager::instance_ = nullptr;
 
@@ -20,143 +27,51 @@ ResourceManager& ResourceManager::GetInstance(void)
 	return *instance_;
 }
 
+// リソース対応マップ 
+static const std::unordered_map<Resource::TYPE, std::wstring> RESOURCE_TYPE_MAP =
+{
+	{Resource::TYPE::IMG, Application::PATH_IMAGE},
+	{Resource::TYPE::FONT, Application::PATH_FONT},
+	{Resource::TYPE::JSON, Application::PATH_JSON},
+	{Resource::TYPE::EFFEKSEER, Application::PATH_EFFECT},
+	{Resource::TYPE::MODEL, Application::PATH_MODEL},
+	{Resource::TYPE::SOUND, Application::PATH_SOUND},
+};
+
 void ResourceManager::Init(void)
 {
-	// リソースの初期化
-	using RES = Resource;
-	using RES_T = RES::TYPE;
-	static std::wstring PATH_IMG = Application::PATH_IMAGE;
-	static std::wstring PATH_MDL = Application::PATH_MODEL;
-	static std::wstring PATH_FONT = Application::PATH_FONT;
-	static std::wstring PATH_EFF = Application::PATH_EFFECT;
-	static std::wstring PATH_SND = Application::PATH_SOUND;
-	static std::wstring PATH_JSON = Application::PATH_JSON;
+	// ローカル変数定義
+	Resource::TYPE resoutceType = Resource::TYPE::NONE;
+	std::wstring key = L"";
+	std::wstring path = L"";
 
-	// リソースの登録
-	Resource* res;
+	// JSONファイル読み込み
+	std::ifstream ifs((Application::PATH_JSON + L"Resources.json").c_str());
 
-	// プレイヤーモデル
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player.mv1");
-	resourcesMap_.emplace(SRC::MODEL_PLAYER, res);
-	// プレイヤー武器
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Wepon/HuntersGun/Resource/HuntersGun.mv1");
-	resourcesMap_.emplace(SRC::MODEL_WEAPON_GUN, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Wepon/HuntersSaw/Resource/HuntersSaw.mv1");
-	resourcesMap_.emplace(SRC::MODEL_WEAPON_SAW, res);
-	// プレイヤーアニメーション
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Idle.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLAYER_IDLE, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Run.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLAYER_RUN, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Attack_1.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLSYER_ATTACK_1, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Attack_2.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLSYER_ATTACK_2, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Attack_3.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLSYER_ATTACK_3, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Running.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLAYER_EVASION, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Down.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLAYER_DOWN, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Up.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLAYER_UP, res);
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Player/Player_Drinking.mv1");
-	resourcesMap_.emplace(SRC::ANIM_PLAYER_RECOVERY, res);
+	// 読み込めない場合アサート
+	assert(ifs.is_open() && L"ファイルが開けません");
 
-	// エネミーモデル
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Enemy/Dragon/Great Sword Slash.mv1");
-	resourcesMap_.emplace(SRC::MODEL_ENEMY_DRAGON, res);
+	Json j = Json::parse(ifs);
 
-	// ステージモデル
-	res = new RES(RES_T::MODEL, PATH_MDL + L"Stage/Stage.mv1");
-	resourcesMap_.emplace(SRC::MODEL_MAIN_STAGE, res);
-	// スカイドーム
-	res = new RES(RES_T::MODEL, PATH_MDL + L"SkyDome/Skydome.mv1");
-	resourcesMap_.emplace(SRC::MODEL_SKY_DOME, res);
+	// 各リソース登録
+	for (auto& data : j["resource"])
+	{
+		// 共通情報の格納
+		resoutceType = static_cast<Resource::TYPE>(data["type"].get<int>());
+		key = data["key"].get<std::wstring>();
+		path = data["path"].get<std::wstring>();
 
-	// タイトル画像
-	res = new RES(RES_T::IMG, PATH_IMG + L"");
-	resourcesMap_.emplace(SRC::IMG_TITLE, res);
-	// ゲームクリア画像
-	res = new RES(RES_T::IMG, PATH_IMG + L"GameClearImg.png");
-	resourcesMap_.emplace(SRC::IMG_GAMECLEAR, res);
-	// ゲームオーバー画像
-	res = new RES(RES_T::IMG, PATH_IMG + L"GameOverImg.png");
-	resourcesMap_.emplace(SRC::IMG_GAMEOVER, res);
+		std::wstring basePath = L"";
+		auto it = RESOURCE_TYPE_MAP.find(resoutceType);
+		if (it != RESOURCE_TYPE_MAP.end())
+		{
+			basePath = it->second;
+		}
+		std::wstring fullPath = path.empty() ? L"" : basePath + path;
 
-	// ロックオンUI
-	res = new RES(RES_T::IMG, PATH_IMG + L"LockOnImg.png");
-	resourcesMap_.emplace(SRC::UI_LOCKON, res);
-	// 選択カーソルUI
-	res = new RES(RES_T::IMG, PATH_IMG + L"SelectionCursor.png");
-	resourcesMap_.emplace(SRC::UI_SELECTION_CURSOR, res);
-	// バーの枠UI
-	res = new RES(RES_T::IMG, PATH_IMG + L"BarFrame.png");
-	resourcesMap_.emplace(SRC::UI_BAR_FRAME, res);
-	// HPバーUI
-	res = new RES(RES_T::IMG, PATH_IMG + L"HPBar.png");
-	resourcesMap_.emplace(SRC::UI_HP_BAR, res);
-	// STバーUI
-	res = new RES(RES_T::IMG, PATH_IMG + L"STBar.png");
-	resourcesMap_.emplace(SRC::UI_ST_BAR, res);
-	// アイテムボックスUI
-	res = new RES(RES_T::IMG, PATH_IMG + L"ItemBox.png");
-	resourcesMap_.emplace(SRC::UI_ITEMBOX, res);
-	// 回復瓶UI
-	res = new RES(RES_T::IMG, PATH_IMG + L"");
-	resourcesMap_.emplace(SRC::UI_RECOVERY_BOTTLE, res);
-
-	// フォント
-	res = new RES(RES_T::FONT, PATH_FONT + L"KazukiReiwa.ttf");
-	resourcesMap_.emplace(SRC::FONT, res);
-
-	// BGM
-	res = new RES(RES_T::SOUND, PATH_SND + L"BGM/");
-	resourcesMap_.emplace(SRC::BGM_TITLE, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"BGM/");
-	resourcesMap_.emplace(SRC::BGM_GAME, res);
-
-	// プレイヤーSE
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerWeaponHitSE1.mp3");
-	resourcesMap_.emplace(SRC::SE_PLAYER_WEAPON_1, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerDamageSE.mp3");
-	resourcesMap_.emplace(SRC::SE_PLAYER_DAMAGE, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerRecoverySE.mp3");
-	resourcesMap_.emplace(SRC::SE_PLAYER_RECOVERY, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/PlayerEvasionSE.mp3");
-	resourcesMap_.emplace(SRC::SE_PLAYER_EVASION, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/.mp3");
-	resourcesMap_.emplace(SRC::SE_PLAYER_WAKE, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"PlayerSE/.mp3");
-	resourcesMap_.emplace(SRC::SE_PLAYER_RUN, res);
-
-	// エネミーSE
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonRoarSE.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_ROAR, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonBreathSE1.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_BREASE_1, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonBreathSE2.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_BREASE_2, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonFlapSE.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_FLAP, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonAttackSE.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_ATTCEK, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonWakeSE.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_WAKE, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonFliyerAttSE1.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_ARE_BREASE_1, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonFliyerAttSE2.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_ARE_BREASE_2, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/DragonFallSE.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_FALL, res);
-	res = new RES(RES_T::SOUND, PATH_SND + L"EnemySE/EnemyHItDamageSE.mp3");
-	resourcesMap_.emplace(SRC::SE_ENEMY_HIT_DAMAGE, res);
-
-	// JSONデータ
-	res = new RES(RES_T::JSON, PATH_JSON + L"PlayerData.json");
-	resourcesMap_.emplace(SRC::JSON_PLAYER, res);
-	res = new RES(RES_T::JSON, PATH_JSON + L"EnemyData.json");
-	resourcesMap_.emplace(SRC::JSON_ENEMY, res);
+		Resource* newRes = new Resource(resoutceType, fullPath);
+		resourcesMap_.emplace(key, newRes);
+	}
 }
 
 void ResourceManager::Release(void)
@@ -181,7 +96,7 @@ void ResourceManager::Destroy(void)
 	delete instance_;
 }
 
-const Resource& ResourceManager::Load(SRC src)
+const Resource& ResourceManager::Load(std::wstring src)
 {
 	const Resource& res = _Load(src);
 	if (res.type_ == Resource::TYPE::NONE)
@@ -191,7 +106,7 @@ const Resource& ResourceManager::Load(SRC src)
 	return res;
 }
 
-int ResourceManager::LoadModelDuplicate(SRC src)
+int ResourceManager::LoadModelDuplicate(std::wstring src)
 {
 	Resource& res = _Load(src);
 	if (res.type_ == Resource::TYPE::NONE)
@@ -211,13 +126,13 @@ int ResourceManager::LoadModelDuplicate(SRC src)
 	return duId;
 }
 
-Json& ResourceManager::GetJson(SRC src)
+Json& ResourceManager::GetJson(std::wstring src)
 {
 	Resource& res = _Load(src);
 	return res.jsonData_;
 }
 
-bool ResourceManager::SaveJson(SRC src)
+bool ResourceManager::SaveJson(std::wstring src)
 {
 	const auto& rPair = resourcesMap_.find(src);
 	if (rPair == resourcesMap_.end())
@@ -227,7 +142,7 @@ bool ResourceManager::SaveJson(SRC src)
 	return rPair->second->Save();
 }
 
-bool ResourceManager::ReloadJson(SRC src)
+bool ResourceManager::ReloadJson(std::wstring src)
 {
 	const auto& rPair = resourcesMap_.find(src);
 	if (rPair == resourcesMap_.end())
@@ -240,7 +155,7 @@ bool ResourceManager::ReloadJson(SRC src)
 
 ResourceManager::ResourceManager(void){}
 
-Resource& ResourceManager::_Load(SRC src)
+Resource& ResourceManager::_Load(std::wstring src)
 {
 	// ロード済みチェック
 	const auto& lPair = loadedMap_.find(src);

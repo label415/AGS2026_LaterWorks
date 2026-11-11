@@ -2,6 +2,13 @@
 #include "../../../Utility/AsoUtility.h"
 #include "SkyDome.h"
 
+// リソース名
+namespace
+{
+	// スカイドームモデル
+	constexpr const wchar_t* MODEL_SKYDOME_NAME = L"ModelSkydome";
+}
+
 void SkyDome::Update(void)
 {
 	// スカイドームをゆっくり回転させる
@@ -24,7 +31,7 @@ void SkyDome::InitLoad(void)
 {
 	// スカイドームモデルのロード
 	transform_.SetModel(resMng_.LoadModelDuplicate(
-		ResourceManager::SRC::MODEL_SKY_DOME));
+		MODEL_SKYDOME_NAME));
 }
 
 void SkyDome::InitTransform(void)

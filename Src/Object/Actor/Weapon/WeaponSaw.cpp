@@ -6,6 +6,13 @@
 #include "../ActorBase.h"
 #include "WeaponSaw.h"
 
+// リソース名
+namespace
+{
+	// プレイヤー武器(剣)
+	constexpr const wchar_t* MODEL_WEAPON_SAW_NAME = L"ModelPlayerSaw";
+}
+
 WeaponSaw::WeaponSaw(const Transform& followTransform, int followFrameId)
 	: WeaponBase(WeaponBase::WEAPON_TYPE::BLADE, followTransform, followFrameId)
 	, isTransformation_(false)
@@ -30,7 +37,7 @@ void WeaponSaw::InitLoad(void)
 {
 	// モデルのロード
 	transform_.SetModel(
-		resMng_.Load(ResourceManager::SRC::MODEL_WEAPON_SAW).handleId_);
+		resMng_.Load(MODEL_WEAPON_SAW_NAME).handleId_);
 
 	animationController_ =
 		std::make_unique<AnimationController>(transform_.modelId);

@@ -30,6 +30,7 @@ void SceneManager::Init(void)
 
 	// ƒJƒƒ‰
 	camera_ = std::make_shared<Camera>();
+	camera_->Load();
 	camera_->LoadEnd();
 
 	// 3D—p‚Ìİ’è

@@ -16,6 +16,13 @@
 #include "../Application.h"
 #include "GameScene.h"
 
+// ÉäÉ\Å[ÉXñº
+namespace
+{
+	// ÉQÅ[ÉÄBGM
+	constexpr const wchar_t* BGM_GAME_NAME = L"BgmGame";
+}
+
 GameScene::GameScene(void)
 	:
 	SceneBase()
@@ -58,7 +65,7 @@ void GameScene::Load(void)
 	InputManager::GetInstance().SetMouseFlage(false);
 
 	// BGMìoò^
-	auto bgm = resMng_.Load(ResourceManager::SRC::BGM_GAME).handleId_;
+	auto bgm = resMng_.Load(BGM_GAME_NAME).handleId_;
 	sonMng_.Add(SoundManager::SOUND_ID::BGM_GAME, bgm, BGM_VOLUME);
 }
 

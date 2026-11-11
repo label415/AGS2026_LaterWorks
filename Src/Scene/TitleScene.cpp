@@ -7,6 +7,19 @@
 #include "../Utility/AsoUtility.h"
 #include "TitleScene.h"
 
+// リソース名
+namespace
+{
+	// フォント
+	constexpr const wchar_t* FONT_RESOURCE_NAME = L"KazukiReiwa";
+	// タイトル画像
+	constexpr const wchar_t* IMG_TITLE_NAME = L"ImgTitle";
+	// 選択カーソルUI
+	constexpr const wchar_t* IMG_SELECTION_CURSOR_NAME = L"ImgSelectionCursor";
+	// タイトルBGM
+	constexpr const wchar_t* BGM_TITLE_NAME = L"BgmTitle";
+}
+
 TitleScene::TitleScene(void)
 	:
 	selectIndex_(0),
@@ -19,12 +32,12 @@ TitleScene::~TitleScene(void) {}
 void TitleScene::Load(void)
 {
 	// フォントのロード
-	resMng_.Load(ResourceManager::SRC::FONT);
+	resMng_.Load(FONT_RESOURCE_NAME);
 	pauseFont_ = fontMng_.GetInstance().CreateMyFont(fontName_, FONT_SIZE, FONT_THICKNESS);
 
 	// 画像のロード
-	titleImg_ = resMng_.Load(ResourceManager::SRC::IMG_TITLE).handleId_;
-	selectImg_ = resMng_.Load(ResourceManager::SRC::UI_SELECTION_CURSOR).handleId_;
+	titleImg_ = resMng_.Load(IMG_TITLE_NAME).handleId_;
+	selectImg_ = resMng_.Load(IMG_SELECTION_CURSOR_NAME).handleId_;
 
 	// 各UIコライダー生成
 	for (int i = 0; i < LIST_MAX; ++i)
@@ -41,7 +54,7 @@ void TitleScene::Load(void)
 void TitleScene::LoadEnd(void)
 {
 	// BGM再生
-	auto bgm = resMng_.Load(ResourceManager::SRC::BGM_TITLE).handleId_;
+	auto bgm = resMng_.Load(BGM_TITLE_NAME).handleId_;
 	sonMng_.Add(SoundManager::SOUND_ID::BGM_TITLI, bgm, BGM_VOLUME);
 	sonMng_.PlaySoundId(SoundManager::SOUND_ID::BGM_TITLI, true);
 }

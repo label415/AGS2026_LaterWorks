@@ -1,0 +1,243 @@
+﻿{
+  // リソースタイプ
+  // NONE:0, IMG:1, IMGS:2, MODEL:3, FONT:4, EFFEKSEER:5, SOUND:6, JSON:7
+
+  "resource": [
+
+    // モデル
+    {
+      // プレイヤーモデル
+      "type": 3,
+      "key": "ModelPlayer",
+      "path": "Player/Player.mv1"
+    },
+    {
+      // プレイヤー武器(剣)
+      "type": 3,
+      "key": "ModelPlayerSaw",
+      "path": "Wepon/HuntersSaw/Resource/HuntersSaw.mv1"
+    },
+    {
+      // プレイヤー武器(銃)
+      "type": 3,
+      "key": "ModelPlayerGun",
+      "path": "Wepon/HuntersGun/Resource/HuntersGun.mv1"
+    },
+    {
+      // プレイヤーアニメーション(待機)
+      "type": 3,
+      "key": "AnimationPlayerIdle",
+      "path": "Player/Player_Idle.mv1"
+    },
+    {
+      // プレイヤーアニメーション(歩き)
+      "type": 3,
+      "key": "AnimationPlayerWalk",
+      "path": "Player/Player_Walk.mv1"
+    },
+    {
+      // プレイヤーアニメーション(走る)
+      "type": 3,
+      "key": "AnimationPlayerRun",
+      "path": "Player/Player_Run.mv1"
+    },
+    {
+      // プレイヤーアニメーション(攻撃1)
+      "type": 3,
+      "key": "AnimationPlayerAttack1",
+      "path": "Player/Player_Attack_1.mv1"
+    },
+    {
+      // プレイヤーアニメーション(攻撃2)
+      "type": 3,
+      "key": "AnimationPlayerAttack2",
+      "path": "Player/Player_Attack_2.mv1"
+    },
+    {
+      // プレイヤーアニメーション(攻撃3)
+      "type": 3,
+      "key": "AnimationPlayerAttack3",
+      "path": "Player/Player_Attack_3.mv1"
+    },
+    {
+      // プレイヤーアニメーション(回避)
+      "type": 3,
+      "key": "AnimationPlayerEvasion",
+      "path": "Player/Player_Run.mv1"
+    },
+    {
+      // プレイヤーアニメーション(回復)
+      "type": 3,
+      "key": "AnimationPlayerRecovery",
+      "path": "Player/Player_Recovery.mv1"
+    },
+    {
+      // プレイヤーアニメーション(ダウン)
+      "type": 3,
+      "key": "AnimationPlayerDown",
+      "path": "Player/Player_Down.mv1"
+    },
+    {
+      // プレイヤーアニメーション(起き上がる)
+      "type": 3,
+      "key": "AnimationPlayerUp",
+      "path": "Player/Player_Up.mv1"
+    },
+    {
+      // エネミーモデル
+      "type": 3,
+      "key": "ModelEnemyBoss",
+      "path": "Enemy/Boss/Boss.mv1"
+    },
+    {
+      // ステージモデル
+      "type": 3,
+      "key": "ModelStage",
+      "path": "Stage/Stage.mv1"
+    },
+    {
+      // スカイドーム
+      "type": 3,
+      "key": "ModelSkydome",
+      "path": "SkyDome/SkyDome.mv1"
+    },
+
+
+    // 画像
+    {
+      // タイトル画像
+      "type": 1,
+      "key": "ImgTitle",
+      "path": ""
+    },
+    {
+      // ゲームクリア画像
+      "type": 1,
+      "key": "ImgGameClear",
+      "path": "GameClearImg.png"
+    },
+    {
+      // ゲームオーバー画像
+      "type": 1,
+      "key": "ImgGameOver",
+      "path": "GameOverImg.png"
+    },
+    {
+      // ロックオンUI
+      "type": 1,
+      "key": "ImgLockOn",
+      "path": "LockOnImg.png"
+    },
+    {
+      // 選択カーソルUI
+      "type": 1,
+      "key": "ImgSelectionCursor",
+      "path": "SelectionCursor.png"
+    },
+    {
+      // バーの枠UI
+      "type": 1,
+      "key": "ImgBarFrame",
+      "path": "BarFrame.png"
+    },
+    {
+      // HPバーUI
+      "type": 1,
+      "key": "ImgHPBar",
+      "path": "HPBar.png"
+    },
+    {
+      // STバーUI
+      "type": 1,
+      "key": "ImgSTBar",
+      "path": "STBar.png"
+    },
+    {
+      // アイテムボックスUI
+      "type": 1,
+      "key": "ImgItemBox",
+      "path": "ItemBox.png"
+    },
+    {
+      // 回復瓶UI
+      "type": 1,
+      "key": "ImgRecoveryBottle",
+      "path": ""
+    },
+
+
+    // フォント
+    {
+      // フォント
+      "type": 4,
+      "key": "KazukiReiwa",
+      "path": "KazukiReiwa.ttf"
+    },
+
+
+    // サウンド
+    {
+      // BGM(タイトル)
+      "type": 6,
+      "key": "BgmTitle",
+      "path": "BGM/TitleBgm.mp3"
+    },
+    {
+      // BGM(ゲーム)
+      "type": 6,
+      "key": "BgmGame",
+      "path": "BGM/GameBgm.mp3"
+    },
+    {
+      // プレイヤーSE(歩き)
+      "type": 6,
+      "key": "SePlayerWake",
+      "path": "PlayerSE/PlayerWakeSE.mp3"
+    },
+    {
+      // プレイヤーSE(走り)
+      "type": 6,
+      "key": "SePlayerRun",
+      "path": "PlayerSE/PlayerRunSE.mp3"
+    },
+    {
+      // プレイヤーSE(回復)
+      "type": 6,
+      "key": "SePlayerRecovery",
+      "path": "PlayerSE/PlayerRecoverySE.mp3"
+    },
+    {
+      // プレイヤーSE(回避)
+      "type": 6,
+      "key": "SePlayerEvasion",
+      "path": "PlayerSE/PlayerEvasionSE.mp3"
+    },
+    {
+      // プレイヤーSE(武器攻撃1)
+      "type": 6,
+      "key": "SePlayerWeapon1",
+      "path": "PlayerSE/PlayerWeaponHitSE1.mp3"
+    },
+    {
+      // プレイヤーSE(被ダメージ)
+      "type": 6,
+      "key": "SePlayerDamage",
+      "path": "PlayerSE/PlayerDamageSE.mp3"
+    },
+
+
+    // Jsonデータ
+    {
+      // プレイヤーデータ
+      "type": 7,
+      "key": "PlayerData",
+      "path": "PlayerData.json"
+    },
+    {
+      // エネミーデータ
+      "type": 7,
+      "key": "EnemyData",
+      "path": "EnemyData.json"
+    }
+  ]
+}

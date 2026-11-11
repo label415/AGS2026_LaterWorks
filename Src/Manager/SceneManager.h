@@ -100,7 +100,7 @@ private:
 	// ロード画面を表示した次のフレームで読み込みを開始するフラグ
 	bool isLoadStart_;
 
-	// 積まれているシーン(末尾が最上位)
+	// 積まれているシーン
 	std::vector<std::unique_ptr<SceneBase>> scenes_;
 
 	// 積まれているシーンのID(scenes_と同じ並び)

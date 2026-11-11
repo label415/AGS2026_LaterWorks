@@ -8,6 +8,15 @@
 #include "../Utility/AsoUtility.h"
 #include "PauseScene.h"
 
+// リソース名
+namespace
+{
+	// フォント
+	constexpr const wchar_t* FONT_RESOURCE_NAME = L"KazukiReiwa";
+	// 選択カーソルUI
+	constexpr const wchar_t* IMG_SELECTION_CURSOR_NAME = L"ImgSelectionCursor";
+}
+
 PauseScene::PauseScene(void)
 	:
 	selectIndex_(0),
@@ -21,11 +30,11 @@ PauseScene::~PauseScene(void){}
 void PauseScene::LoadEnd(void)
 {
 	// フォントハンドルの作成
-	resMng_.Load(ResourceManager::SRC::FONT);
+	resMng_.Load(FONT_RESOURCE_NAME);
 	pauseFont_ = fontMng_.GetInstance().CreateMyFont(fontName_, FONT_SIZE, FONT_THICKNESS);
 
 	// 画像のロード
-	selectImg_ = resMng_.Load(ResourceManager::SRC::UI_SELECTION_CURSOR).handleId_;
+	selectImg_ = resMng_.Load(IMG_SELECTION_CURSOR_NAME).handleId_;
 
 	// 各UIコライダー生成
 	for (int i = 0; i < LIST_MAX; ++i)

@@ -4,6 +4,15 @@
 #include "../../../Application.h"
 #include "UiSt.h"
 
+// リソース名
+namespace
+{
+	// バーフレーム
+	constexpr const wchar_t* IMG_BARFRAME_NAME = L"ImgBarFrame";
+	// STバー
+	constexpr const wchar_t* IMG_STBAR_NAME = L"ImgSTBar";
+}
+
 UiSt::UiSt(
 	const float* stCurrent,
 	float posX, float posY,
@@ -19,9 +28,9 @@ UiSt::UiSt(
 {
 	// リソースのロード
 	flameImg_ = ResourceManager::GetInstance()
-		.Load(ResourceManager::SRC::UI_BAR_FRAME).handleId_;
+		.Load(IMG_BARFRAME_NAME).handleId_;
 	suUiImg_ = ResourceManager::GetInstance()
-		.Load(ResourceManager::SRC::UI_ST_BAR).handleId_;
+		.Load(IMG_STBAR_NAME).handleId_;
 }
 
 UiSt::~UiSt(void){}

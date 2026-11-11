@@ -4,6 +4,15 @@
 #include "../../../Application.h"
 #include "UiHp.h"
 
+// リソース名
+namespace
+{
+	// HPバー
+	constexpr const wchar_t* IMG_HPBAR_NAME = L"ImgHPBar";
+	// バーフレーム
+	constexpr const wchar_t* IMG_BARFRAME_NAME = L"ImgBarFrame";
+}
+
 UiHp::UiHp(const float* hpCurrent,
 	float posX, float posY,
 	float sclX, float sclY, float flameScl)
@@ -18,9 +27,9 @@ UiHp::UiHp(const float* hpCurrent,
 {
 	// リソースのロード
 	flameImg_ = ResourceManager::GetInstance()
-		.Load(ResourceManager::SRC::UI_BAR_FRAME).handleId_;
+		.Load(IMG_BARFRAME_NAME).handleId_;
 	hpImg_ = ResourceManager::GetInstance()
-		.Load(ResourceManager::SRC::UI_HP_BAR).handleId_;
+		.Load(IMG_HPBAR_NAME).handleId_;
 }
 
 UiHp::~UiHp(void){}

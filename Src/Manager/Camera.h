@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <map>
 #include <vector>
 #include "../Common/Quaternion.h"
@@ -184,6 +185,12 @@ private:
 
 	// カメラモード
 	MODE mode_;
+
+	// カメラモードテーブル
+	std::map<MODE, std::function<void()>> cameraModeTable_;
+
+	// 現在のカメラモード処理
+	std::function<void()> cameraModeFunc_;
 
 	// カメラ角度(rad)
 	VECTOR angles_;

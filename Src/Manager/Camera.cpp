@@ -12,6 +12,13 @@
 #include "../Object/Common/Collider/ColliderSphere.h"
 #include "Camera.h"
 
+// リソース名
+namespace
+{
+	// ロックオンUI
+	constexpr const wchar_t* IMG_LOCKON_NAME = L"ImgLockOn";
+}
+
 Camera::Camera(void)
 	:
 	followTransform_(nullptr),
@@ -34,21 +41,8 @@ void Camera::SetBeforeDraw(void)
 	// クリップ距離を設定する
 	SetCameraNearFar(VIEW_NEAR, VIEW_FAR);
 
-	switch (mode_)
-	{
-	case Camera::MODE::FIXED_POINT:
-		SetBeforeDrawFixedPoint();
-		break;
-	case Camera::MODE::FREE:
-		SetBeforeDrawFree();
-		break;
-	case Camera::MODE::FOLLOW:
-		SetBeforeDrawFollow();
-		break;
-	case Camera::MODE::TARGET_ROCKE:
-		SetBeforeDrawTargetLockeOn();
-		break;
-	}
+	// カメラモード処理
+	cameraModeFunc_();
 
 	// 通常カメラ時は既存の Up ベクトルを使用
 	SetCameraPositionAndTargetAndUpVec(
@@ -93,7 +87,7 @@ void Camera::ResetForScene(void)
 	isMouseInput_ = false;
 
 	// シーン切り替えでリソースが解放されるため再読み込み
-	lockOnImg_ = resMng_.Load(ResourceManager::SRC::UI_LOCKON).handleId_;
+	lockOnImg_ = resMng_.Load(IMG_LOCKON_NAME).handleId_;
 
 	// シーン切り替えで当たり判定管理がクリアされるため再登録
 	for (const auto& pair : ownColliders_)
@@ -105,7 +99,19 @@ void Camera::ResetForScene(void)
 	}
 }
 
-void Camera::InitLoad(void) {}
+void Camera::InitLoad(void)
+{
+	// カメラモードの登録
+	cameraModeTable_ = {
+		{ MODE::FIXED_POINT,  [this]() { SetBeforeDrawFixedPoint(); } },
+		{ MODE::FREE,         [this]() { SetBeforeDrawFree(); } },
+		{ MODE::FOLLOW,       [this]() { SetBeforeDrawFollow(); } },
+		{ MODE::TARGET_ROCKE, [this]() { SetBeforeDrawTargetLockeOn(); } },
+	};
+
+	// 初期モード設定
+	ChangeMode(MODE::FIXED_POINT);
+}
 
 void Camera::InitCollider(void)
 {
@@ -129,8 +135,6 @@ void Camera::InitCollider(void)
 
 void Camera::InitPost(void)
 {
-	// カメラモードの初期化
-	ChangeMode(MODE::FIXED_POINT);
 	auto& ins = InputManager::GetInstance();
 	mouseX = static_cast<float>(ins.GetMousePos().x);
 	mouseY = static_cast<float>(ins.GetMousePos().y);
@@ -138,7 +142,7 @@ void Camera::InitPost(void)
 	preMouseY = static_cast<float>(ins.GetMousePos().y);
 
 	// ロックオン画像ロード
-	lockOnImg_ = resMng_.Load(ResourceManager::SRC::UI_LOCKON).handleId_;
+	lockOnImg_ = resMng_.Load(IMG_LOCKON_NAME).handleId_;
 
 	isMouseInput_ = false;
 }
@@ -285,22 +289,21 @@ VECTOR Camera::GetForward(void) const
 
 void Camera::ChangeMode(MODE mode)
 {
+	// モードが同じときは処理しない
+	if (mode_ == mode) return;
+
 	// カメラモードの変更
 	mode_ = mode;
 
-	// 変更時の初期化処理
-	switch (mode_)
+	// 状態が変わった瞬間に処理を切り替える
+	auto it = cameraModeTable_.find(mode_);
+	cameraModeFunc_ = (it != cameraModeTable_.end()) ? it->second : nullptr;
+
+	// カメラを初期化
+	if (mode_ == Camera::MODE::FIXED_POINT
+		|| mode_ == Camera::MODE::FREE)
 	{
-	case Camera::MODE::FIXED_POINT:
 		SetDefault();
-		break;
-	case Camera::MODE::FREE:
-		SetDefault();
-		break;
-	case Camera::MODE::FOLLOW:
-		break;
-	case Camera::MODE::TARGET_ROCKE:
-		break;
 	}
 }
 

@@ -16,7 +16,7 @@ public:
 		// 一覧に表示するオブジェクト名
 		std::string name;
 		// 対応するJSONリソース種別
-		ResourceManager::SRC jsonSrc;
+		std::wstring jsonSrc;
 		// ImGuiウィジェット描画コールバック(即時反映)
 		std::function<void(void)> drawGui;
 		// 現在のパラメータをJsonへ書き込むコールバック

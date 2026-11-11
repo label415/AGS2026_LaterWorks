@@ -5,6 +5,13 @@
 #include "../../Application.h"
 #include "Loading.h"
 
+// リソース名
+namespace
+{
+	// フォント
+	constexpr const wchar_t* FONT_NAME = L"KazukiReiwa";
+}
+
 // コンストラクタ
 Loading::Loading()
 	: pauseFont_(-1)
@@ -21,7 +28,7 @@ void Loading::Load(void)
 {
 	// リソース取得
 	auto& res = ResourceManager::GetInstance();
-	res.Load(ResourceManager::SRC::FONT);
+	res.Load(FONT_NAME);
 
 	// フォントハンドルの作成
 	auto& font = FontManager::GetInstance();

@@ -122,7 +122,6 @@ void Resource::Release(void)
 		handleIds_ = nullptr;
 	}
 	break;
-
 	case Resource::TYPE::MODEL:
 	{
 		MV1DeleteModel(handleId_);
@@ -135,7 +134,6 @@ void Resource::Release(void)
 		duplicateModelIds_.clear();
 	}
 	break;
-
 	case Resource::TYPE::FONT:
 	{
 		if (RemoveFontResourceEx(
@@ -148,7 +146,6 @@ void Resource::Release(void)
 		}
 	}
 	break;
-
 	case Resource::TYPE::EFFEKSEER:
 
 		DeleteEffekseerEffect(handleId_);

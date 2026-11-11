@@ -5,6 +5,13 @@
 #include "../../Common/Collider/ColliderSphere.h"
 #include "Stage.h"
 
+// リソース名
+namespace
+{
+	// ステージモデル
+	constexpr const wchar_t* MODEL_STAGE_NAME = L"ModelStage";
+}
+
 void Stage::Update(void)
 {
 	// 衝突判定
@@ -24,7 +31,7 @@ void Stage::InitLoad(void)
 {
 	// モデルのロード
 	transform_.SetModel(resMng_.LoadModelDuplicate(
-		ResourceManager::SRC::MODEL_MAIN_STAGE));
+		MODEL_STAGE_NAME));
 }
 
 void Stage::InitTransform(void)

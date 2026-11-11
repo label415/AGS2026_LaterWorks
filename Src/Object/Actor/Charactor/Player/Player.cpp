@@ -32,6 +32,49 @@
 #include "State/PlayerRecoveryState.h"
 #include "Player.h"
 
+// リソース名
+namespace
+{
+	// プレイヤーモデル
+	constexpr const wchar_t* MODEL_PLAYER_NAME = L"ModelPlayer";
+	// プレイヤーアニメーション(待機)
+	constexpr const wchar_t* ANIM_PLAYER_IDLE_NAME = L"AnimationPlayerIdle";
+	// プレイヤーアニメーション(歩き)
+	constexpr const wchar_t* ANIM_PLAYER_WALK_NAME = L"AnimationPlayerWalk";
+	// プレイヤーアニメーション(走り)
+	constexpr const wchar_t* ANIM_PLAYER_RUN_NAME = L"AnimationPlayerRun";
+	// プレイヤーアニメーション(攻撃1)
+	constexpr const wchar_t* ANIM_PLAYER_ATTACK_1_NAME = L"AnimationPlayerAttack1";
+	// プレイヤーアニメーション(攻撃2)
+	constexpr const wchar_t* ANIM_PLAYER_ATTACK_2_NAME = L"AnimationPlayerAttack2";
+	// プレイヤーアニメーション(攻撃3)
+	constexpr const wchar_t* ANIM_PLAYER_ATTACK_3_NAME = L"AnimationPlayerAttack3";
+	// プレイヤーアニメーション(回避)
+	constexpr const wchar_t* ANIM_PLAYER_EVASION_NAME = L"AnimationPlayerEvasion";
+	// プレイヤーアニメーション(ダウン)
+	constexpr const wchar_t* ANIM_PLAYER_DOWN_NAME = L"AnimationPlayerDown";
+	// プレイヤーアニメーション(起き上がり)
+	constexpr const wchar_t* ANIM_PLAYER_UP_NAME = L"AnimationPlayerUp";
+	// プレイヤーアニメーション(回復)
+	constexpr const wchar_t* ANIM_PLAYER_RECOVERY_NAME = L"AnimationPlayerRecovery";
+	// プレイヤーデータ
+	constexpr const wchar_t* JSON_PLAYER_DATA_NAME = L"PlayerData";
+
+	// サウンド
+	// 歩きSE
+	constexpr const wchar_t* SE_PLAYER_WAKE_NAME = L"SePlayerWake";
+	// 走りSE
+	constexpr const wchar_t* SE_PLAYER_RUN_NAME = L"SePlayerRun";
+	// 回復SE
+	constexpr const wchar_t* SE_PLAYER_RECOVERY_NAME = L"SePlayerRecovery";
+	// 回避SE
+	constexpr const wchar_t* SE_PLAYER_EVASION_NAME = L"SePlayerEvasion";
+	// 攻撃SE
+	constexpr const wchar_t* SE_PLAYER_WEAPON_1_NAME = L"SePlayerWeapon1";
+	// 被ダメージSE
+	constexpr const wchar_t* SE_PLAYER_DAMAGE_NAME = L"SePlayerDamage";
+}
+
 Player::Player(void)
 	: CharactorBase()
 	, param_()
@@ -73,7 +116,7 @@ void Player::Release(void)
 void Player::InitLoad(void)
 {
 	// JSONからパラメータを読み込む
-	const auto& playerJson = resMng_.Load(ResourceManager::SRC::JSON_PLAYER).jsonData_;
+	const auto& playerJson = resMng_.Load(JSON_PLAYER_DATA_NAME).jsonData_;
 	LoadParam(playerJson);
 
 	// HP・スタミナ・回復瓶の初期値を設定
@@ -83,7 +126,7 @@ void Player::InitLoad(void)
 
 	// プレイヤーモデル
 	transform_.SetModel(resMng_.LoadModelDuplicate(
-		ResourceManager::SRC::MODEL_PLAYER));
+		MODEL_PLAYER_NAME));
 
 	// 武器初期化
 	InitWeapon();
@@ -160,25 +203,25 @@ void Player::InitAnimation(void)
 
 	// アニメーションの登録
 	animationController_->Add(static_cast<int>(ANIM_TYPE::IDLE),
-		param_.animSpeedIdle, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_IDLE));
+		param_.animSpeedIdle, resMng_.LoadModelDuplicate(ANIM_PLAYER_IDLE_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
-		param_.animSpeedRun, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RUN));
+		param_.animSpeedRun, resMng_.LoadModelDuplicate(ANIM_PLAYER_RUN_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::FAST_RUN),
-		param_.animSpeedFastRun, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RUN));
+		param_.animSpeedFastRun, resMng_.LoadModelDuplicate(ANIM_PLAYER_RUN_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_1),
-		param_.animSpeedAttack1, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_1));
+		param_.animSpeedAttack1, resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_1_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_2),
-		param_.animSpeedAttack2, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_2));
+		param_.animSpeedAttack2, resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_2_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_3),
-		param_.animSpeedAttack3, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLSYER_ATTACK_3));
+		param_.animSpeedAttack3, resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_3_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::EVASION),
-		param_.animSpeedEvasion, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_EVASION));
+		param_.animSpeedEvasion, resMng_.LoadModelDuplicate(ANIM_PLAYER_EVASION_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::DOWN),
-		param_.animSpeedDown, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_DOWN));
+		param_.animSpeedDown, resMng_.LoadModelDuplicate(ANIM_PLAYER_DOWN_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::UP),
-		param_.animSpeedUp, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_UP));
+		param_.animSpeedUp, resMng_.LoadModelDuplicate(ANIM_PLAYER_UP_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::RECOVERY),
-		param_.animSpeedRecovery, resMng_.LoadModelDuplicate(ResourceManager::SRC::ANIM_PLAYER_RECOVERY));
+		param_.animSpeedRecovery, resMng_.LoadModelDuplicate(ANIM_PLAYER_RECOVERY_NAME));
 
 	// 初期アニメーション再生
 	animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
@@ -214,7 +257,7 @@ void Player::InitPost(void)
 	// 統合エディタへPlayerを登録
 	EditorManager::EditObject editObj;
 	editObj.name = "Player";
-	editObj.jsonSrc = ResourceManager::SRC::JSON_PLAYER;
+	editObj.jsonSrc = JSON_PLAYER_DATA_NAME;
 	editObj.drawGui = [this]() { this->UpdateGui(); };
 	editObj.saveToJson = [this](Json& json) { this->SaveParam(json); };
 	editObj.loadFromJson = [this](const Json& json) {
@@ -726,22 +769,22 @@ void Player::InitSound(void)
 	// サウンド登録
 	int seHandlId = -1;
 	// 歩きSE
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WAKE).handleId_;
+	seHandlId = resMng_.Load(SE_PLAYER_WAKE_NAME).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_WAKE, seHandlId, param_.seVolume);
 	// 走りSE
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RUN).handleId_;
+	seHandlId = resMng_.Load(SE_PLAYER_RUN_NAME).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, param_.seVolume);
 	// 回復SE
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_RECOVERY).handleId_;
+	seHandlId = resMng_.Load(SE_PLAYER_RECOVERY_NAME).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, param_.seVolume);
 	// 回避SE
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_EVASION).handleId_;
+	seHandlId = resMng_.Load(SE_PLAYER_EVASION_NAME).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, param_.seVolume);
 	// 攻撃SE
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_WEAPON_1).handleId_;
+	seHandlId = resMng_.Load(SE_PLAYER_WEAPON_1_NAME).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_WEPON_SE1, seHandlId, param_.seVolume);
 	// 被ダメージSE
-	seHandlId = resMng_.Load(ResourceManager::SRC::SE_PLAYER_DAMAGE).handleId_;
+	seHandlId = resMng_.Load(SE_PLAYER_DAMAGE_NAME).handleId_;
 	sngMng_.Add(SoundManager::SOUND_ID::PLAYER_RAN, seHandlId, param_.seVolume);
 }
 

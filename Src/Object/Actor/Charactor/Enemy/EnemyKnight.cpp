@@ -8,6 +8,15 @@
 #include "../../../Common/Collider/ColliderCapsule.h"
 #include "EnemyKnight.h"
 
+// リソース名
+namespace
+{
+	// エネミーモデル
+	constexpr const wchar_t* MODEL_ENEMY_BOSS_NAME = L"ModelEnemyBoss";
+	// エネミーデータ
+	constexpr const wchar_t* JSON_ENEMY_DATA_NAME = L"EnemyData";
+}
+
 EnemyKnight::EnemyKnight(void)
 	: EnemyBase()
 {
@@ -21,14 +30,14 @@ void EnemyKnight::InitLoad(void)
 {
 	//プレイヤーモデル
 	transform_.SetModel(resMng_.LoadModelDuplicate(
-		ResourceManager::SRC::MODEL_ENEMY_DRAGON));
+		MODEL_ENEMY_BOSS_NAME));
 }
 
 void EnemyKnight::InitTransform(void)
 {
 	// Transformの初期化
 	const auto& playerData =
-		resMng_.Load(ResourceManager::SRC::JSON_ENEMY).jsonData_;
+		resMng_.Load(JSON_ENEMY_DATA_NAME).jsonData_;
 	const auto& playerTrans = playerData["Transform"];
 
 	// 座標の初期化
@@ -55,7 +64,7 @@ void EnemyKnight::InitCollider(void)
 {
 	// コライダーデータの読み込み
 	const auto& enemyData =
-		resMng_.Load(ResourceManager::SRC::JSON_ENEMY).jsonData_;
+		resMng_.Load(JSON_ENEMY_DATA_NAME).jsonData_;
 	const auto& colData = enemyData["collider"];
 
 	// 線分コライダ
@@ -123,7 +132,7 @@ void EnemyKnight::InitAnimation(void)
 
 	// アニメーション速度の読み込み
 	const auto& playerData =
-		resMng_.Load(ResourceManager::SRC::JSON_ENEMY).jsonData_;
+		resMng_.Load(JSON_ENEMY_DATA_NAME).jsonData_;
 	const auto& anim = playerData["animationSpeed"];
 
 	// アニメーション登録
