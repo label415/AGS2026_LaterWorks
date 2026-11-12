@@ -51,15 +51,16 @@ void ResourceManager::Init(void)
 	// 読み込めない場合アサート
 	assert(ifs.is_open() && L"ファイルが開けません");
 
-	Json j = Json::parse(ifs);
+	// データ格納
+	Json resourceData = Json::parse(ifs, nullptr, true, true);
 
 	// 各リソース登録
-	for (auto& data : j["resource"])
+	for (auto& data : resourceData["resource"])
 	{
 		// 共通情報の格納
 		resoutceType = static_cast<Resource::TYPE>(data["type"].get<int>());
-		key = data["key"].get<std::wstring>();
-		path = data["path"].get<std::wstring>();
+		key = Utf8ToWide(data["key"].get<std::string>());
+		path = Utf8ToWide(data["path"].get<std::string>());
 
 		std::wstring basePath = L"";
 		auto it = RESOURCE_TYPE_MAP.find(resoutceType);
@@ -151,6 +152,16 @@ bool ResourceManager::ReloadJson(std::wstring src)
 	}
 	rPair->second->Load();
 	return true;
+}
+
+std::wstring ResourceManager::Utf8ToWide(const std::string& str)
+{
+	if (str.empty()) return L"";
+	int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+	if (size <= 1) return L"";
+	std::wstring wstr(size - 1, L'\0');
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &wstr[0], size);
+	return wstr;
 }
 
 ResourceManager::ResourceManager(void){}

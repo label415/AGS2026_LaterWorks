@@ -39,10 +39,8 @@ namespace
 	constexpr const wchar_t* MODEL_PLAYER_NAME = L"ModelPlayer";
 	// プレイヤーアニメーション(待機)
 	constexpr const wchar_t* ANIM_PLAYER_IDLE_NAME = L"AnimationPlayerIdle";
-	// プレイヤーアニメーション(歩き)
-	constexpr const wchar_t* ANIM_PLAYER_WALK_NAME = L"AnimationPlayerWalk";
-	// プレイヤーアニメーション(走り)
-	constexpr const wchar_t* ANIM_PLAYER_RUN_NAME = L"AnimationPlayerRun";
+	// プレイヤーアニメーション(移動)
+	constexpr const wchar_t* ANIM_PLAYER_MOVE_NAME = L"AnimationPlayerMove";
 	// プレイヤーアニメーション(攻撃1)
 	constexpr const wchar_t* ANIM_PLAYER_ATTACK_1_NAME = L"AnimationPlayerAttack1";
 	// プレイヤーアニメーション(攻撃2)
@@ -205,9 +203,9 @@ void Player::InitAnimation(void)
 	animationController_->Add(static_cast<int>(ANIM_TYPE::IDLE),
 		param_.animSpeedIdle, resMng_.LoadModelDuplicate(ANIM_PLAYER_IDLE_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
-		param_.animSpeedRun, resMng_.LoadModelDuplicate(ANIM_PLAYER_RUN_NAME));
+		param_.animSpeedRun, resMng_.LoadModelDuplicate(ANIM_PLAYER_MOVE_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::FAST_RUN),
-		param_.animSpeedFastRun, resMng_.LoadModelDuplicate(ANIM_PLAYER_RUN_NAME));
+		param_.animSpeedFastRun, resMng_.LoadModelDuplicate(ANIM_PLAYER_MOVE_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_1),
 		param_.animSpeedAttack1, resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_1_NAME));
 	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_2),

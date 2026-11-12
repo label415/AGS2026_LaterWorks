@@ -37,6 +37,9 @@ public:
 	// JSONデータのファイル再読み込み
 	bool ReloadJson(std::wstring src);
 
+	// UTF-8 の std::string を std::wstring に変換する
+	std::wstring Utf8ToWide(const std::string& str);
+
 private:
 
 	// 静的インスタンス

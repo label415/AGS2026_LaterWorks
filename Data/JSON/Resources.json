@@ -30,16 +30,10 @@
       "path": "Player/Player_Idle.mv1"
     },
     {
-      // プレイヤーアニメーション(歩き)
+      // プレイヤーアニメーション(移動)
       "type": 3,
-      "key": "AnimationPlayerWalk",
-      "path": "Player/Player_Walk.mv1"
-    },
-    {
-      // プレイヤーアニメーション(走る)
-      "type": 3,
-      "key": "AnimationPlayerRun",
-      "path": "Player/Player_Run.mv1"
+      "key": "AnimationPlayerMove",
+      "path": "Player/Player_Move.mv1"
     },
     {
       // プレイヤーアニメーション(攻撃1)
@@ -63,7 +57,7 @@
       // プレイヤーアニメーション(回避)
       "type": 3,
       "key": "AnimationPlayerEvasion",
-      "path": "Player/Player_Run.mv1"
+      "path": "Player/Player_Evasion.mv1"
     },
     {
       // プレイヤーアニメーション(回復)

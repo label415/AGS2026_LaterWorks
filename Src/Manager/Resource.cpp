@@ -86,7 +86,7 @@ void Resource::Load(void)
 		// ファイルが開けなかった場合は処理しない
 		if (!ifs) return;
 
-		jsonData_ = Json::parse(ifs);
+		jsonData_ = Json::parse(ifs, nullptr, true, true);
 		break;
 	}
 }
