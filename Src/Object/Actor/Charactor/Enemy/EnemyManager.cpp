@@ -3,7 +3,7 @@
 #include "../../../../Application.h"
 #include "../../../../Utility/AsoUtility.h"
 #include "../../../Common/Collider/ColliderBase.h"
-#include "EnemyKnight.h"
+#include "EnemyBoss.h"
 #include "EnemyManager.h"
 
 EnemyManager::EnemyManager(void){}
@@ -67,6 +67,6 @@ void EnemyManager::Release(void)
 
 void EnemyManager::Create(void)
 {
-	auto enemy = std::make_shared<EnemyKnight>();
+	auto enemy = std::make_shared<EnemyBoss>();
 	enemys_.push_back(enemy);
 }

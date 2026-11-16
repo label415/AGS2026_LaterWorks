@@ -83,6 +83,20 @@
       "key": "ModelEnemyBoss",
       "path": "Enemy/Boss/Boss.mv1"
     },
+
+    {
+      // エネミー剣モデル
+      "type": 3,
+      "key": "ModelEnemyShield",
+      "path": "Wepon/Shield/Shield.mv1"
+    },
+    {
+      // エネミー盾モデル
+      "type": 3,
+      "key": "ModelEnemySword",
+      "path": "Wepon/Sword/Sword.mv1"
+    },
+
     {
       // ステージモデル
       "type": 3,

@@ -14,7 +14,7 @@ namespace
 }
 
 WeaponSaw::WeaponSaw(const Transform& followTransform, int followFrameId)
-	: WeaponBase(WeaponBase::WEAPON_TYPE::BLADE, followTransform, followFrameId)
+	: WeaponBase(WeaponBase::WEAPON_TYPE::SAW, followTransform, followFrameId)
 	, isTransformation_(false)
 {
 	// ê∂ë∂ÉtÉâÉOÇñ≥å¯Ç…Ç∑ÇÈ

@@ -6,7 +6,7 @@
 #include "../../../../Manager/SoundManager.h"
 #include "../../../Common/Collider/ColliderLine.h"
 #include "../../../Common/Collider/ColliderCapsule.h"
-#include "EnemyKnight.h"
+#include "EnemyBoss.h"
 
 // リソース名
 namespace
@@ -17,23 +17,23 @@ namespace
 	constexpr const wchar_t* JSON_ENEMY_DATA_NAME = L"EnemyData";
 }
 
-EnemyKnight::EnemyKnight(void)
+EnemyBoss::EnemyBoss(void)
 	: EnemyBase()
 {
 }
 
-EnemyKnight::~EnemyKnight(void)
+EnemyBoss::~EnemyBoss(void)
 {
 }
 
-void EnemyKnight::InitLoad(void)
+void EnemyBoss::InitLoad(void)
 {
 	//プレイヤーモデル
 	transform_.SetModel(resMng_.LoadModelDuplicate(
 		MODEL_ENEMY_BOSS_NAME));
 }
 
-void EnemyKnight::InitTransform(void)
+void EnemyBoss::InitTransform(void)
 {
 	// Transformの初期化
 	const auto& playerData =
@@ -60,7 +60,7 @@ void EnemyKnight::InitTransform(void)
 	transform_.Update();
 }
 
-void EnemyKnight::InitCollider(void)
+void EnemyBoss::InitCollider(void)
 {
 	// コライダーデータの読み込み
 	const auto& enemyData =
@@ -125,7 +125,7 @@ void EnemyKnight::InitCollider(void)
 	colMng_.AddCollider(colCapsule);
 }
 
-void EnemyKnight::InitAnimation(void)
+void EnemyBoss::InitAnimation(void)
 {
 	// アニメーション
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
@@ -150,18 +150,18 @@ void EnemyKnight::InitAnimation(void)
 	animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
 }
 
-void EnemyKnight::InitPost(void)
+void EnemyBoss::InitPost(void)
 {
 }
 
-void EnemyKnight::UpdateProcess(void)
+void EnemyBoss::UpdateProcess(void)
 {
 }
 
-void EnemyKnight::UpdateProcessPost(void)
+void EnemyBoss::UpdateProcessPost(void)
 {
 }
 
-void EnemyKnight::UpdateHitCollider(void)
+void EnemyBoss::UpdateHitCollider(void)
 {
 }

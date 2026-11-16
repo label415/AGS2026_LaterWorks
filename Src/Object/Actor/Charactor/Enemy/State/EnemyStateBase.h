@@ -20,5 +20,6 @@ public:
 
 	// I—¹
 	virtual void EndState(EnemyBase& enemyData) = 0;
+
 };
 

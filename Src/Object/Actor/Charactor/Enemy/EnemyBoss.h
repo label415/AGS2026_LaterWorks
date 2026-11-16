@@ -1,7 +1,7 @@
 #pragma once
 #include "EnemyBase.h"
 
-class EnemyKnight :
+class EnemyBoss :
     public EnemyBase
 {
 public:
@@ -29,10 +29,10 @@ public:
 	};
 
     // コンストラクタ
-	EnemyKnight(void);
+	EnemyBoss(void);
 
     // デストラクタ
-    virtual ~EnemyKnight(void) override;
+    virtual ~EnemyBoss(void) override;
 
 protected:
 
@@ -61,5 +61,6 @@ protected:
 	void UpdateHitCollider(void) override;
 
 private:
+
 };
 

@@ -10,9 +10,10 @@ public:
 	// •ŠíŽí•Ê
 	enum class WEAPON_TYPE
 	{
-		BLADE,
-		BRACKELET,
-		FLAME,
+		SAW,
+		GAN,
+		SHIELD,
+		SWORD,
 		MAX
 	};
 
