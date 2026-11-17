@@ -90,6 +90,7 @@
     <ClCompile Include="Src\Manager\EditorManager.cpp" />
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponShield.cpp" />
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponSword.cpp" />
+    <ClCompile Include="Src\Object\Actor\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossChaseState.h" />
@@ -236,6 +237,7 @@
     <ClInclude Include="Src\Scene\SceneBase.h" />
     <ClInclude Include="Src\Scene\TitleScene.h" />
     <ClInclude Include="Src\Utility\AsoUtility.h" />
+    <ClInclude Include="Src\Utility\JsonUtility.h" />
     <ClInclude Include="Src\Utility\MatrixUtility.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponBase.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponSaw.h" />
@@ -245,6 +247,7 @@
     <ClInclude Include="Src\Manager\EditorManager.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponShield.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponSword.h" />
+    <ClInclude Include="Src\Object\Actor\Weapon\WeaponManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

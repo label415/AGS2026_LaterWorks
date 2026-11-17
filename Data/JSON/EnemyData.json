@@ -1,62 +1,54 @@
 {
   "Transform": {
     "Position": {
-      "x": 0.0,
-      "y": 0.0,
-      "z": 1000.0
+      "x": -7.62939453125e-06,
+      "y": -51.82428741455078,
+      "z": -4.291534423828125e-06
     },
     "Rotation": {
       "x": 0.0,
       "y": 0.0,
       "z": 0.0
     },
-    "Scale": {
-      "x": 1.5,
-      "y": 1.5,
-      "z": 1.5
-    }
+    "Scale": 1.0
   },
-
+  "animationSpeed": {
+    "attack": 30.0,
+    "idle": 10.0,
+    "run": 30.0,
+    "walk": 20.0
+  },
   "collider": {
-    "line": {
-      "startPos": {
-        "x": 0.0,
-        "y": 160.0,
-        "z": 0.0
-      },
-      "endPos": {
-        "x": 0.0,
-        "y": -20.0,
-        "z": 0.0
-      }
-    },
     "capsule": {
-      "topPos": {
-        "x": 0.0,
-        "y": 220.0,
-        "z": 0.0
-      },
       "downPos": {
         "x": 0.0,
         "y": 60.0,
         "z": 0.0
       },
-      "radius": 40.0
+      "radius": 30.0,
+      "topPos": {
+        "x": 0.0,
+        "y": 180.0,
+        "z": 0.0
+      }
+    },
+    "line": {
+      "endPos": {
+        "x": 0.0,
+        "y": -20.0,
+        "z": 0.0
+      },
+      "startPos": {
+        "x": 0.0,
+        "y": 160.0,
+        "z": 0.0
+      }
     }
   },
-
-  "animationSpeed": {
-    "idle": 10.0,
-    "walk": 20.0,
-    "run": 20.0,
-    "sweepAttack": 15.0
-  },
-
   "weapon": [
     {
       "shield": {
-        "followFrameId": 49,
-        ""
+        "followFrameId": 49
       }
     }
   ]

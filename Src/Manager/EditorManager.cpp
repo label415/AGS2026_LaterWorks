@@ -15,7 +15,6 @@ EditorManager::EditorManager(void)
 void EditorManager::RegisterObject(const EditObject& obj)
 {
 #ifdef _DEBUG
-	// 同名オブジェクトが既に登録されていれば上書きする
 	for (auto& existing : objects_)
 	{
 		if (existing.name == obj.name)
@@ -57,7 +56,6 @@ void EditorManager::Release(void)
 void EditorManager::UpdateGui(void)
 {
 #ifdef _DEBUG
-	// ステータスメッセージのタイマー更新
 	if (statusTimer_ > 0.0f)
 	{
 		statusTimer_ -= SceneManager::GetInstance().GetDeltaTime();
@@ -83,14 +81,9 @@ void EditorManager::UpdateGui(void)
 		auto& resMng = ResourceManager::GetInstance();
 		for (auto& obj : objects_)
 		{
-			if (obj.saveToJson)
-			{
-				Json& json = resMng.GetJson(obj.jsonSrc);
-				obj.saveToJson(json);
-				resMng.SaveJson(obj.jsonSrc);
-			}
+			resMng.SaveJson(obj.jsonSrc);
 		}
-		statusMessage_ = "Saved All Objects to JSON!";
+		statusMessage_ = "Saved All JSON Files!";
 		statusTimer_ = STATUS_DISPLAY_TIME;
 	}
 
@@ -116,8 +109,7 @@ void EditorManager::UpdateGui(void)
 
 	for (int i = 0; i < static_cast<int>(objects_.size()); ++i)
 	{
-		bool isSelected = (selectedIndex_ == i);
-		if (ImGui::Selectable(objects_[i].name.c_str(), isSelected))
+		if (ImGui::Selectable(objects_[i].name.c_str(), selectedIndex_ == i))
 		{
 			selectedIndex_ = i;
 		}
@@ -126,45 +118,40 @@ void EditorManager::UpdateGui(void)
 
 	ImGui::SameLine();
 
-	// 右ペイン：選択中オブジェクトのパラメータ編集
+	// 右ペイン：選択中オブジェクトのJSON直接編集
 	ImGui::BeginChild("ObjectInspector", ImVec2(0.0f, 0.0f), true);
 
 	if (selectedIndex_ >= 0 && selectedIndex_ < static_cast<int>(objects_.size()))
 	{
 		auto& target = objects_[selectedIndex_];
 		auto& resMng = ResourceManager::GetInstance();
+		Json& json = resMng.GetJson(target.jsonSrc);
 
 		ImGui::Text("Target: %s", target.name.c_str());
 		ImGui::SameLine(ImGui::GetWindowWidth() - 230.0f);
 
-		// Saveボタン
+		// JSONファイルへ直接保存
 		if (ImGui::Button("Save to JSON", ImVec2(105.0f, 0.0f)))
 		{
-			if (target.saveToJson)
+			if (resMng.SaveJson(target.jsonSrc))
 			{
-				Json& json = resMng.GetJson(target.jsonSrc);
-				target.saveToJson(json);
-				if (resMng.SaveJson(target.jsonSrc))
-				{
-					statusMessage_ = "Saved [" + target.name + "] to JSON!";
-				}
-				else
-				{
-					statusMessage_ = "Failed to save [" + target.name + "]";
-				}
-				statusTimer_ = STATUS_DISPLAY_TIME;
+				statusMessage_ = "Saved [" + target.name + "] to JSON!";
 			}
+			else
+			{
+				statusMessage_ = "Failed to save [" + target.name + "]";
+			}
+			statusTimer_ = STATUS_DISPLAY_TIME;
 		}
 
 		ImGui::SameLine();
 
-		// Reloadボタン
+		// JSONファイルから直接再読込して即時反映
 		if (ImGui::Button("Reload JSON", ImVec2(105.0f, 0.0f)))
 		{
-			if (resMng.ReloadJson(target.jsonSrc) && target.loadFromJson)
+			if (resMng.ReloadJson(target.jsonSrc))
 			{
-				const Json& json = resMng.GetJson(target.jsonSrc);
-				target.loadFromJson(json);
+				if (target.onApplyJson) target.onApplyJson();
 				statusMessage_ = "Reloaded [" + target.name + "] from JSON!";
 				statusTimer_ = STATUS_DISPLAY_TIME;
 			}
@@ -172,14 +159,131 @@ void EditorManager::UpdateGui(void)
 
 		ImGui::Separator();
 
-		// オブジェクト固有のGUI描画(即時反映)
-		if (target.drawGui)
+		// ランタイム専用の補助GUI(現在座標や現在HPなど)があれば表示
+		if (target.drawRuntimeGui)
 		{
-			target.drawGui();
+			target.drawRuntimeGui();
+		}
+
+		// JSONデータを直接ImGuiで描画・編集し、変更があれば即座にゲームへ反映
+		if (DrawJsonEditor(json))
+		{
+			if (target.onApplyJson)
+			{
+				target.onApplyJson();
+			}
 		}
 	}
 
 	ImGui::EndChild();
 	ImGui::End();
 #endif
+}
+
+bool EditorManager::DrawJsonEditor(Json& json)
+{
+	bool changed = false;
+	if (!json.is_object()) return false;
+
+	for (auto it = json.begin(); it != json.end(); ++it)
+	{
+		if (DrawJsonNode(it.key(), it.value(), true))
+		{
+			changed = true;
+		}
+	}
+	return changed;
+}
+
+bool EditorManager::DrawJsonNode(const std::string& key, Json& node, bool isTopLevel)
+{
+	bool changed = false;
+	ImGui::PushID(key.c_str());
+
+	if (node.is_object())
+	{
+		// { "x", "y", "z" } の3要素オブジェクトはDragFloat3として1行で編集
+		if (node.size() == 3 && node.contains("x") && node.contains("y") && node.contains("z")
+			&& node["x"].is_number() && node["y"].is_number() && node["z"].is_number())
+		{
+			float v[3] = {
+				node["x"].get<float>(),
+				node["y"].get<float>(),
+				node["z"].get<float>()
+			};
+			if (ImGui::DragFloat3(key.c_str(), v, 0.5f))
+			{
+				node["x"] = v[0];
+				node["y"] = v[1];
+				node["z"] = v[2];
+				changed = true;
+			}
+		}
+		else if (isTopLevel)
+		{
+			if (ImGui::CollapsingHeader(key.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				for (auto it = node.begin(); it != node.end(); ++it)
+				{
+					if (DrawJsonNode(it.key(), it.value(), false)) changed = true;
+				}
+			}
+		}
+		else
+		{
+			if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				for (auto it = node.begin(); it != node.end(); ++it)
+				{
+					if (DrawJsonNode(it.key(), it.value(), false)) changed = true;
+				}
+				ImGui::TreePop();
+			}
+		}
+	}
+	else if (node.is_array())
+	{
+		if (ImGui::CollapsingHeader(key.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			for (size_t i = 0; i < node.size(); ++i)
+			{
+				std::string itemLabel = "[" + std::to_string(i) + "]";
+				if (node[i].is_object() && node[i].contains("name") && node[i]["name"].is_string())
+				{
+					itemLabel = node[i]["name"].get<std::string>() + " [" + std::to_string(i) + "]";
+				}
+				if (DrawJsonNode(itemLabel, node[i], false)) changed = true;
+			}
+		}
+	}
+	else if (node.is_number_integer())
+	{
+		int val = node.get<int>();
+		if (ImGui::InputInt(key.c_str(), &val))
+		{
+			node = val;
+			changed = true;
+		}
+	}
+	else if (node.is_number())
+	{
+		float val = node.get<float>();
+		if (ImGui::DragFloat(key.c_str(), &val, 0.2f))
+		{
+			node = val;
+			changed = true;
+		}
+	}
+	else if (node.is_boolean())
+	{
+		bool val = node.get<bool>();
+		if (ImGui::Checkbox(key.c_str(), &val))
+		{
+			node = val;
+			changed = true;
+		}
+	}
+
+	ImGui::PopID();
+	return changed;
 }

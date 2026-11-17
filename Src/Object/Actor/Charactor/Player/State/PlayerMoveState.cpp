@@ -41,7 +41,9 @@ void PlayerMoveState::Update(Player& player)
 
 	// 移動タイプを設定
 	SetMoveType(player);
-	player.moveSpeed_ = (moveType_ == MOVE_TYPE::RUN) ? player.param_.speedDash : player.param_.speedMove;
+	player.moveSpeed_ = (moveType_ == MOVE_TYPE::RUN) ? 
+		player.GetData()["movement"]["speedDash"].get<float>() 
+		: player.GetData()["movement"]["speedMove"].get<float>();
 
 	// playerの移動方向を更新
 	player.moveDir_ = inputDir;
@@ -68,7 +70,7 @@ void PlayerMoveState::EndState(Player& player)
 void PlayerMoveState::SetWalk(Player& player)
 {
 	// 移動速度を設定
-	player.moveSpeed_ = player.param_.speedMove;
+	player.moveSpeed_ = player.GetData()["movement"]["speedMove"].get<float>();
 
 	// アニメーションを再生
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::RUN));
@@ -81,7 +83,7 @@ void PlayerMoveState::SetWalk(Player& player)
 void PlayerMoveState::SetRun(Player& player)
 {
 	// 移動速度を設定
-	player.moveSpeed_ = player.param_.speedDash;
+	player.moveSpeed_ = player.GetData()["movement"]["speedDash"].get<float>();
 
 	// アニメーションを再生
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::FAST_RUN));

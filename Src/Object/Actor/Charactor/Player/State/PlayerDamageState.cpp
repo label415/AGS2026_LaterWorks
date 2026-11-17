@@ -18,14 +18,14 @@ PlayerDamageState::~PlayerDamageState(void)
 void PlayerDamageState::StartState(Player& player)
 {
 	// 無敵状態にする
-	player.invincibleTimer_ = player.param_.invincibleTime;
+	player.invincibleTimer_ = player.GetData()["status"]["invincibleTime"].get<float>();
 
 	// ダメージエフェクト再生
 	player.effType_ = Player::EFFECT::BLOOD;
 	player.effect_->Play(static_cast<int>(player.effType_));
-	player.effect_->SetEffectScl(static_cast<int>(player.effType_), player.param_.effectBloodScale);
+	player.effect_->SetEffectScl(static_cast<int>(player.effType_), player.GetData()["effectAndSound"]["effectBloodScale"].get<VECTOR>());
 	player.effect_->SetEffectPos(static_cast<int>(Player::EFFECT::BLOOD),
-		MV1GetFramePosition(player.transform_.modelId, player.param_.hitEffectFrameNo));
+		MV1GetFramePosition(player.transform_.modelId, player.GetData()["effectAndSound"]["hitEffectFrameNo"].get<int>()));
 
 	// ダメージアニメーション再生
 	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::DOWN), false);
@@ -43,7 +43,7 @@ void PlayerDamageState::Update(Player& player)
 	{
 		player.animationController_->Play(
 			static_cast<int>(Player::ANIM_TYPE::UP), false);
-		player.invincibleTimer_ = player.param_.invincibleTime;
+		player.invincibleTimer_ = player.GetData()["status"]["invincibleTime"].get<float>();
 	}
 	else {
 		player.ChangeState(Player::STATE::IDLE);

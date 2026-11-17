@@ -10,19 +10,17 @@ class EditorManager : public Singleton<EditorManager>
 	friend class Singleton<EditorManager>;
 public:
 
-	// 編集対象オブジェクトの登録情報
+	// 編集対象オブジェクトの登録情報(JSON直接編集・保存方式)
 	struct EditObject
 	{
 		// 一覧に表示するオブジェクト名
 		std::string name;
-		// 対応するJSONリソース種別
+		// 直接編集・保存するJSONリソース名
 		std::wstring jsonSrc;
-		// ImGuiウィジェット描画コールバック(即時反映)
-		std::function<void(void)> drawGui;
-		// 現在のパラメータをJsonへ書き込むコールバック
-		std::function<void(Json&)> saveToJson;
-		// Jsonからパラメータを再読込・即時反映するコールバック
-		std::function<void(const Json&)> loadFromJson;
+		// JSONの値が変更された時・再読込された時にゲーム側へ即時反映するコールバック
+		std::function<void(void)> onApplyJson;
+		// ランタイム状態(現在座標や現在HPなど)の追加GUI描画コールバック(任意)
+		std::function<void(void)> drawRuntimeGui;
 	};
 
 	// 編集対象オブジェクトの登録
@@ -77,4 +75,8 @@ private:
 
 	// デストラクタ
 	~EditorManager(void) = default;
+
+	// JSONデータを直接ImGuiウィジェットとして再帰描画・編集する(変更があればtrue)
+	bool DrawJsonEditor(Json& json);
+	bool DrawJsonNode(const std::string& key, Json& node, bool isTopLevel);
 };

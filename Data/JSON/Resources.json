@@ -77,11 +77,24 @@
       "key": "AnimationPlayerUp",
       "path": "Player/Player_Up.mv1"
     },
+
     {
       // エネミーモデル
       "type": 3,
       "key": "ModelEnemyBoss",
       "path": "Enemy/Boss/Boss.mv1"
+    },
+    {
+      // エネミーアニメーション(移動)
+      "type": 3,
+      "key": "AnimationBossMove",
+      "path": "Enemy/Boss/Boss_Walk.mv1"
+    },
+    {
+      // エネミーアニメーション(攻撃)
+      "type": 3,
+      "key": "AnimationBossAttack",
+      "path": "Enemy/Boss/Boss_Attack.mv1"
     },
 
     {
@@ -246,6 +259,12 @@
       "type": 7,
       "key": "EnemyData",
       "path": "EnemyData.json"
+    },
+    {
+      // 武器データ
+      "type": 7,
+      "key": "WeaponData",
+      "path": "WeaponData.json"
     }
   ]
 }

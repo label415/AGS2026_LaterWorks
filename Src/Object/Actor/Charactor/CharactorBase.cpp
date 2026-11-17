@@ -1,4 +1,4 @@
-#include "../../../Application.h"
+ï»¿#include "../../../Application.h"
 #include "../../../Utility/AsoUtility.h"
 #include "../../../Utility/ColliderUtility.h"
 #include "../../../Manager/SceneManager.h"
@@ -6,6 +6,7 @@
 #include "../../Common/Collider/ColliderLine.h"
 #include "../../Common/Collider/ColliderModel.h"
 #include "../../Common/Collider/ColliderCapsule.h"
+#include "../Weapon/WeaponManager.h"
 #include "../Stage/Stage.h"
 #include "CharactorBase.h"
 
@@ -13,6 +14,7 @@ CharactorBase::CharactorBase(void)
 	: ActorBase()
 	, targetPos_(nullptr)
 	, animationController_(nullptr)
+	, weapons_(std::make_unique<WeaponManager>())
 	, moveDir_(AsoUtility::VECTOR_ZERO)
 	, movePow_(AsoUtility::VECTOR_ZERO)
 	, prevPos_(AsoUtility::VECTOR_ZERO)
@@ -22,76 +24,71 @@ CharactorBase::CharactorBase(void)
 	, isJump_(false)
 	, hp_(100.0f)
 {
-	// •Ší‚Ì‰Šú‰»
-	weapons_.clear();
 }
 
 CharactorBase::~CharactorBase(void) {}
 
 void CharactorBase::Update(void)
 {
-	// ¶‘¶‚µ‚Ä‚¢‚È‚¯‚ê‚ÎXV‚µ‚È‚¢
+	// ç”Ÿå­˜ã—ã¦ã„ãªã‘ã‚Œã°æ›´æ–°ã—ãªã„
 	if (!isAlive_)return;
 
-	// ˆÚ“®‘OÀ•W‚ğXV
+	// ç§»å‹•å‰åº§æ¨™ã‚’æ›´æ–°
 	prevPos_ = transform_.pos;
 
-	// ŠeƒLƒƒƒ‰ƒNƒ^[‚²‚Æ‚ÌXVˆ—
+	// å„ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã”ã¨ã®æ›´æ–°å‡¦ç†
 	UpdateProcess();
 
-	// ˆÚ“®•ûŒü‚É‰‚¶‚½’x‰„‰ñ“]
+	// ç§»å‹•æ–¹å‘ã«å¿œã˜ãŸé…å»¶å›è»¢
 	DelayRotate();
 
-	// d—Í‚É‚æ‚éˆÚ“®—Ê
+	// é‡åŠ›ã«ã‚ˆã‚‹ç§»å‹•é‡
 	CalcGravityPow();
 
-	// Õ“Ë”»’è
+	// è¡çªåˆ¤å®š
 	Collision();
 
-	// ƒ‚ƒfƒ‹§ŒäXV
+	// ãƒ¢ãƒ‡ãƒ«åˆ¶å¾¡æ›´æ–°
 	transform_.Update();
 
-	// ƒAƒjƒ[ƒVƒ‡ƒ“Ä¶
+	// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿ
 	animationController_->Update();
 
-	// ŠeƒLƒƒƒ‰ƒNƒ^[‚²‚Æ‚ÌXVŒãˆ—
+	// å„ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã”ã¨ã®æ›´æ–°å¾Œå‡¦ç†
 	UpdateProcessPost();
+
+	// å„æ­¦å™¨æ›´æ–°
+	weapons_->Update();
 }
 
 void CharactorBase::Draw(void)
 {
-	// Šî’êƒNƒ‰ƒX‚Ì•`‰æˆ—
+	// åŸºåº•ã‚¯ãƒ©ã‚¹ã®æç”»å‡¦ç†
 	ActorBase::Draw();
 
-	// •Ší•`‰æ
-	for (const auto& weapon : weapons_) {
-		weapon->Draw();
-	}
+	// å„æ­¦å™¨æç”»
+	weapons_->Draw();
 }
 
 void CharactorBase::Release(void)
 {
-	// Šî’êƒNƒ‰ƒX‚Ì‰ğ•úˆ—
+	// åŸºåº•ã‚¯ãƒ©ã‚¹ã®è§£æ”¾å‡¦ç†
 	transform_.Release();
 
-	// Šeƒ|ƒCƒ“ƒ^•Ï”ŠJ•ú
+	// å„ãƒã‚¤ãƒ³ã‚¿å¤‰æ•°é–‹æ”¾
 	animationController_->Release();
 
-	// •Ší‚Ì‰ğ•úˆ—
-	for (const auto& weapon : weapons_) {
-		weapon->Release();
-	}
-
-	weapons_.clear();
+	// å„æ­¦å™¨è§£æ”¾
+	weapons_->Release();
 }
 
 VECTOR CharactorBase::GetTargetDir(void)
 {
-	//©•ª‚Æ‘Šè‚ÌƒxƒNƒgƒ‹‚ğŒvZ
+	//è‡ªåˆ†ã¨ç›¸æ‰‹ã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—
 	VECTOR targetVec = VSub(*targetPos_, transform_.pos);
-	//ƒxƒNƒgƒ‹‚ğ³‹K‰»
+	//ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ­£è¦åŒ–
 	VECTOR targetdir = VNorm(targetVec);
-	//YÀ•W‚ğ–³Œø
+	//Yåº§æ¨™ã‚’ç„¡åŠ¹
 	targetdir.y = 0.0f;
 
 	return targetdir;
@@ -99,25 +96,25 @@ VECTOR CharactorBase::GetTargetDir(void)
 
 void CharactorBase::DelayRotate(void)
 {
-	// ˆÚ“®•ûŒü‚©‚ç‰ñ“]‚É•ÏŠ·‚·‚é
+	// ç§»å‹•æ–¹å‘ã‹ã‚‰å›è»¢ã«å¤‰æ›ã™ã‚‹
 	Quaternion goalRot = Quaternion::LookRotation(moveDir_);
-	// ‰ñ“]‚Ì•âŠÔ
+	// å›è»¢ã®è£œé–“
 	transform_.quaRot =
 		Quaternion::Slerp(transform_.quaRot, goalRot, 0.2f);
 }
 
 void CharactorBase::CalcGravityPow(void)
 {
-	// d—Í•ûŒü
+	// é‡åŠ›æ–¹å‘
 	VECTOR dirGravity = AsoUtility::DIR_D;
-	// d—Í‚Ì‹­‚³
+	// é‡åŠ›ã®å¼·ã•
 	float gravityPow = Application::GetInstance().GetGravityPow() *
 		scnMng_.GetDeltaTime();
-	// d—Í
+	// é‡åŠ›
 	VECTOR gravity = VScale(dirGravity, gravityPow);
 	jumpPow_ = VAdd(jumpPow_, gravity);
 
-	// d—Í‘¬“x‚Ì§ŒÀ
+	// é‡åŠ›é€Ÿåº¦ã®åˆ¶é™
 	if (jumpPow_.y < MAX_FALL_SPEED)
 	{
 		jumpPow_.y = MAX_FALL_SPEED;
@@ -126,25 +123,25 @@ void CharactorBase::CalcGravityPow(void)
 
 void CharactorBase::Collision(void)
 {
-	// ˆÚ“®ˆ—
+	// ç§»å‹•å‡¦ç†
 	transform_.pos = VAdd(transform_.pos, movePow_);
 
-	// Õ“Ë(ƒJƒvƒZƒ‹)
+	// è¡çª(ã‚«ãƒ—ã‚»ãƒ«)
 	CollisionCapsule();
 
-	// ƒWƒƒƒ“ƒv—Ê‚ğ‰ÁZ
+	// ã‚¸ãƒ£ãƒ³ãƒ—é‡ã‚’åŠ ç®—
 	transform_.pos = VAdd(transform_.pos, jumpPow_);
 
-	// Õ“Ë(d—Í)
+	// è¡çª(é‡åŠ›)
 	CollisionGravity();
 
-	// Õ“Ë”»’èŒã‚ÌXVˆ—
+	// è¡çªåˆ¤å®šå¾Œã®æ›´æ–°å‡¦ç†
 	UpdateHitCollider();
 }
 
 void CharactorBase::CollisionGravity(void)
 {
-	// —‰º’†‚µ‚©”»’è‚µ‚È‚¢
+	// è½ä¸‹ä¸­ã—ã‹åˆ¤å®šã—ãªã„
 	if (!(VDot(AsoUtility::DIR_D, jumpPow_) > 0.9f))return;
 
 	int lineType = static_cast<int>(ColliderBase::SHAPE::LINE);
@@ -154,7 +151,7 @@ void CharactorBase::CollisionGravity(void)
 	{
 		if (!col->GetIsCollier()) continue;
 
-		// ƒJƒvƒZƒ‹ƒRƒ‰ƒCƒ_î•ñ  
+		// ã‚«ãƒ—ã‚»ãƒ«ã‚³ãƒ©ã‚¤ãƒ€æƒ…å ±  
 		std::shared_ptr<ColliderLine> colliderLine =
 			std::dynamic_pointer_cast<ColliderLine>(col);
 		if (colliderLine == nullptr) return;
@@ -168,7 +165,7 @@ void CharactorBase::CollisionGravity(void)
 					std::dynamic_pointer_cast<ColliderModel>(hit.lock());
 				if (colliderModel == nullptr) continue;
 
-				// ’n–Ê‰Ÿ‚µã‚°ˆ—
+				// åœ°é¢æŠ¼ã—ä¸Šã’å‡¦ç†
 				transform_.pos =
 					CollisionUtility::CalcPushUpLineModel(
 						*colliderLine, *colliderModel,
@@ -192,14 +189,14 @@ void CharactorBase::CollisionCapsule(void)
 	{
 		if (!col->GetIsCollier()) continue;
 
-		// ƒJƒvƒZƒ‹ƒRƒ‰ƒCƒ_î•ñ  
+		// ã‚«ãƒ—ã‚»ãƒ«ã‚³ãƒ©ã‚¤ãƒ€æƒ…å ±  
 		std::shared_ptr<ColliderCapsule> colliderCapsule =
 			std::dynamic_pointer_cast<ColliderCapsule>(col);
 		if (colliderCapsule == nullptr) return;
 
 		for (const auto& hit : col->GetHitColliders())
 		{
-			// ƒ‚ƒfƒ‹ˆÈŠO‚Íˆ—‚ğ”ò‚Î‚·  
+			// ãƒ¢ãƒ‡ãƒ«ä»¥å¤–ã¯å‡¦ç†ã‚’é£›ã°ã™  
 			if (hit.lock()->GetShape() != ColliderBase::SHAPE::MODEL) continue;
 
 			std::shared_ptr<ColliderModel> colliderModel =
@@ -217,25 +214,25 @@ void CharactorBase::CollisionCapsule(void)
 
 void CharactorBase::SetFrameUserLocalPos(VECTOR locakPos, int frameNo)
 {
-	// ‘ÎÛƒtƒŒ[ƒ€‚Ìƒ[ƒJƒ‹s—ñ‚ğ‰Šú’l‚ÉƒŠƒZƒbƒg‚·‚é
+	// å¯¾è±¡ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã‚’åˆæœŸå€¤ã«ãƒªã‚»ãƒƒãƒˆã™ã‚‹
 	MV1ResetFrameUserLocalMatrix(transform_.modelId, frameNo);
-	// ‘ÎÛƒtƒŒ[ƒ€‚Ìƒ[ƒJƒ‹s—ñ(‘å‚«‚³A‰ñ“]AˆÊ’u)‚ğæ“¾‚·‚é
+	// å¯¾è±¡ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—(å¤§ãã•ã€å›è»¢ã€ä½ç½®)ã‚’å–å¾—ã™ã‚‹
 	auto mat = MV1GetFrameLocalMatrix(transform_.modelId, frameNo);
 	auto scl = MGetSize(mat);
-	// s—ñ‚©‚ç‘å‚«‚³‚ğæ‚èo‚·
+	// è¡Œåˆ—ã‹ã‚‰å¤§ãã•ã‚’å–ã‚Šå‡ºã™
 	auto rot = MGetRotElem(mat);
 	auto pos = MGetTranslateElem(mat);
-	// s—ñ‚©‚ç‰ñ“]‚ğæ‚èo‚·
-	// s—ñ‚©‚çˆÚ“®’l‚ğæ‚èo‚·
-	// ‘å‚«‚³A‰ñ“]AˆÊ’u‚ğƒ[ƒJƒ‹s—ñ‚É–ß‚·
+	// è¡Œåˆ—ã‹ã‚‰å›è»¢ã‚’å–ã‚Šå‡ºã™
+	// è¡Œåˆ—ã‹ã‚‰ç§»å‹•å€¤ã‚’å–ã‚Šå‡ºã™
+	// å¤§ãã•ã€å›è»¢ã€ä½ç½®ã‚’ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã«æˆ»ã™
 	MATRIX mix = MGetIdent();
-	mix = MMult(mix, MGetScale(scl)); // ‘å‚«‚³
-	mix = MMult(mix, rot); // ‰ñ“]
-	// ‚±‚±‚Åƒ[ƒJƒ‹À•W‚ğs—ñ‚ÉA‚»‚Ì‚Ü‚Ü–ß‚³‚¸A
-	// ’²®‚µ‚½ƒ[ƒJƒ‹À•W‚ğİ’è‚·‚é
+	mix = MMult(mix, MGetScale(scl)); // å¤§ãã•
+	mix = MMult(mix, rot); // å›è»¢
+	// ã“ã“ã§ãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã‚’è¡Œåˆ—ã«ã€ãã®ã¾ã¾æˆ»ã•ãšã€
+	// èª¿æ•´ã—ãŸãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã‚’è¨­å®šã™ã‚‹
 	mix = MMult(mix, MGetTranslate(locakPos));
-	// ‡¬‚µ‚½s—ñ‚ğ‘ÎÛƒtƒŒ[ƒ€‚ÉƒZƒbƒg‚µ’¼‚µ‚ÄA
-	// ƒAƒjƒ[ƒVƒ‡ƒ“‚ÌˆÚ“®’l‚ğ–³Œø‰»
+	// åˆæˆã—ãŸè¡Œåˆ—ã‚’å¯¾è±¡ãƒ•ãƒ¬ãƒ¼ãƒ ã«ã‚»ãƒƒãƒˆã—ç›´ã—ã¦ã€
+	// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ç§»å‹•å€¤ã‚’ç„¡åŠ¹åŒ–
 	MV1SetFrameUserLocalMatrix(transform_.modelId, frameNo, mix);
 }
 

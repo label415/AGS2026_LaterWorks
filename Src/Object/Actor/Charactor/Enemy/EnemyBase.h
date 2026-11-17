@@ -31,11 +31,11 @@ public:
 
 protected:
 
-    //// 各状態クラスのインスタンスを保持するマップ
-    //std::map<int, std::unique_ptr<EnemyStateBase>> states_;
+    // 各状態クラスのインスタンスを保持するマップ
+    std::map<int, std::unique_ptr<EnemyStateBase>> states_;
 
-    //// 現在の状態クラス
-    //EnemyStateBase* currentState_;
+    // 現在の状態クラス
+    EnemyStateBase* currentState_;
 
     // 状態
     int state_;

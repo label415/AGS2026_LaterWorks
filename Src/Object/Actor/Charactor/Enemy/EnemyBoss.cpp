@@ -1,20 +1,24 @@
+#include "../../../../Libs/ImGui/imgui.h"
 #include "../../../../Manager/ResourceManager.h"
 #include "../../../../Manager/SceneManager.h"
 #include "../../../../Manager/CollisionManager.h"
 #include "../../../../Manager/Camera.h"
 #include "../../../../Manager/InputManager.h"
 #include "../../../../Manager/SoundManager.h"
+#include "../../../../Manager/EditorManager.h"
+#include "../../../../Utility/AsoUtility.h"
+#include "../../Weapon/WeaponBase.h"
+#include "../../Weapon/WeaponManager.h"
 #include "../../../Common/Collider/ColliderLine.h"
 #include "../../../Common/Collider/ColliderCapsule.h"
 #include "EnemyBoss.h"
 
-// リソース名
 namespace
 {
-	// エネミーモデル
 	constexpr const wchar_t* MODEL_ENEMY_BOSS_NAME = L"ModelEnemyBoss";
-	// エネミーデータ
 	constexpr const wchar_t* JSON_ENEMY_DATA_NAME = L"EnemyData";
+	constexpr const wchar_t* ANIM_BOOS_MOVE = L"AnimationBossMove";
+	constexpr const wchar_t* ANIM_BOOS_ATTACK = L"AnimationBossAttack";
 }
 
 EnemyBoss::EnemyBoss(void)
@@ -26,132 +30,160 @@ EnemyBoss::~EnemyBoss(void)
 {
 }
 
+Json& EnemyBoss::GetData(void) const
+{
+	return resMng_.GetJson(JSON_ENEMY_DATA_NAME);
+}
+
+void EnemyBoss::Release(void)
+{
+#ifdef _DEBUG
+	EditorManager::GetInstance().UnregisterObject("EnemyBoss");
+#endif
+	CharactorBase::Release();
+}
+
 void EnemyBoss::InitLoad(void)
 {
-	//プレイヤーモデル
-	transform_.SetModel(resMng_.LoadModelDuplicate(
-		MODEL_ENEMY_BOSS_NAME));
+	transform_.SetModel(resMng_.LoadModelDuplicate(MODEL_ENEMY_BOSS_NAME));
+
+	// 武器登録
+	weapons_->Add(WeaponBase::WEAPON_TYPE::SWORD, transform_, 49);
+	weapons_->Add(WeaponBase::WEAPON_TYPE::SHIELD, transform_, 21);
+	weapons_->Load();
 }
 
 void EnemyBoss::InitTransform(void)
 {
-	// Transformの初期化
-	const auto& playerData =
-		resMng_.Load(JSON_ENEMY_DATA_NAME).jsonData_;
-	const auto& playerTrans = playerData["Transform"];
-
-	// 座標の初期化
-	const auto& playerPos = playerTrans["Position"];
-	transform_.pos = { playerPos["x"], playerPos["y"], playerPos["z"] };
-
-	// 大きさの初期化
-	const auto& playerScale = playerTrans["Scale"];
-	transform_.scl = { playerScale["x"], playerScale["y"], playerScale["z"] };
-
-	// 回転の初期化
+	const auto& trans = GetData()["Transform"];
+	transform_.pos = trans["Position"];
+	transform_.scl = VScale(AsoUtility::VECTOR_ONE, trans["Scale"]);
 	transform_.quaRot = Quaternion::Identity();
-	transform_.quaRotLocal = Quaternion::Identity();
-	const auto& playerRotY = playerTrans["Rotation"]["y"];
-	transform_.quaRotLocal =
-		Quaternion::Mult(transform_.quaRotLocal,
-			Quaternion::AngleAxis(AsoUtility::Deg2RadF(playerRotY), AsoUtility::AXIS_Y));
-
-	// Transformの更新
+	transform_.quaRotLocal = Quaternion::AngleAxis(
+		AsoUtility::Deg2RadF(trans["Rotation"]["y"].get<float>()), AsoUtility::AXIS_Y);
 	transform_.Update();
 }
 
 void EnemyBoss::InitCollider(void)
 {
-	// コライダーデータの読み込み
-	const auto& enemyData =
-		resMng_.Load(JSON_ENEMY_DATA_NAME).jsonData_;
-	const auto& colData = enemyData["collider"];
+	const auto& colData = GetData()["collider"];
 
 	// 線分コライダ
-	const auto& lineData = colData["line"];
-	VECTOR lineStartPos = {
-		lineData["startPos"]["x"],
-		lineData["startPos"]["y"],
-		lineData["startPos"]["z"]
-	};
-	VECTOR lineEndPos = {
-		lineData["endPos"]["x"],
-		lineData["endPos"]["y"],
-		lineData["endPos"]["z"]
-	};
-
 	std::vector<ColliderBase::TAG> lineTags = { ColliderBase::TAG::STAGE };
 	auto colLine = std::make_shared<ColliderLine>(
 		ColliderBase::TAG::GROUND,
 		lineTags,
 		&transform_,
-		lineStartPos,
-		lineEndPos);
-
-	// マネージャーへ登録
+		colData["line"]["startPos"],
+		colData["line"]["endPos"]);
 	ownColliders_[static_cast<int>(ColliderBase::SHAPE::LINE)].push_back(colLine);
 	colMng_.AddCollider(colLine);
 
 	// カプセルコライダ
-	const auto& capsuleData = colData["capsule"];
-	VECTOR capTopPos = {
-		capsuleData["topPos"]["x"],
-		capsuleData["topPos"]["y"],
-		capsuleData["topPos"]["z"]
-	};
-	VECTOR capDownPos = {
-		capsuleData["downPos"]["x"],
-		capsuleData["downPos"]["y"],
-		capsuleData["downPos"]["z"]
-	};
-	float capRadius = capsuleData["radius"];
-
 	std::vector<ColliderBase::TAG> capsuleTags = {
 		ColliderBase::TAG::PLAYER,
 		ColliderBase::TAG::PLAYER_WEPON,
 		ColliderBase::TAG::STAGE
 	};
-
 	auto colCapsule = std::make_shared<ColliderCapsule>(
 		ColliderBase::TAG::ENEMY,
 		capsuleTags,
 		&transform_,
-		capTopPos,
-		capDownPos,
-		capRadius);
-
-	// マネージャーへ登録
+		colData["capsule"]["topPos"],
+		colData["capsule"]["downPos"],
+		colData["capsule"]["radius"].get<float>());
 	ownColliders_[static_cast<int>(ColliderBase::SHAPE::CAPSULE)].push_back(colCapsule);
 	colMng_.AddCollider(colCapsule);
 }
 
 void EnemyBoss::InitAnimation(void)
 {
-	// アニメーション
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
+	const auto& anim = GetData()["animationSpeed"];
 
-	// アニメーション速度の読み込み
-	const auto& playerData =
-		resMng_.Load(JSON_ENEMY_DATA_NAME).jsonData_;
-	const auto& anim = playerData["animationSpeed"];
+	animationController_->Add(static_cast<int>(ANIM_TYPE::WALK),
+		anim["walk"], resMng_.LoadModelDuplicate(ANIM_BOOS_MOVE));
+	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
+		anim["run"], resMng_.LoadModelDuplicate(ANIM_BOOS_MOVE));
+	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK),
+		anim["attack"], resMng_.LoadModelDuplicate(ANIM_BOOS_ATTACK));
 
-	// アニメーション登録
-	int type = -1;
-	type = static_cast<int>(ANIM_TYPE::IDLE);
-	animationController_->AddInFbx(type, anim["idle"].get<float>(), type);
-	type = static_cast<int>(ANIM_TYPE::WALK);
-	animationController_->AddInFbx(type, anim["walk"].get<float>(), type);
-	type = static_cast<int>(ANIM_TYPE::RUN);
-	animationController_->AddInFbx(type, anim["run"].get<float>(), type);
-	type = static_cast<int>(ANIM_TYPE::MELEE_ATTACK);
-	animationController_->AddInFbx(type, anim["sweepAttack"].get<float>(), type);
-
-	// アニメーション再生
-	animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
+	animationController_->Play(static_cast<int>(ANIM_TYPE::WALK));
 }
 
 void EnemyBoss::InitPost(void)
 {
+	weapons_->LoadEnd();
+
+#ifdef _DEBUG
+	EditorManager::GetInstance().RegisterObject({
+		"EnemyBoss",
+		JSON_ENEMY_DATA_NAME,
+		[this]() { this->ApplyJson(); },
+		[this]() { this->UpdateGui(); }
+		});
+#endif
+}
+
+void EnemyBoss::ApplyJson(void)
+{
+	const auto& data = GetData();
+
+	// Transform反映
+	transform_.scl = transform_.scl = VScale(AsoUtility::VECTOR_ONE, data["Scale"]);
+	transform_.quaRotLocal = Quaternion::AngleAxis(
+		AsoUtility::Deg2RadF(data["Transform"]["Rotation"]["y"].get<float>()), AsoUtility::AXIS_Y);
+	transform_.Update();
+
+	// コライダー反映
+	const auto& col = data["collider"];
+	for (auto& c : ownColliders_[static_cast<int>(ColliderBase::SHAPE::LINE)])
+	{
+		if (auto line = std::dynamic_pointer_cast<ColliderLine>(c))
+		{
+			line->SetLocalPosStart(col["line"]["startPos"]);
+			line->SetLocalPosEnd(col["line"]["endPos"]);
+		}
+	}
+	for (auto& c : ownColliders_[static_cast<int>(ColliderBase::SHAPE::CAPSULE)])
+	{
+		if (auto cap = std::dynamic_pointer_cast<ColliderCapsule>(c))
+		{
+			cap->SetLocalPosTop(col["capsule"]["topPos"]);
+			cap->SetLocalPosDown(col["capsule"]["downPos"]);
+			cap->SetRadius(col["capsule"]["radius"].get<float>());
+		}
+	}
+
+	// アニメーション速度反映
+	if (animationController_)
+	{
+		const auto& anim = data["animationSpeed"];
+		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::IDLE), anim["idle"]);
+		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::WALK), anim["walk"]);
+		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::RUN), anim["run"]);
+		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::ATTACK), anim["attack"]);
+	}
+}
+
+void EnemyBoss::UpdateGui(void)
+{
+#ifdef _DEBUG
+	if (ImGui::CollapsingHeader("Runtime State", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		if (ImGui::DragFloat3("Current Pos", &transform_.pos.x, 1.0f)) transform_.Update();
+		if (ImGui::Button("Warp to Init Pos"))
+		{
+			transform_.pos = GetData()["Transform"]["Position"];
+			transform_.Update();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Set Current Pos -> JSON"))
+		{
+			GetData()["Transform"]["Position"] = transform_.pos;
+		}
+	}
+#endif
 }
 
 void EnemyBoss::UpdateProcess(void)

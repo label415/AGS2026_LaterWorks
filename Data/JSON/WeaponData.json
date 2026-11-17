@@ -1,0 +1,138 @@
+{
+  "weapon": [
+    {
+      "animation": {
+        "attachNo": 5,
+        "endTransformationTime": 30.0,
+        "speed": 60.0,
+        "startTransformationTime": 120.0
+      },
+      "collider": {
+        "capsule": {
+          "downPos": {
+            "x": -30.0,
+            "y": -40.0,
+            "z": 0.0
+          },
+          "radius": 20.0,
+          "topPos": {
+            "x": -30.0,
+            "y": 40.0,
+            "z": 0.0
+          }
+        }
+      },
+      "id": 0,
+      "name": "Saw",
+      "transform": {
+        "localPos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "localRot": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 90.0
+        },
+        "scale": 1.0
+      }
+    },
+    {
+      "collider": {
+        "capsule": {
+          "downPos": {
+            "x": -30.0,
+            "y": -40.0,
+            "z": 0.0
+          },
+          "radius": 20.0,
+          "topPos": {
+            "x": -30.0,
+            "y": 40.0,
+            "z": 0.0
+          }
+        }
+      },
+      "id": 1,
+      "name": "Gan",
+      "transform": {
+        "localPos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "localRot": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 90.0
+        },
+        "scale": 1.0
+      }
+    },
+    {
+      "collider": {
+        "capsule": {
+          "downPos": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 50.0
+          },
+          "radius": 30.0,
+          "topPos": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -50.0
+          }
+        }
+      },
+      "id": 2,
+      "name": "Shield",
+      "transform": {
+        "localPos": {
+          "x": 30.0,
+          "y": -15.0,
+          "z": -10.0
+        },
+        "localRot": {
+          "x": -90.0,
+          "y": 50.0,
+          "z": -90.0
+        },
+        "scale": 1.0
+      }
+    },
+    {
+      "collider": {
+        "capsule": {
+          "downPos": {
+            "x": 0.0,
+            "y": -20.0,
+            "z": 0.0
+          },
+          "radius": 20.0,
+          "topPos": {
+            "x": 0.0,
+            "y": 200.0,
+            "z": 0.0
+          }
+        }
+      },
+      "id": 3,
+      "name": "Sword",
+      "transform": {
+        "localPos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "localRot": {
+          "x": 0.0,
+          "y": 90.0,
+          "z": -90.0
+        },
+        "scale": 2.0
+      }
+    }
+  ]
+}

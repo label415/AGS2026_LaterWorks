@@ -1,9 +1,10 @@
 #pragma once
 #include "../../Common/AnimationController.h"
 #include "../../Common/EffectController.h"
-#include "../Weapon/WeaponBase.h"
 #include "../UI/UIHp.h"
 #include "../ActorBase.h"
+
+class WeaponManager;
 
 class CharactorBase :
     public ActorBase
@@ -43,7 +44,7 @@ protected:
     std::unique_ptr<AnimationController> animationController_;
 
     // ïêäÌ
-    std::vector<std::unique_ptr<WeaponBase>> weapons_;
+    std::unique_ptr<WeaponManager> weapons_;
 
     // í«îˆëŒè€ÇÃTransform
     const VECTOR* targetPos_;
