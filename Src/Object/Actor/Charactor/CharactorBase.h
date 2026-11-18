@@ -6,8 +6,7 @@
 
 class WeaponManager;
 
-class CharactorBase :
-    public ActorBase
+class CharactorBase : public ActorBase
 {
 public:
 

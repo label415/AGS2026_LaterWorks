@@ -7,10 +7,14 @@
 #include "../../../../Manager/SoundManager.h"
 #include "../../../../Manager/EditorManager.h"
 #include "../../../../Utility/AsoUtility.h"
-#include "../../Weapon/WeaponBase.h"
-#include "../../Weapon/WeaponManager.h"
 #include "../../../Common/Collider/ColliderLine.h"
 #include "../../../Common/Collider/ColliderCapsule.h"
+#include "../../Weapon/WeaponBase.h"
+#include "../../Weapon/WeaponManager.h"
+#include "State/BossIdleState.h"
+#include "State/BossAttackState.h"
+#include "State/BossChaseState.h"
+#include "State/BossMoveState.h"
 #include "EnemyBoss.h"
 
 namespace
@@ -23,6 +27,7 @@ namespace
 
 EnemyBoss::EnemyBoss(void)
 	: EnemyBase()
+	, state_(static_cast<int>(EnemyBoss::STATE::MOVE))
 {
 }
 
@@ -115,6 +120,10 @@ void EnemyBoss::InitPost(void)
 {
 	weapons_->LoadEnd();
 
+	InitState();
+
+	SetBlackboard();
+
 #ifdef _DEBUG
 	EditorManager::GetInstance().RegisterObject({
 		"EnemyBoss",
@@ -188,6 +197,9 @@ void EnemyBoss::UpdateGui(void)
 
 void EnemyBoss::UpdateProcess(void)
 {
+	SetBlackboard();
+
+	currentState_->Update(*this);
 }
 
 void EnemyBoss::UpdateProcessPost(void)
@@ -196,4 +208,30 @@ void EnemyBoss::UpdateProcessPost(void)
 
 void EnemyBoss::UpdateHitCollider(void)
 {
+}
+
+void EnemyBoss::InitState(void)
+{
+	states_.clear();
+	states_.emplace(static_cast<int>(STATE::IDLE), std::make_unique<BossIdleState>());
+	states_.emplace(static_cast<int>(STATE::MOVE), std::make_unique<BossMoveState>());
+	states_.emplace(static_cast<int>(STATE::ATTACK), std::make_unique<BossAttackState>());
+
+	currentState_ = states_.at(state_).get();
+	currentState_->StartState(*this);
+}
+
+void EnemyBoss::SetBlackboard(void)
+{
+	blackboard_.angleToPlayer = AsoUtility::GetAconf(*targetPos_, transform_.pos, transform_.GetForward(), 50.0f);
+	blackboard_.distance = AsoUtility::GetAppropriateDistance(*targetPos_, transform_.pos, 1500.0f);
+}
+
+void EnemyBoss::ChangeState(int state)
+{
+	if (state_ == state) return;
+	currentState_->EndState(*this);
+	state_ = state;
+	currentState_ = states_.at(state_).get();
+	currentState_->StartState(*this);
 }

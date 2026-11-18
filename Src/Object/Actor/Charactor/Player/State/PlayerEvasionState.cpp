@@ -11,10 +11,6 @@ PlayerEvasionState::PlayerEvasionState(void)
 {
 }
 
-PlayerEvasionState::~PlayerEvasionState(void)
-{
-}
-
 void PlayerEvasionState::StartState(Player& player)
 {
 	player.stamina_ -= player.GetData()["status"]["consumptionStEvasion"].get<float>();
@@ -50,7 +46,7 @@ void PlayerEvasionState::Update(Player& player)
 		player.transform_.quaRotLocal = lastQrot_;
 
 		// ë“ã@èÛë‘Ç…ëJà⁄
-		player.ChangeState(Player::STATE::IDLE);
+		player.ChangeState(static_cast<int>(Player::STATE::IDLE));
 	}
 }
 

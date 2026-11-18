@@ -19,19 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossChaseState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossAttackState.cpp" />
     <ClCompile Include="Src\Scene\DebugScene.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossMoveState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\EnemyBoss.cpp" />
-    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateBase.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\Player.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerAttackState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerDamageState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerEvasionState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerIdleState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerRecoveryState.cpp" />
-    <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerStateBase.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Player\State\PlayerMoveState.cpp" />
     <ClCompile Include="Src\Utility\ColliderUtility.cpp" />
     <ClCompile Include="Src\Manager\CollisionManager.cpp" />
@@ -93,12 +92,12 @@
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossChaseState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossAttackState.h" />
     <ClInclude Include="Src\Scene\DebugScene.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossMoveState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\EnemyBoss.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateBase.h" />
     <ClInclude Include="Src\Libs\nlohmann\adl_serializer.hpp" />
     <ClInclude Include="Src\Libs\nlohmann\byte_container_with_subtype.hpp" />
     <ClInclude Include="Src\Libs\nlohmann\detail\abi_config.hpp" />
@@ -184,7 +183,6 @@
     <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerEvasionState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerIdleState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerRecoveryState.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerStateBase.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Player\State\PlayerMoveState.h" />
     <ClInclude Include="Src\Utility\ColliderUtility.h" />
     <ClInclude Include="Src\Manager\CollisionManager.h" />
@@ -248,6 +246,7 @@
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponShield.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponSword.h" />
     <ClInclude Include="Src\Object\Actor\Weapon\WeaponManager.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\StateBase.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

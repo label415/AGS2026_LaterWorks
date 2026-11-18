@@ -110,6 +110,7 @@ public:
 	// 正規化
 	static VECTOR Normalize(const Vector2& v);
 	static VECTOR VNormalize(const VECTOR& v);
+	static VECTOR VNormali(const VECTOR& v1, const VECTOR& v2);
 
 	// 2つのベクトルの間の角度
 	static double AngleDeg(const VECTOR& from, const VECTOR& to);
@@ -121,5 +122,14 @@ public:
 
 	// 文字列の分割
 	static std::vector<std::string> Split(std::string& line, char delimiter);
+
+	// 適正距離判定
+	static bool GetAppropriateDistance(const VECTOR& v1, const VECTOR& v2, float distance);
+
+	// ベクトルの内政
+	static double GetDot(const VECTOR& v1, const VECTOR& v2);
+
+	// 視野角判定
+	static float GetAconf(const VECTOR& v1, const VECTOR& v2, const VECTOR& dir, float maxAngleRad);
 };
 

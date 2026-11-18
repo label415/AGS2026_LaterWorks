@@ -1,24 +1,29 @@
 #pragma once
-#include "EnemyStateBase.h"
+#include "../../StateBase.h"
 
-class BossMoveState : public EnemyStateBase
+class EnemyBoss;
+
+class BossMoveState : public StateBase<EnemyBoss>
 {
 public:
 
 	// コンストラクタ
 	BossMoveState(void);
 
-	// デストラクタ
-	~BossMoveState(void)override;
-
 	// 開始
-	void StartState(EnemyBase& enemy)override;
+	void StartState(EnemyBoss& enemy)override;
 
 	// 更新
-	virtual void Update(EnemyBase& enemy)override;
+	void Update(EnemyBoss& enemy)override;
 
 	// 終了
-	virtual void EndState(EnemyBase& enemy)override;
+	void EndState(EnemyBoss& enemy)override;
+
+	// 歩き時の設定
+	void SetWalk(EnemyBoss& enemy);
+
+	// 走り時の設定
+	void SetRun(EnemyBoss& enemy);
 
 private:
 
@@ -35,5 +40,7 @@ private:
 
 	MOVE_TYPE nextMoveType_;
 
+	// 移動処理の変更
+	void SetMoveType(EnemyBoss& enemy);
 };
 

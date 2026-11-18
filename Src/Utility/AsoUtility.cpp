@@ -459,6 +459,19 @@ VECTOR AsoUtility::VNormalize(const VECTOR& v)
 	return VNorm(v);
 }
 
+VECTOR AsoUtility::VNormali(const VECTOR& v1, const VECTOR& v2)
+{
+	VECTOR v = VSub(v1, v2);
+
+	if (AsoUtility::EqualsVZero(v))
+	{
+		// QuaternionåvéZÇ≈É[ÉçÇìnÇµÇƒÅA
+		// ÉGÉâÅ[(-1, -1, -1)Ç™ï‘Ç¡ÇƒÇ≠ÇÈÇ∆ç¢ÇÈ
+		return v;
+	}
+	return VNorm(v);
+}
+
 double AsoUtility::AngleDeg(const VECTOR& from, const VECTOR& to)
 {
 	// sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
@@ -542,4 +555,33 @@ std::vector<std::string> AsoUtility::Split(std::string& line, char delimiter)
 	}
 
 	return result;
+}
+
+bool AsoUtility::GetAppropriateDistance(
+	const VECTOR& v1, const VECTOR& v2, float range)
+{
+	bool res = false;
+
+	float distance = AsoUtility::Distance(v1, v2);
+	if (distance <= range)res = true;
+
+	return res;
+}
+
+double AsoUtility::GetDot(const VECTOR& v1, const VECTOR& v2)
+{
+
+}
+
+float AsoUtility::GetAconf(
+	const VECTOR& v1, const VECTOR& v2, const VECTOR& dir,  float maxAngleRad)
+{
+	bool res = false;
+
+	// éãñÏäpîªíË
+	float dot = VDot(dir, AsoUtility::VNormali(v1, v2));
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	if (acosf(dot) <= maxAngleRad) res;
+
+	return res;
 }

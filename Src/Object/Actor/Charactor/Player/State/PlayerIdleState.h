@@ -1,15 +1,14 @@
 #pragma once
-#include "PlayerStateBase.h"
+#include "../../StateBase.h"
 
-class PlayerIdleState : public PlayerStateBase
+class Player;
+
+class PlayerIdleState : public StateBase<Player>
 {
 public:
 
 	// コンストラクタ
 	PlayerIdleState(void);
-
-	// デストラクタ
-	~PlayerIdleState(void) override;
 
 	// 開始
 	void StartState(Player& player)override;

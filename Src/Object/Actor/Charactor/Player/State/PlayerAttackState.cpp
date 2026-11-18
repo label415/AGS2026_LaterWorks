@@ -12,10 +12,6 @@ PlayerAttackState::PlayerAttackState(void)
 {
 }
 
-PlayerAttackState::~PlayerAttackState(void)
-{
-}
-
 void PlayerAttackState::StartState(Player& player)
 {
 	player.stateAtkCombo_ = Player::STATE_ATTACK_COMBO::COMBO_1;
@@ -83,7 +79,7 @@ void PlayerAttackState::Update(Player& player)
 		}
 		else if (isAnimEnd)
 		{
-			player.ChangeState(Player::STATE::IDLE);
+			player.ChangeState(static_cast<int>(Player::STATE::IDLE));
 			player.stateAtkCombo_ = Player::STATE_ATTACK_COMBO::COMBO_1;
 			comboData.isNextCombo = false;
 			player.weapons_->ClearCollider();

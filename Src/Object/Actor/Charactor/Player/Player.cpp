@@ -22,7 +22,6 @@
 #include "../../UI/UiSt.h"
 #include "../../UI/UiHp.h"
 #include "../../UI/UiRecovery.h"
-#include "State/PlayerStateBase.h"
 #include "State/PlayerMoveState.h"
 #include "State/PlayerIdleState.h"
 #include "State/PlayerAttackState.h"
@@ -60,7 +59,7 @@ Player::Player(void)
 	, invincibleTimer_(0.0f)
 	, isComboNext_(false)
 	, stateAtkCombo_(STATE_ATTACK_COMBO::COMBO_1)
-	, state_(STATE::IDLE)
+	, state_(static_cast<int>(STATE::IDLE))
 	, stamina_(100.0f)
 	, stCoolTime_(0.0f)
 	, currentState_(nullptr)
@@ -319,12 +318,12 @@ void Player::InitSound(void)
 void Player::InitState(void)
 {
 	states_.clear();
-	states_.emplace(STATE::IDLE, std::make_unique<PlayerIdleState>());
-	states_.emplace(STATE::MOVE, std::make_unique<PlayerMoveState>());
-	states_.emplace(STATE::ATTACK, std::make_unique<PlayerAttackState>());
-	states_.emplace(STATE::EVASION, std::make_unique<PlayerEvasionState>());
-	states_.emplace(STATE::DAMAGE, std::make_unique<PlayerDamageState>());
-	states_.emplace(STATE::RECOVERY, std::make_unique<PlayerRecoveryState>());
+	states_.emplace(static_cast<int>(STATE::IDLE), std::make_unique<PlayerIdleState>());
+	states_.emplace(static_cast<int>(STATE::MOVE), std::make_unique<PlayerMoveState>());
+	states_.emplace(static_cast<int>(STATE::ATTACK), std::make_unique<PlayerAttackState>());
+	states_.emplace(static_cast<int>(STATE::EVASION), std::make_unique<PlayerEvasionState>());
+	states_.emplace(static_cast<int>(STATE::DAMAGE), std::make_unique<PlayerDamageState>());
+	states_.emplace(static_cast<int>(STATE::RECOVERY), std::make_unique<PlayerRecoveryState>());
 
 	currentState_ = states_.at(state_).get();
 	currentState_->StartState(*this);
@@ -410,11 +409,11 @@ void Player::UpdateHitCollider(void)
 	if (damage > 0.0f)
 	{
 		hp_ -= damage;
-		ChangeState(STATE::DAMAGE);
+		ChangeState(static_cast<int>(STATE::DAMAGE));
 	}
 }
 
-void Player::ChangeState(STATE state)
+void Player::ChangeState(int state)
 {
 	if (state_ == state) return;
 	currentState_->EndState(*this);
@@ -554,6 +553,8 @@ void Player::ProcessStaminaRecovery(void)
 		return;
 	}
 
-	if (state_ != STATE::IDLE && state_ != STATE::MOVE && state_ != STATE::RECOVERY) return;
+	if (state_ != static_cast<int>(STATE::IDLE) 
+		&& state_ != static_cast<int>(STATE::MOVE)
+		&& state_ != static_cast<int>(STATE::RECOVERY)) return;
 	stamina_ += status["recoveryStSpeed"].get<float>() * scnMng_.GetDeltaTime();
 }

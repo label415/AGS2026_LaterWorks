@@ -4,7 +4,6 @@
 #include "../CharactorBase.h"
 
 class WeponBase;
-class EnemyStateBase;
 
 class EnemyBase :
     public CharactorBase
@@ -26,19 +25,7 @@ public:
     // 描画
     virtual void Draw(void) override;
 
-	// 種別取得
-    const int GetState(void)const { return state_; }
-
 protected:
-
-    // 各状態クラスのインスタンスを保持するマップ
-    std::map<int, std::unique_ptr<EnemyStateBase>> states_;
-
-    // 現在の状態クラス
-    EnemyStateBase* currentState_;
-
-    // 状態
-    int state_;
 
     // リソースロード
     void InitLoad(void) override {}
@@ -57,8 +44,5 @@ protected:
 
     // 更新系
     virtual void UpdateProcessPost(void) override {}
-
-    // 状態遷移
-    void ChangeState(int state);
 
 };

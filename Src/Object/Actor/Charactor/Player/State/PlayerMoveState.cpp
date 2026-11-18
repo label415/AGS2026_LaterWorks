@@ -13,10 +13,6 @@ PlayerMoveState::PlayerMoveState(void)
 {
 }
 
-PlayerMoveState::~PlayerMoveState(void)
-{
-}
-
 void PlayerMoveState::StartState(Player& player)
 {
 	// ˆÚ“®ƒ^ƒCƒv‚ğ•à‚«‚Éİ’è
@@ -31,7 +27,7 @@ void PlayerMoveState::Update(Player& player)
 	Player::STATE next = player.GetNextStateByInput();
 	if (next != Player::STATE::MOVE)
 	{
-		player.ChangeState(next);
+		player.ChangeState(static_cast<int>(next));
 		return;
 	}
 

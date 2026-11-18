@@ -11,10 +11,6 @@ PlayerRecoveryState::PlayerRecoveryState(void)
 {
 }
 
-PlayerRecoveryState::~PlayerRecoveryState(void)
-{
-}
-
 void PlayerRecoveryState::StartState(Player& player)
 {
 	// 回復アニメーション再生
@@ -39,7 +35,7 @@ void PlayerRecoveryState::Update(Player& player)
 	// アニメーションが終了したら待機状態に遷移
 	if(player.animationController_->IsEnd())
 	{
-		player.ChangeState(Player::STATE::IDLE);
+		player.ChangeState(static_cast<int>(Player::STATE::IDLE));
 	}
 }
 

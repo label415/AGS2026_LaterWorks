@@ -1,18 +1,17 @@
 #pragma once
 #include <functional>
 #include "../../../../Utility/JsonUtility.h"
+#include "../StateBase.h"
 #include "../CharactorBase.h"
 
 class Camara;
 class UISt;
 class UIRecovery;
-class PlayerStateBase;
 
 class Player :
 	public CharactorBase
 {
-	// 各状態クラスからPlayerの内部にアクセスできるようにする
-	friend class PlayerStateBase;
+
 	friend class PlayerIdleState;
 	friend class PlayerMoveState;
 	friend class PlayerAttackState;
@@ -145,16 +144,16 @@ protected:
 private:
 
 	// 各状態クラスのインスタンスを保持するマップ
-	std::map<STATE, std::unique_ptr<PlayerStateBase>> states_;
+	std::map<int, std::unique_ptr<StateBase<Player>>> states_;
 
 	// 状態クラス
-	PlayerStateBase* currentState_;
+	StateBase<Player>* currentState_;
 
 	// 状態
-	STATE state_;
+	int state_;
 
 	// 状態遷移
-	void ChangeState(STATE state);
+	void ChangeState(int state);
 
 	// 攻撃コンボデータ
 	std::map<STATE_ATTACK_COMBO, ATTACK_COMBO> atkComboData_;

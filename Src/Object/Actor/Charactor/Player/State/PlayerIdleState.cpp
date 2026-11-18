@@ -6,10 +6,6 @@ PlayerIdleState::PlayerIdleState(void)
 {
 }
 
-PlayerIdleState::~PlayerIdleState(void)
-{
-}
-
 void PlayerIdleState::StartState(Player& player)
 {
 	// アニメーションを再生
@@ -22,7 +18,7 @@ void PlayerIdleState::Update(Player& player)
 	Player::STATE next = player.GetNextStateByInput();
 	if (next != Player::STATE::IDLE)
 	{
-		player.ChangeState(next);
+		player.ChangeState(static_cast<int>(next));
 	}
 }
 

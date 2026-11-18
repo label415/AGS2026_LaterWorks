@@ -12,8 +12,3 @@ void EnemyBase::Draw(void)
 {
 	CharactorBase::Draw();
 }
-
-void EnemyBase::ChangeState(int state)
-{
-}
-

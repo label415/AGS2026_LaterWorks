@@ -1,17 +1,15 @@
 #pragma once
 #include "../../../../../Common/Quaternion.h"
-#include "PlayerStateBase.h"
+#include "../../StateBase.h"
 
-class PlayerEvasionState :
-    public PlayerStateBase
+class Player;
+
+class PlayerEvasionState : public StateBase<Player>
 {
 public:
 
     // コンストラクタ
     PlayerEvasionState(void);
-
-    // デストラクタ
-    ~PlayerEvasionState(void) override;
 
     // 開始
     void StartState(Player& player)override;

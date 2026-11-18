@@ -11,10 +11,6 @@ PlayerDamageState::PlayerDamageState(void)
 {
 }
 
-PlayerDamageState::~PlayerDamageState(void)
-{
-}
-
 void PlayerDamageState::StartState(Player& player)
 {
 	// ñ≥ìGèÛë‘Ç…Ç∑ÇÈ
@@ -46,7 +42,7 @@ void PlayerDamageState::Update(Player& player)
 		player.invincibleTimer_ = player.GetData()["status"]["invincibleTime"].get<float>();
 	}
 	else {
-		player.ChangeState(Player::STATE::IDLE);
+		player.ChangeState(static_cast<int>(Player::STATE::IDLE));
 	}
 }
 
