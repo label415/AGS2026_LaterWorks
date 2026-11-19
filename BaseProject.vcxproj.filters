@@ -734,7 +734,7 @@
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\EnemyBlackboard.h">
+    <ClInclude Include="Src\Object\Actor\Charactor\StateBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiCondition.h">
@@ -743,10 +743,10 @@
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\HfsmController.h">
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\EnemyBlackboard.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Object\Actor\Charactor\StateBase.h">
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\HfsmController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

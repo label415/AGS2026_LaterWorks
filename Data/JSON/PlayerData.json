@@ -1,15 +1,45 @@
 {
-  "animationSpeed": {
-    "attack1": 40.0,
-    "attack2": 40.0,
-    "attack3": 40.0,
-    "down": 50.0,
-    "evasion": 80.0,
-    "fastRun": 30.0,
-    "idle": 30.0,
-    "recovery": 40.0,
-    "run": 25.0,
-    "up": 100.0
+  "animation": {
+    "attack1": {
+      "blendTime": 0.1,
+      "speed": 40.0
+    },
+    "attack2": {
+      "blendTime": 0.1,
+      "speed": 40.0
+    },
+    "attack3": {
+      "blendTime": 0.1,
+      "speed": 40.0
+    },
+    "down": {
+      "blendTime": 0.1,
+      "speed": 50.0
+    },
+    "evasion": {
+      "blendTime": 0.08,
+      "speed": 80.0
+    },
+    "fastRun": {
+      "blendTime": 0.2,
+      "speed": 30.0
+    },
+    "idle": {
+      "blendTime": 0.25,
+      "speed": 30.0
+    },
+    "recovery": {
+      "blendTime": 0.15,
+      "speed": 40.0
+    },
+    "run": {
+      "blendTime": 0.2,
+      "speed": 25.0
+    },
+    "up": {
+      "blendTime": 0.15,
+      "speed": 100.0
+    }
   },
   "collider": {
     "capsule": {

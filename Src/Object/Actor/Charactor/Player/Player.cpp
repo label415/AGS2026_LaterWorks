@@ -152,30 +152,31 @@ void Player::InitCollider(void)
 void Player::InitAnimation(void)
 {
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
-	const auto& anim = GetData()["animationSpeed"];
+	const auto& anim = GetData()["animation"];
 
-	animationController_->Add(static_cast<int>(ANIM_TYPE::IDLE),
-		anim["idle"], resMng_.LoadModelDuplicate(ANIM_PLAYER_IDLE_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
-		anim["run"], resMng_.LoadModelDuplicate(ANIM_PLAYER_MOVE_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::FAST_RUN),
-		anim["fastRun"], resMng_.LoadModelDuplicate(ANIM_PLAYER_MOVE_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_1),
-		anim["attack1"], resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_1_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_2),
-		anim["attack2"], resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_2_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK_3),
-		anim["attack3"], resMng_.LoadModelDuplicate(ANIM_PLAYER_ATTACK_3_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::EVASION),
-		anim["evasion"], resMng_.LoadModelDuplicate(ANIM_PLAYER_EVASION_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::DOWN),
-		anim["down"], resMng_.LoadModelDuplicate(ANIM_PLAYER_DOWN_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::UP),
-		anim["up"], resMng_.LoadModelDuplicate(ANIM_PLAYER_UP_NAME));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::RECOVERY),
-		anim["recovery"], resMng_.LoadModelDuplicate(ANIM_PLAYER_RECOVERY_NAME));
+	auto addAnim = [&](ANIM_TYPE type, const char* key, const wchar_t* resName)
+	{
+		const auto& entry = anim[key];
+		animationController_->Add(
+			static_cast<int>(type),
+			entry["speed"],
+			resMng_.LoadModelDuplicate(resName),
+			entry["blendTime"]);
+	};
 
-	animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
+	addAnim(ANIM_TYPE::IDLE,     "idle",     ANIM_PLAYER_IDLE_NAME);
+	addAnim(ANIM_TYPE::RUN,      "run",      ANIM_PLAYER_MOVE_NAME);
+	addAnim(ANIM_TYPE::FAST_RUN, "fastRun",  ANIM_PLAYER_MOVE_NAME);
+	addAnim(ANIM_TYPE::ATTACK_1, "attack1",  ANIM_PLAYER_ATTACK_1_NAME);
+	addAnim(ANIM_TYPE::ATTACK_2, "attack2",  ANIM_PLAYER_ATTACK_2_NAME);
+	addAnim(ANIM_TYPE::ATTACK_3, "attack3",  ANIM_PLAYER_ATTACK_3_NAME);
+	addAnim(ANIM_TYPE::EVASION,  "evasion",  ANIM_PLAYER_EVASION_NAME);
+	addAnim(ANIM_TYPE::DOWN,     "down",     ANIM_PLAYER_DOWN_NAME);
+	addAnim(ANIM_TYPE::UP,       "up",       ANIM_PLAYER_UP_NAME);
+	addAnim(ANIM_TYPE::RECOVERY, "recovery", ANIM_PLAYER_RECOVERY_NAME);
+
+	const int idleType = static_cast<int>(ANIM_TYPE::IDLE);
+	animationController_->Play(idleType, true, false, animationController_->GetBlendTime(idleType));
 }
 
 void Player::InitPost(void)
@@ -253,20 +254,27 @@ void Player::ApplyJson(void)
 		}
 	}
 
-	// アニメーション速度反映
+	// アニメーション速度・ブレンド時間反映
 	if (animationController_)
 	{
-		const auto& anim = data["animationSpeed"];
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::IDLE), anim["idle"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::RUN), anim["run"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::FAST_RUN), anim["fastRun"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::ATTACK_1), anim["attack1"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::ATTACK_2), anim["attack2"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::ATTACK_3), anim["attack3"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::EVASION), anim["evasion"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::DOWN), anim["down"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::UP), anim["up"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::RECOVERY), anim["recovery"]);
+		const auto& anim = data["animation"];
+		auto applyAnim = [&](ANIM_TYPE type, const char* key)
+		{
+			const auto& entry = anim[key];
+			animationController_->SetSpeed(static_cast<int>(type), entry["speed"]);
+			animationController_->SetBlendTime(static_cast<int>(type), entry["blendTime"]);
+		};
+
+		applyAnim(ANIM_TYPE::IDLE,     "idle");
+		applyAnim(ANIM_TYPE::RUN,      "run");
+		applyAnim(ANIM_TYPE::FAST_RUN, "fastRun");
+		applyAnim(ANIM_TYPE::ATTACK_1, "attack1");
+		applyAnim(ANIM_TYPE::ATTACK_2, "attack2");
+		applyAnim(ANIM_TYPE::ATTACK_3, "attack3");
+		applyAnim(ANIM_TYPE::EVASION,  "evasion");
+		applyAnim(ANIM_TYPE::DOWN,     "down");
+		applyAnim(ANIM_TYPE::UP,       "up");
+		applyAnim(ANIM_TYPE::RECOVERY, "recovery");
 	}
 
 	// コンボ反映
@@ -283,6 +291,13 @@ void Player::UpdateGui(void)
 		if (ImGui::DragFloat3("Current Pos", &transform_.pos.x, 1.0f)) transform_.Update();
 		ImGui::SliderFloat("Current HP", &hp_, 0.0f, maxHp);
 		ImGui::SliderFloat("Current Stamina", &stamina_, 0.0f, maxSt);
+		if (animationController_)
+		{
+			ImGui::Text("Anim Type: %d  Blending: %s (%.2f)",
+				animationController_->GetPlayType(),
+				animationController_->IsBlending() ? "ON" : "OFF",
+				animationController_->GetBlendRate());
+		}
 		if (ImGui::Button("Warp to Init Pos"))
 		{
 			transform_.pos = GetData()["transform"]["position"];

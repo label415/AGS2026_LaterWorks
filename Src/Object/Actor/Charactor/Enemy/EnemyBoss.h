@@ -33,7 +33,7 @@ public:
 		DAMAGE,
 	};
 
-	// エネミー状態(HFSMの葉ステートID)
+	// エネミー状態
 	enum class STATE
 	{
 		IDLE,

@@ -110,26 +110,29 @@ void EnemyBoss::InitCollider(void)
 void EnemyBoss::InitAnimation(void)
 {
 	animationController_ = std::make_unique<AnimationController>(transform_.modelId);
-	const auto& anim = GetData()["animationSpeed"];
+	const auto& anim = GetData()["animation"];
 
-	animationController_->Add(static_cast<int>(ANIM_TYPE::IDLE),
-		anim["idle"], resMng_.LoadModelDuplicate(ANIM_BOSS_IDLE));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::WALK),
-		anim["walk"], resMng_.LoadModelDuplicate(ANIM_BOSS_MOVE));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::RUN),
-		anim["run"], resMng_.LoadModelDuplicate(ANIM_BOSS_MOVE));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::LEFT_ROT),
-		anim["leftRot"], resMng_.LoadModelDuplicate(ANIM_BOSS_LEFT_ROT));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::RIGHT_ROT),
-		anim["rightRot"], resMng_.LoadModelDuplicate(ANIM_BOSS_RIGHT_ROT));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::ATTACK),
-		anim["attack"], resMng_.LoadModelDuplicate(ANIM_BOSS_ATTACK));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::COMBO),
-		anim["combo"], resMng_.LoadModelDuplicate(ANIM_BOSS_COMBO));
-	animationController_->Add(static_cast<int>(ANIM_TYPE::DAMAGE),
-		anim["damage"], resMng_.LoadModelDuplicate(ANIM_BOSS_DAMAGE));
+	auto addAnim = [&](ANIM_TYPE type, const char* key, const wchar_t* resName)
+	{
+		const auto& entry = anim[key];
+		animationController_->Add(
+			static_cast<int>(type),
+			entry["speed"],
+			resMng_.LoadModelDuplicate(resName),
+			entry["blendTime"]);
+	};
 
-	animationController_->Play(static_cast<int>(ANIM_TYPE::WALK));
+	addAnim(ANIM_TYPE::IDLE,      "idle",     ANIM_BOSS_IDLE);
+	addAnim(ANIM_TYPE::WALK,      "walk",     ANIM_BOSS_MOVE);
+	addAnim(ANIM_TYPE::RUN,       "run",      ANIM_BOSS_MOVE);
+	addAnim(ANIM_TYPE::LEFT_ROT,  "leftRot",  ANIM_BOSS_LEFT_ROT);
+	addAnim(ANIM_TYPE::RIGHT_ROT, "rightRot", ANIM_BOSS_RIGHT_ROT);
+	addAnim(ANIM_TYPE::ATTACK,    "attack",   ANIM_BOSS_ATTACK);
+	addAnim(ANIM_TYPE::COMBO,     "combo",    ANIM_BOSS_COMBO);
+	addAnim(ANIM_TYPE::DAMAGE,    "damage",   ANIM_BOSS_DAMAGE);
+
+	const int walkType = static_cast<int>(ANIM_TYPE::WALK);
+	animationController_->Play(walkType, true, false, animationController_->GetBlendTime(walkType));
 }
 
 void EnemyBoss::InitPost(void)
@@ -178,18 +181,25 @@ void EnemyBoss::ApplyJson(void)
 		}
 	}
 
-	// アニメーション速度反映
+	// アニメーション速度・ブレンド時間反映
 	if (animationController_)
 	{
-		const auto& anim = data["animationSpeed"];
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::IDLE), anim["idle"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::WALK), anim["walk"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::RUN), anim["run"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::LEFT_ROT), anim["leftRot"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::RIGHT_ROT), anim["rightRot"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::ATTACK), anim["attack"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::COMBO), anim["combo"]);
-		animationController_->SetSpeed(static_cast<int>(ANIM_TYPE::DAMAGE), anim["damage"]);
+		const auto& anim = data["animation"];
+		auto applyAnim = [&](ANIM_TYPE type, const char* key)
+		{
+			const auto& entry = anim[key];
+			animationController_->SetSpeed(static_cast<int>(type), entry["speed"]);
+			animationController_->SetBlendTime(static_cast<int>(type), entry["blendTime"]);
+		};
+
+		applyAnim(ANIM_TYPE::IDLE,      "idle");
+		applyAnim(ANIM_TYPE::WALK,      "walk");
+		applyAnim(ANIM_TYPE::RUN,       "run");
+		applyAnim(ANIM_TYPE::LEFT_ROT,  "leftRot");
+		applyAnim(ANIM_TYPE::RIGHT_ROT, "rightRot");
+		applyAnim(ANIM_TYPE::ATTACK,    "attack");
+		applyAnim(ANIM_TYPE::COMBO,     "combo");
+		applyAnim(ANIM_TYPE::DAMAGE,    "damage");
 	}
 }
 
@@ -199,6 +209,13 @@ void EnemyBoss::UpdateGui(void)
 	if (ImGui::CollapsingHeader("Runtime State", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		if (ImGui::DragFloat3("Current Pos", &transform_.pos.x, 1.0f)) transform_.Update();
+		if (animationController_)
+		{
+			ImGui::Text("Anim Type: %d  Blending: %s (%.2f)",
+				animationController_->GetPlayType(),
+				animationController_->IsBlending() ? "ON" : "OFF",
+				animationController_->GetBlendRate());
+		}
 		if (ImGui::Button("Warp to Init Pos"))
 		{
 			transform_.pos = GetData()["Transform"]["Position"];

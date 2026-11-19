@@ -92,15 +92,15 @@
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiCondition.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiUtility.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\EnemyBlackboard.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\HfsmController.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossChaseState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossAttackState.h" />
     <ClInclude Include="Src\Scene\DebugScene.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossMoveState.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\EnemyBlackboard.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiCondition.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiUtility.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\HfsmController.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\EnemyBoss.h" />
     <ClInclude Include="Src\Libs\nlohmann\adl_serializer.hpp" />
     <ClInclude Include="Src\Libs\nlohmann\byte_container_with_subtype.hpp" />

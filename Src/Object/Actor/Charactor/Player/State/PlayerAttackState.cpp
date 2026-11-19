@@ -18,7 +18,8 @@ void PlayerAttackState::StartState(Player& player)
 
 	// 攻撃アニメーション再生
 	auto& comboData = player.atkComboData_.at(player.stateAtkCombo_);
-	player.animationController_->Play(static_cast<int>(comboData.animType), false);
+	const int animType = static_cast<int>(comboData.animType);
+	player.animationController_->Play(animType, false, false, player.animationController_->GetBlendTime(animType));
 	player.stamina_ -= player.GetData()["status"]["consumptionStAttack"].get<float>();
 }
 
@@ -74,7 +75,8 @@ void PlayerAttackState::Update(Player& player)
 			auto& nextData = player.atkComboData_.at(player.stateAtkCombo_);
 			nextData.isNextCombo = false;
 
-			player.animationController_->Play(static_cast<int>(nextData.animType), false);
+			const int nextAnimType = static_cast<int>(nextData.animType);
+			player.animationController_->Play(nextAnimType, false, false, player.animationController_->GetBlendTime(nextAnimType));
 			player.stamina_ -= data["status"]["consumptionStAttack"].get<float>();
 		}
 		else if (isAnimEnd)

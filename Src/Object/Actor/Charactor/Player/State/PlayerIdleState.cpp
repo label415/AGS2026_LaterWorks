@@ -9,7 +9,8 @@ PlayerIdleState::PlayerIdleState(void)
 void PlayerIdleState::StartState(Player& player)
 {
 	// アニメーションを再生
-	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::IDLE));
+	const int animType = static_cast<int>(Player::ANIM_TYPE::IDLE);
+	player.animationController_->Play(animType, player.animationController_->GetBlendTime(animType));
 }
 
 void PlayerIdleState::Update(Player& player)

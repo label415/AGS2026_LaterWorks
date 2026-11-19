@@ -39,7 +39,8 @@ void BossMoveState::SetWalk(EnemyBoss& enemy)
 	enemy.moveSpeed_ = enemy.GetData()["movement"]["speedMove"].get<float>();
 
 	// アニメーションを再生
-	enemy.animationController_->Play(static_cast<int>(EnemyBoss::ANIM_TYPE::WALK));
+	const int animType = static_cast<int>(EnemyBoss::ANIM_TYPE::WALK);
+	enemy.animationController_->Play(animType, true, false, enemy.animationController_->GetBlendTime(animType));
 
 	// 走りSEを止めてから歩きSE再生
 }
@@ -50,7 +51,8 @@ void BossMoveState::SetRun(EnemyBoss& enemy)
 	enemy.moveSpeed_ = enemy.GetData()["movement"]["speedDash"].get<float>();
 
 	// アニメーションを再生
-	enemy.animationController_->Play(static_cast<int>(EnemyBoss::ANIM_TYPE::RUN));
+	const int animType = static_cast<int>(EnemyBoss::ANIM_TYPE::RUN);
+	enemy.animationController_->Play(animType, true, false, enemy.animationController_->GetBlendTime(animType));
 
 	// 歩きSEを止めてから走りSE再生
 }

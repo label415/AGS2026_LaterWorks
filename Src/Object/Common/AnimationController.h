@@ -14,6 +14,7 @@ public:
 		float speed = 0.0f;
 		float totalTime = 0.0f;
 		float step = 0.0f;
+		float blendTime = 0.0f;
 	};
 
 	// コンストラクタ
@@ -23,14 +24,14 @@ public:
 	~AnimationController(void);
 
 	// 外部FBXからアニメーション追加
-	void Add(int type, float speed, const std::wstring path);
-	void Add(int type, float speed, int handlId);
+	void Add(int type, float speed, const std::wstring path, float blendTime = 0.0f);
+	void Add(int type, float speed, int handlId, float blendTime = 0.0f);
 	
 	// 同じFBX内のアニメーションを準備
-	void AddInFbx(int type, float speed, int animIndex);
+	void AddInFbx(int type, float speed, int animIndex, float blendTime = 0.0f);
 
-	// アニメーション再生
-	void Play(int type, bool isLoop = true, bool isForce = false);
+	// アニメーション再生（blendTime に 0 より大きい秒数を渡すとブレンド再生）
+	void Play(int type, float blendTime = 0.0f, bool isLoop = true, bool isForce = false);
 
 	// 更新
 	void Update(void);
@@ -45,6 +46,12 @@ public:
 	// 再生終了
 	bool IsEnd(void) const;
 	bool IsEnd(int type) const;
+
+	// ブレンド中かどうか
+	bool IsBlending(void) const;
+
+	// 現在のブレンド率を取得
+	float GetBlendRate(void) const;
 
 	// 再生中のアニメーション情報を取得
 	const Animation& GetPlayAnim(void) const;
@@ -61,6 +68,12 @@ public:
 
 	// 指定アニメーションの再生速度を変更
 	void SetSpeed(int type, float speed);
+
+	// 指定アニメーションのブレンド時間を変更
+	void SetBlendTime(int type, float blendTime);
+
+	// 指定アニメーションのブレンド時間を取得
+	float GetBlendTime(int type) const;
 private:
 	// アニメーションするモデルのハンドルID
 	int modelId_;
@@ -85,11 +98,23 @@ private:
 	bool isLoop_;
 
 	// アニメーション追加の共通処理
-	void Add(int type, float speed, Animation& animation);
+	void Add(int type, float speed, float blendTime, Animation& animation);
 
 	// アニメーションの再生を開始する共通処理
 	bool isReversing_;
 
 	// アニメーションを止めるフラグ
 	bool isStop_;
+
+	// ブレンド用：直前に再生していたアニメーション
+	Animation prevAnim_;
+	bool prevIsLoop_;
+
+	// ブレンド管理
+	bool isBlending_;
+	float blendRate_;
+	float blendTime_;
+
+	// アニメーション時間更新の共通処理
+	void StepAnimation(Animation& anim, bool isLoop, float deltaTime);
 };

@@ -12,15 +12,39 @@
     },
     "Scale": 1.0
   },
-  "animationSpeed": {
-    "attack": 30.0,
-    "combo": 30.0,
-    "damage": 30.0,
-    "idle": 10.0,
-    "leftRot": 20.0,
-    "rightRot": 20.0,
-    "run": 30.0,
-    "walk": 20.0
+  "animation": {
+    "attack": {
+      "blendTime": 0.15,
+      "speed": 30.0
+    },
+    "combo": {
+      "blendTime": 0.15,
+      "speed": 30.0
+    },
+    "damage": {
+      "blendTime": 0.1,
+      "speed": 30.0
+    },
+    "idle": {
+      "blendTime": 0.25,
+      "speed": 10.0
+    },
+    "leftRot": {
+      "blendTime": 0.2,
+      "speed": 20.0
+    },
+    "rightRot": {
+      "blendTime": 0.2,
+      "speed": 20.0
+    },
+    "run": {
+      "blendTime": 0.2,
+      "speed": 30.0
+    },
+    "walk": {
+      "blendTime": 0.25,
+      "speed": 20.0
+    }
   },
   "collider": {
     "capsule": {
