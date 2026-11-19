@@ -1,32 +1,24 @@
 #pragma once
 #include "../../../../Utility/JsonUtility.h"
 #include "../StateBase.h"
+#include "AI/EnemyBlackboard.h"
+#include "AI/HfsmController.h"
 #include "EnemyBase.h"
 
 class EnemyBoss : public EnemyBase
 {
 
 	friend class BossMoveState;
+	friend class BossChaseState;
+	friend class BossAttackState;
+	friend class BossIdleState;
 
 public:
 
-	// 遷移判断材料
-	struct Blackboard
-	{
-		// プレイヤーとの距離
-		float distance = 0.0f;
-		// 正面からの角度
-		float angleToPlayer = 0.0f;
-		// 残りHPの割合
-		float hpRate = 1.0f;
+	static constexpr float FOV_HALF_ANGLE = 20.0f;
 
-		// 現在の状態
-		int currentState = 0;
-		// 現在の相手の状態
-		int currentStatePlayer = 0;
-		// 過去に相手が行った状態
-		std::vector<int> currentStatesPlayer;
-	};
+	// 遷移判断材料(他エネミーと共通のBlackboardを使用)
+	using Blackboard = EnemyBlackboard;
 
 	// アニメーション種別
 	enum class ANIM_TYPE
@@ -34,10 +26,14 @@ public:
 		IDLE,
 		WALK,
 		RUN,
+		LEFT_ROT,
+		RIGHT_ROT,
 		ATTACK,
+		COMBO,
+		DAMAGE,
 	};
 
-	// エネミー状態
+	// エネミー状態(HFSMの葉ステートID)
 	enum class STATE
 	{
 		IDLE,
@@ -45,6 +41,14 @@ public:
 		CHSDR,
 		ATTACK,
 		DIE
+	};
+
+	// HFSMの階層グループID(STATEと重複しない値)
+	enum class STATE_GROUP
+	{
+		ALIVE = 100, // 生存中の全状態
+		NEUTRAL,     // 通常行動(待機・移動・旋回)
+		COMBAT,      // 攻撃行動(攻撃・コンボ等)
 	};
 
 	// コンストラクタ
@@ -93,14 +97,8 @@ private:
 	// 遷移判断材料
 	Blackboard blackboard_;
 
-	// 各状態クラスのインスタンスを保持するマップ
-	std::map<int, std::unique_ptr<StateBase<EnemyBoss>>> states_;
-
-	// 状態クラス
-	StateBase<EnemyBoss>* currentState_;
-
-	// 状態
-	int state_;
+	// 階層型ステートマシン(HFSM + Condition + Utility)
+	HfsmController<EnemyBoss, Blackboard> hfsm_;
 
 	// 状態遷移
 	void ChangeState(int state);
@@ -108,9 +106,15 @@ private:
 	// JSONの変更をTransform・コライダー・アニメ速度に即時反映する
 	void ApplyJson(void);
 
-	// ステート初期化
+	// ステート・階層グループ初期化
 	void InitState(void);
+
+	// 遷移条件(Condition)とUtility選択ルールの一括登録
+	void InitTransitions(void);
 
 	// 遷移判断材料設定
 	void SetBlackboard(void);
+
+	// 追尾方向取得
+	void SetTargetDir(void);
 };

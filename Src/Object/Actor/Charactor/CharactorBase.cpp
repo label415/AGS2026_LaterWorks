@@ -96,6 +96,8 @@ VECTOR CharactorBase::GetTargetDir(void)
 
 void CharactorBase::DelayRotate(void)
 {
+	if (AsoUtility::EqualsVZero(moveDir_)) return;
+
 	// 移動方向から回転に変換する
 	Quaternion goalRot = Quaternion::LookRotation(moveDir_);
 	// 回転の補間

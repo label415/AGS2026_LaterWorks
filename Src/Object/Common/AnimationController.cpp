@@ -46,10 +46,10 @@ void AnimationController::AddInFbx(int type, float speed, int animIndex)
 	Add(type, speed, animation);
 }
 
-void AnimationController::Play(int type, bool isLoop)
+void AnimationController::Play(int type, bool isLoop, bool isForce)
 {
 	// 指定されたアニメーションが存在しない場合は処理しない
-	if (playType_ == type)
+	if (!isForce && playType_ == type)
 	{
 		// 同じアニメーションだったら再生を継続する
 		return;
@@ -84,6 +84,7 @@ void AnimationController::Play(int type, bool isLoop)
 
 	// アニメーション総時間の取得
 	playAnim_.totalTime = MV1GetAttachAnimTotalTime(modelId_, playAnim_.attachNo);
+	MV1SetAttachAnimTime(modelId_, playAnim_.attachNo, playAnim_.step);
 
 	// アニメーションループ
 	isLoop_ = isLoop;

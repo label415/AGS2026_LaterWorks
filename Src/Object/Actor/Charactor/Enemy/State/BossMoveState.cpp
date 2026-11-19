@@ -13,7 +13,8 @@ void BossMoveState::StartState(EnemyBoss& enemy)
 
 void BossMoveState::Update(EnemyBoss& enemy)
 {
-	enemy.moveDir_ = AsoUtility::VNormali(*enemy.targetPos_, enemy.transform_.pos);
+	// ’Ç”ö•ûŒü‚ğæ“¾
+	enemy.SetTargetDir();
 
 	// ˆÚ“®—Ê‚ÌXV
 	enemy.movePow_ =

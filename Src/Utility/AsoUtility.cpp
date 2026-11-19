@@ -557,31 +557,29 @@ std::vector<std::string> AsoUtility::Split(std::string& line, char delimiter)
 	return result;
 }
 
-bool AsoUtility::GetAppropriateDistance(
-	const VECTOR& v1, const VECTOR& v2, float range)
+double AsoUtility::GetAconf(
+	const VECTOR& v1, const VECTOR& v2, const VECTOR& dir)
 {
-	bool res = false;
+	// ‹–ìŠp”»’è(…•½–Ê‚Å‚Ì³–Ê‚©‚ç‚ÌŠp“x‚ğ“x”0`180‚Å•Ô‚·)
+	VECTOR toTarget = VSub(v1, v2);
+	toTarget.y = 0.0f;
+	VECTOR forward = dir;
+	forward.y = 0.0f;
 
-	float distance = AsoUtility::Distance(v1, v2);
-	if (distance <= range)res = true;
+	if (AsoUtility::EqualsVZero(toTarget) || AsoUtility::EqualsVZero(forward))
+	{
+		return 0.0;
+	}
 
-	return res;
-}
-
-double AsoUtility::GetDot(const VECTOR& v1, const VECTOR& v2)
-{
-
-}
-
-float AsoUtility::GetAconf(
-	const VECTOR& v1, const VECTOR& v2, const VECTOR& dir,  float maxAngleRad)
-{
-	bool res = false;
-
-	// ‹–ìŠp”»’è
-	float dot = VDot(dir, AsoUtility::VNormali(v1, v2));
+	float dot = VDot(AsoUtility::VNormalize(forward), AsoUtility::VNormalize(toTarget));
 	dot = std::clamp(dot, -1.0f, 1.0f);
-	if (acosf(dot) <= maxAngleRad) res;
 
-	return res;
+	return Rad2DegD(acos(static_cast<double>(dot)));
+}
+
+VECTOR AsoUtility::GetCross(const VECTOR& v1, const VECTOR& v2, const VECTOR& dir)
+{
+	// ¶‰E”»’è
+	VECTOR vec = VSub(v1, v2);
+	return VCross(dir, vec);
 }

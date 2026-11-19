@@ -123,13 +123,10 @@ public:
 	// 文字列の分割
 	static std::vector<std::string> Split(std::string& line, char delimiter);
 
-	// 適正距離判定
-	static bool GetAppropriateDistance(const VECTOR& v1, const VECTOR& v2, float distance);
-
-	// ベクトルの内政
-	static double GetDot(const VECTOR& v1, const VECTOR& v2);
-
 	// 視野角判定
-	static float GetAconf(const VECTOR& v1, const VECTOR& v2, const VECTOR& dir, float maxAngleRad);
+	static double GetAconf(const VECTOR& v1, const VECTOR& v2, const VECTOR& dir);
+
+	// 左右判定
+	static VECTOR GetCross(const VECTOR& v1, const VECTOR& v2, const VECTOR& dir);
 };
 

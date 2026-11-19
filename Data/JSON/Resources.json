@@ -85,16 +85,46 @@
       "path": "Enemy/Boss/Boss.mv1"
     },
     {
+      // エネミーアニメーション(待機)
+      "type": 3,
+      "key": "AnimationBossIdle",
+      "path": "Enemy/Boss/Boss_Idle.mv1"
+    },
+    {
       // エネミーアニメーション(移動)
       "type": 3,
       "key": "AnimationBossMove",
       "path": "Enemy/Boss/Boss_Walk.mv1"
     },
     {
+      // エネミーアニメーション(左回転)
+      "type": 3,
+      "key": "AnimationBossLeftRot",
+      "path": "Enemy/Boss/Boss_LeftRot.mv1"
+    },
+    {
+      // エネミーアニメーション(右回転)
+      "type": 3,
+      "key": "AnimationBossRightRot",
+      "path": "Enemy/Boss/Boss_RightRot.mv1"
+    },
+    {
       // エネミーアニメーション(攻撃)
       "type": 3,
       "key": "AnimationBossAttack",
       "path": "Enemy/Boss/Boss_Attack.mv1"
+    },
+    {
+      // エネミーアニメーション(コンボ)
+      "type": 3,
+      "key": "AnimationBossCombo",
+      "path": "Enemy/Boss/Boss_Combo.mv1"
+    },
+    {
+      // エネミーアニメーション(被ダメージ)
+      "type": 3,
+      "key": "AnimationBossDamage",
+      "path": "Enemy/Boss/Boss_Damage.mv1"
     },
 
     {

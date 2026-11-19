@@ -14,7 +14,11 @@
   },
   "animationSpeed": {
     "attack": 30.0,
+    "combo": 30.0,
+    "damage": 30.0,
     "idle": 10.0,
+    "leftRot": 20.0,
+    "rightRot": 20.0,
     "run": 30.0,
     "walk": 20.0
   },
