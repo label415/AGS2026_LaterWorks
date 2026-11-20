@@ -2,13 +2,20 @@
 #include "../EnemyBoss.h"
 #include "BossMoveState.h"
 
-BossMoveState::BossMoveState(void)
+BossMoveState::BossMoveState(float moveSpeed, int animNo)
+	: moveSpeed_(moveSpeed)
+	, animNo_(animNo)
 {
 }
 
 void BossMoveState::StartState(EnemyBoss& enemy)
 {
-	SetWalk(enemy);
+	// 移動速度を設定
+	enemy.moveSpeed_ = moveSpeed_;
+
+	// アニメーションを再生
+	enemy.animationController_->Play(animNo_);
+
 }
 
 void BossMoveState::Update(EnemyBoss& enemy)
@@ -26,53 +33,8 @@ void BossMoveState::Update(EnemyBoss& enemy)
 		// 移動量を正規化して移動速度にスケーリング
 		enemy.movePow_ = VScale(VNorm(enemy.movePow_), enemy.moveSpeed_);
 	}
-
 }
 
 void BossMoveState::EndState(EnemyBoss& enemy)
 {
-}
-
-void BossMoveState::SetWalk(EnemyBoss& enemy)
-{
-	// 移動速度を設定
-	enemy.moveSpeed_ = enemy.GetData()["movement"]["speedMove"].get<float>();
-
-	// アニメーションを再生
-	const int animType = static_cast<int>(EnemyBoss::ANIM_TYPE::WALK);
-	enemy.animationController_->Play(animType, true, false, enemy.animationController_->GetBlendTime(animType));
-
-	// 走りSEを止めてから歩きSE再生
-}
-
-void BossMoveState::SetRun(EnemyBoss& enemy)
-{
-	// 移動速度を設定
-	enemy.moveSpeed_ = enemy.GetData()["movement"]["speedDash"].get<float>();
-
-	// アニメーションを再生
-	const int animType = static_cast<int>(EnemyBoss::ANIM_TYPE::RUN);
-	enemy.animationController_->Play(animType, true, false, enemy.animationController_->GetBlendTime(animType));
-
-	// 歩きSEを止めてから走りSE再生
-}
-
-void BossMoveState::SetMoveType(EnemyBoss& enemy)
-{
-	// すでに同じ移動タイプの場合は処理しない
-	if (moveType_ == nextMoveType_) return;
-
-	// 移動タイプを更新
-	moveType_ = nextMoveType_;
-	nextMoveType_ = MOVE_TYPE::NONE;
-
-	// 移動タイプに応じた処理を実行
-	if (moveType_ == MOVE_TYPE::RUN)
-	{
-		SetRun(enemy);
-	}
-	else
-	{
-		SetWalk(enemy);
-	}
 }

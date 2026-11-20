@@ -28,8 +28,7 @@ void PlayerEvasionState::StartState(Player& player)
 	player.moveSpeed_ = player.GetData()["movement"]["speedEvasion"].get<float>();
 
 	// 回避アニメーション再生
-	const int animType = static_cast<int>(Player::ANIM_TYPE::EVASION);
-	player.animationController_->Play(animType, false, false, player.animationController_->GetBlendTime(animType));
+	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::EVASION), false);
 
 	// 回避SE再生
 	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_AVE);

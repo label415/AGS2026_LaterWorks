@@ -55,7 +55,7 @@ void AnimationController::AddInFbx(int type, float speed, int animIndex, float b
 	Add(type, speed, blendTime, animation);
 }
 
-void AnimationController::Play(int type, float blendTime, bool isLoop, bool isForce)
+void AnimationController::Play(int type, bool isLoop, bool isForce)
 {
 	// 指定されたアニメーションが存在しない場合は処理しない
 	if (animations_.find(type) == animations_.end())
@@ -76,8 +76,8 @@ void AnimationController::Play(int type, float blendTime, bool isLoop, bool isFo
 		prevAnim_.attachNo = -1;
 	}
 
-	// ブレンド時間が未指定(負)なら登録済みのブレンド時間を使う
-	float useBlendTime = (blendTime < 0.0f) ? animations_[type].blendTime : blendTime;
+	// 登録済みのブレンド時間を使う
+	float useBlendTime = animations_[type].blendTime;
 
 	// ブレンド開始できるか判定
 	if (useBlendTime > 0.0f && playType_ != -1 && playAnim_.attachNo != -1)

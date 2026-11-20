@@ -157,7 +157,7 @@ void BossChaseState::PlayTurnAnimation(EnemyBoss& boss)
 		}
 		currentAnimType_ = nextAnimType;
 		hasAnimYaw_ = false;
-		boss.animationController_->Play(currentAnimType_, true, true, boss.animationController_->GetBlendTime(currentAnimType_));
+		boss.animationController_->Play(currentAnimType_, true, true);
 	}
 }
 

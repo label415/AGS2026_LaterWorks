@@ -131,8 +131,7 @@ void EnemyBoss::InitAnimation(void)
 	addAnim(ANIM_TYPE::COMBO,     "combo",    ANIM_BOSS_COMBO);
 	addAnim(ANIM_TYPE::DAMAGE,    "damage",   ANIM_BOSS_DAMAGE);
 
-	const int walkType = static_cast<int>(ANIM_TYPE::WALK);
-	animationController_->Play(walkType, true, false, animationController_->GetBlendTime(walkType));
+	animationController_->Play(static_cast<int>(ANIM_TYPE::WALK));
 }
 
 void EnemyBoss::InitPost(void)
@@ -292,10 +291,18 @@ void EnemyBoss::InitState(void)
 	hfsm_.RegisterGroup(GROUP_COMBAT,  "COMBAT",  GROUP_ALIVE);
 
 	// 各実体ステートを所属グループに登録
-	hfsm_.RegisterState(static_cast<int>(STATE::IDLE),   std::make_unique<BossIdleState>(),   "IDLE",   GROUP_NEUTRAL);
-	hfsm_.RegisterState(static_cast<int>(STATE::MOVE),   std::make_unique<BossMoveState>(),   "MOVE",   GROUP_NEUTRAL);
-	hfsm_.RegisterState(static_cast<int>(STATE::CHSDR),  std::make_unique<BossChaseState>(),  "CHASE",  GROUP_NEUTRAL);
-	hfsm_.RegisterState(static_cast<int>(STATE::ATTACK), std::make_unique<BossAttackState>(), "ATTACK", GROUP_COMBAT);
+	hfsm_.RegisterState(static_cast<int>(STATE::IDLE)
+		, std::make_unique<BossIdleState>()
+		, "IDLE", GROUP_NEUTRAL);
+	hfsm_.RegisterState(static_cast<int>(STATE::MOVE),
+		std::make_unique<BossMoveState>(
+			GetData()["movement"]["speedMove"].get<float>(),
+			static_cast<int>(ANIM_TYPE::WALK)),"MOVE",GROUP_NEUTRAL);
+
+	hfsm_.RegisterState(static_cast<int>(STATE::CHSDR)
+		,  std::make_unique<BossChaseState>(),  "CHASE",  GROUP_NEUTRAL);
+	hfsm_.RegisterState(static_cast<int>(STATE::ATTACK)
+		, std::make_unique<BossAttackState>(), "ATTACK", GROUP_COMBAT);
 
 	// 遷移条件(Condition)とUtility選択ルールを一括登録
 	InitTransitions();
@@ -350,7 +357,6 @@ void EnemyBoss::InitTransitions(void)
 	});
 
 	// 今後 ATTACK / COMBO 等を増やす場合は idleSelector->AddOption(...) を追加するだけで拡張可能
-
 	hfsm_.AddUtilityTransition(ST_IDLE, 20, idleSelector, 0.0f, false, "IDLE Utility");
 }
 

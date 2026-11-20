@@ -30,8 +30,8 @@ public:
 	// 同じFBX内のアニメーションを準備
 	void AddInFbx(int type, float speed, int animIndex, float blendTime = 0.0f);
 
-	// アニメーション再生（blendTime に 0 より大きい秒数を渡すとブレンド再生）
-	void Play(int type, float blendTime = 0.0f, bool isLoop = true, bool isForce = false);
+	// アニメーション再生（登録済みのブレンド時間を使用）
+	void Play(int type, bool isLoop = true, bool isForce = false);
 
 	// 更新
 	void Update(void);

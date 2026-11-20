@@ -69,8 +69,7 @@ void PlayerMoveState::SetWalk(Player& player)
 	player.moveSpeed_ = player.GetData()["movement"]["speedMove"].get<float>();
 
 	// アニメーションを再生
-	const int animType = static_cast<int>(Player::ANIM_TYPE::RUN);
-	player.animationController_->Play(animType, true, false, player.animationController_->GetBlendTime(animType));
+	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::RUN));
 
 	// 走りSEを止めてから歩きSE再生
 	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_RAN);
@@ -83,8 +82,7 @@ void PlayerMoveState::SetRun(Player& player)
 	player.moveSpeed_ = player.GetData()["movement"]["speedDash"].get<float>();
 
 	// アニメーションを再生
-	const int animType = static_cast<int>(Player::ANIM_TYPE::FAST_RUN);
-	player.animationController_->Play(animType, true, false, player.animationController_->GetBlendTime(animType));
+	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::FAST_RUN));
 
 	// 歩きSEを止めてから走りSE再生
 	player.sngMng_.StopSound(SoundManager::SOUND_ID::PLAYER_WAKE);

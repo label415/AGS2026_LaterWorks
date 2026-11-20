@@ -14,8 +14,7 @@ PlayerRecoveryState::PlayerRecoveryState(void)
 void PlayerRecoveryState::StartState(Player& player)
 {
 	// 回復アニメーション再生
-	const int animType = static_cast<int>(Player::ANIM_TYPE::RECOVERY);
-	player.animationController_->Play(animType, false, false, player.animationController_->GetBlendTime(animType));
+	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::RECOVERY), false);
 
 	// 回復エフェクト再生
 	VECTOR effectPos =

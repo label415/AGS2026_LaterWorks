@@ -24,8 +24,7 @@ void PlayerDamageState::StartState(Player& player)
 		MV1GetFramePosition(player.transform_.modelId, player.GetData()["effectAndSound"]["hitEffectFrameNo"].get<int>()));
 
 	// ダメージアニメーション再生
-	const int animType = static_cast<int>(Player::ANIM_TYPE::DOWN);
-	player.animationController_->Play(animType, false, false, player.animationController_->GetBlendTime(animType));
+	player.animationController_->Play(static_cast<int>(Player::ANIM_TYPE::DOWN), false);
 
 	// ダメージSE再生
 	player.sngMng_.PlaySoundId(SoundManager::SOUND_ID::PLAYER_DMAGE);
@@ -38,9 +37,8 @@ void PlayerDamageState::Update(Player& player)
 	if(player.animationController_->GetPlayType() 
 		== static_cast<int>(Player::ANIM_TYPE::DOWN))
 	{
-		const int upType = static_cast<int>(Player::ANIM_TYPE::UP);
 		player.animationController_->Play(
-			upType, false, false, player.animationController_->GetBlendTime(upType));
+			static_cast<int>(Player::ANIM_TYPE::UP), false);
 		player.invincibleTimer_ = player.GetData()["status"]["invincibleTime"].get<float>();
 	}
 	else {

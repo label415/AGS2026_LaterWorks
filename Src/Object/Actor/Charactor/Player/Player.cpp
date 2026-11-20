@@ -175,8 +175,7 @@ void Player::InitAnimation(void)
 	addAnim(ANIM_TYPE::UP,       "up",       ANIM_PLAYER_UP_NAME);
 	addAnim(ANIM_TYPE::RECOVERY, "recovery", ANIM_PLAYER_RECOVERY_NAME);
 
-	const int idleType = static_cast<int>(ANIM_TYPE::IDLE);
-	animationController_->Play(idleType, true, false, animationController_->GetBlendTime(idleType));
+	animationController_->Play(static_cast<int>(ANIM_TYPE::IDLE));
 }
 
 void Player::InitPost(void)
