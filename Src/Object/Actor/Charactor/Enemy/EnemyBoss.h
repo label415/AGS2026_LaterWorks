@@ -1,6 +1,7 @@
 #pragma once
 #include "../../../../Utility/JsonUtility.h"
-#include "EnemyBlackboard.h"
+#include "AI/EnemyBlackboard.h"
+#include "AI/BossAl.h"
 #include "EnemyBase.h"
 
 class EnemyStateManager;
@@ -39,6 +40,21 @@ public:
 		CHSDR,
 		ATTACK,
 		DIE
+	};
+
+	// 攻撃コンボ制御
+	struct ATTACK_COMBO
+	{
+		ANIM_TYPE animType = ANIM_TYPE::IDLE;
+		float stepCollisionStart = 0.0f;
+		float stepCollisionEnd = 0.0f;
+		float stepInterrupt = 0.0f;
+		float moveSpeed = 0.0f;
+		bool isNextCombo = false;
+		float step = 0.0f;
+
+		bool IsValidCollsion(float s) const { return s > stepCollisionStart && s < stepCollisionEnd; }
+		bool IsValidInterrupt(float s) const { return s > stepInterrupt; }
 	};
 
 	// コンストラクタ
@@ -97,8 +113,11 @@ private:
 	// ステート管理
 	std::unique_ptr<EnemyStateManager> states_;
 
-	// AI判断材料(ブラックボード)
+	// AI判断材料
 	EnemyBlackboard blackBoard_;
+
+	// 意思決定処理
+	BossAl bossAi_;
 
 	// 追尾対象(プレイヤー)の状態ポインタ
 	const int* targetState_;
@@ -106,7 +125,7 @@ private:
 	// JSONの変更をTransform・コライダー・アニメ速度に即時反映する
 	void ApplyJson(void);
 
-	// ステート・階層グループ初期化
+	// ステート初期化
 	void InitState(void);
 
 	// ブラックボード更新

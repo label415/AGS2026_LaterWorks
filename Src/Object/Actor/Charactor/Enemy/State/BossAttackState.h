@@ -8,16 +8,21 @@ class BossAttackState : public StateBase<EnemyBoss>
 public:
 
 	// コンストラクタ
-	BossAttackState(void);
+	BossAttackState(int animNo);
 
 	// 開始
-	void StartState(EnemyBoss& enemyData)override;
+	void StartState(EnemyBoss& boss)override;
 
 	// 更新
-	void Update(EnemyBoss& enemyData)override;
+	void Update(EnemyBoss& boss)override;
 
 	// 終了
-	void EndState(EnemyBoss& enemyData)override;
+	void EndState(EnemyBoss& boss)override;
+
+private:
+
+	// アニメーション番号
+	int animNo_;
 
 };
 

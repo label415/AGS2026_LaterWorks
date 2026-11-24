@@ -18,20 +18,27 @@ void EnemyStateManager::AddState(int stateId, std::unique_ptr<StateBase<EnemyBos
 	states_.emplace(stateId, std::move(state));
 }
 
-void EnemyStateManager::AddConditions(void)
-{
-}
-
 void EnemyStateManager::Update(void)
 {
-	// 開始処理
+	if (currentState_ == nullptr) return;
+	// 更新処理
 	currentState_->Update(enemyBoss_);
+}
+
+void EnemyStateManager::UpdatePost(void)
+{
+	if (currentState_ == nullptr) return;
+	// 更新後処理
+	currentState_->UpdatePost(enemyBoss_);
 }
 
 void EnemyStateManager::Release(void)
 {
-	currentState_->EndState(enemyBoss_);
-	currentState_ = nullptr;
+	if (currentState_ != nullptr)
+	{
+		currentState_->EndState(enemyBoss_);
+		currentState_ = nullptr;
+	}
 	states_.clear();
 }
 

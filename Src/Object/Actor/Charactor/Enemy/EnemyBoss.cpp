@@ -238,6 +238,16 @@ void EnemyBoss::UpdateProcess(void)
 {
 	SetBlackboard();
 
+	// 意思決定(次の状態へ遷移)
+	int nextState = bossAi_.DecideNextState(blackBoard_);
+	if (nextState != BossAl::INVALID_STATE)
+	{
+		states_->ChangerState(nextState);
+		blackBoard_.currentState = states_->GetState();
+		blackBoard_.stateElapsedTime = 0.0f;
+		blackBoard_.isActionFinished = false;
+	}
+
 	// 状態更新
 	states_->Update();
 
@@ -250,6 +260,10 @@ void EnemyBoss::UpdateProcess(void)
 
 void EnemyBoss::UpdateProcessPost(void)
 {
+	if (states_ != nullptr)
+	{
+		states_->UpdatePost();
+	}
 }
 
 void EnemyBoss::UpdateHitCollider(void)
@@ -276,15 +290,21 @@ void EnemyBoss::InitState(void)
 		static_cast<int>(EnemyBoss::STATE::RUN)
 		, std::make_unique<BossMoveState>(
 			data["movement"]["speedRun"].get<float>()
-			, static_cast<int>(EnemyBoss::ANIM_TYPE::WALK)));
+			, static_cast<int>(EnemyBoss::ANIM_TYPE::RUN)));
 	// 旋回
 	states_->AddState(
 		static_cast<int>(EnemyBoss::STATE::CHSDR), std::make_unique<BossChaseState>());
 	// 攻撃
 	states_->AddState(
-		static_cast<int>(EnemyBoss::STATE::ATTACK), std::make_unique<BossAttackState>());
+		static_cast<int>(EnemyBoss::STATE::ATTACK)
+		, std::make_unique<BossAttackState>(
+			static_cast<int>(EnemyBoss::ANIM_TYPE::ATTACK)));
 
+	states_->ChangerState(static_cast<int>(STATE::IDLE));
+	blackBoard_.currentState = states_->GetState();
 
+	// 意思決定AIの条件ルールを初期化
+	bossAi_.Init();
 }
 
 void EnemyBoss::SetBlackboard(void)

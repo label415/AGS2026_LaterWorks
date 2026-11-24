@@ -19,11 +19,11 @@ public:
 	// 登録
 	void AddState(int stateId, std::unique_ptr<StateBase<EnemyBoss>> state);
 
-	// 条件登録
-	void AddConditions(void);
-
 	// 更新
 	void Update(void);
+
+	// 更新後処理(アニメーション更新後)
+	void UpdatePost(void);
 
 	// 解放
 	void Release(void);
