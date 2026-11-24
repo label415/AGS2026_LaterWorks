@@ -1,9 +1,9 @@
 #pragma once
 #include "../../../../Utility/JsonUtility.h"
-#include "../StateBase.h"
-#include "AI/EnemyBlackboard.h"
-#include "AI/HfsmController.h"
+#include "EnemyBlackboard.h"
 #include "EnemyBase.h"
+
+class EnemyStateManager;
 
 class EnemyBoss : public EnemyBase
 {
@@ -16,9 +16,6 @@ class EnemyBoss : public EnemyBase
 public:
 
 	static constexpr float FOV_HALF_ANGLE = 20.0f;
-
-	// 遷移判断材料(他エネミーと共通のBlackboardを使用)
-	using Blackboard = EnemyBlackboard;
 
 	// アニメーション種別
 	enum class ANIM_TYPE
@@ -37,18 +34,11 @@ public:
 	enum class STATE
 	{
 		IDLE,
-		MOVE,
+		WALK,
+		RUN,
 		CHSDR,
 		ATTACK,
 		DIE
-	};
-
-	// HFSMの階層グループID(STATEと重複しない値)
-	enum class STATE_GROUP
-	{
-		ALIVE = 100, // 生存中の全状態
-		NEUTRAL,     // 通常行動(待機・移動・旋回)
-		COMBAT,      // 攻撃行動(攻撃・コンボ等)
 	};
 
 	// コンストラクタ
@@ -65,6 +55,13 @@ public:
 
 	// EnemyData.jsonへの直接参照を取得
 	Json& GetData(void) const;
+
+	// ブラックボードを取得
+	EnemyBlackboard& GetBlackboard(void) { return blackBoard_; }
+	const EnemyBlackboard& GetBlackboard(void) const { return blackBoard_; }
+
+	// 追尾対象(プレイヤー)の状態参照を設定
+	void SetTargetState(const int* targetState) { targetState_ = targetState; }
 
 protected:
 
@@ -94,14 +91,17 @@ protected:
 
 private:
 
-	// 遷移判断材料
-	Blackboard blackboard_;
+	// 過去のプレイヤー状態履歴の最大保持数
+	static constexpr size_t MAX_PLAYER_STATE_HISTORY = 10;
 
-	// 階層型ステートマシン(HFSM + Condition + Utility)
-	HfsmController<EnemyBoss, Blackboard> hfsm_;
+	// ステート管理
+	std::unique_ptr<EnemyStateManager> states_;
 
-	// 状態遷移
-	void ChangeState(int state);
+	// AI判断材料(ブラックボード)
+	EnemyBlackboard blackBoard_;
+
+	// 追尾対象(プレイヤー)の状態ポインタ
+	const int* targetState_;
 
 	// JSONの変更をTransform・コライダー・アニメ速度に即時反映する
 	void ApplyJson(void);
@@ -109,10 +109,7 @@ private:
 	// ステート・階層グループ初期化
 	void InitState(void);
 
-	// 遷移条件(Condition)とUtility選択ルールの一括登録
-	void InitTransitions(void);
-
-	// 遷移判断材料設定
+	// ブラックボード更新
 	void SetBlackboard(void);
 
 	// 追尾方向取得

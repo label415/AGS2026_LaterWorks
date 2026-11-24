@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateManager.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossChaseState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossAttackState.cpp" />
@@ -92,10 +93,7 @@
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiCondition.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\AiUtility.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\EnemyBlackboard.h" />
-    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\HfsmController.h" />
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateManager.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossChaseState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossAttackState.h" />

@@ -28,7 +28,7 @@ BossChaseState::BossChaseState(void)
 
 void BossChaseState::StartState(EnemyBoss& boss)
 {
-	// ルートボーン(mixamorig:Hips)のフレーム番号を取得
+	// ルートボーンのフレーム番号を取得
 	hipsFrameNo_ = MV1SearchFrame(boss.transform_.modelId, ROOT_BONE_NAME);
 	currentAnimType_ = -1;
 	hasAnimYaw_ = false;
@@ -41,12 +41,6 @@ void BossChaseState::StartState(EnemyBoss& boss)
 	VECTOR forward = boss.transform_.GetForward();
 	forward.y = 0.0f;
 	boss.moveDir_ = AsoUtility::VNormalize(forward);
-
-	// 対象を正面にとらえていなければ、左右判定して回転アニメーションを開始する
-	if (boss.blackboard_.angleToPlayer > EnemyBoss::FOV_HALF_ANGLE)
-	{
-		PlayTurnAnimation(boss);
-	}
 }
 
 void BossChaseState::Update(EnemyBoss& boss)

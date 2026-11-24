@@ -11,12 +11,11 @@
 #include "../../../Common/Collider/ColliderCapsule.h"
 #include "../../Weapon/WeaponBase.h"
 #include "../../Weapon/WeaponManager.h"
+#include "State/EnemyStateManager.h"
 #include "State/BossIdleState.h"
 #include "State/BossAttackState.h"
 #include "State/BossChaseState.h"
 #include "State/BossMoveState.h"
-#include "AI/AiCondition.h"
-#include "AI/AiUtility.h"
 #include "EnemyBoss.h"
 
 namespace
@@ -34,6 +33,9 @@ namespace
 
 EnemyBoss::EnemyBoss(void)
 	: EnemyBase()
+	, states_(nullptr)
+	, blackBoard_()
+	, targetState_(nullptr)
 {
 }
 
@@ -51,6 +53,7 @@ void EnemyBoss::Release(void)
 #ifdef _DEBUG
 	EditorManager::GetInstance().UnregisterObject("EnemyBoss");
 #endif
+	states_->Release();
 	CharactorBase::Release();
 }
 
@@ -137,6 +140,8 @@ void EnemyBoss::InitAnimation(void)
 void EnemyBoss::InitPost(void)
 {
 	weapons_->LoadEnd();
+
+	SetBlackboard();
 
 	InitState();
 
@@ -226,25 +231,6 @@ void EnemyBoss::UpdateGui(void)
 			GetData()["Transform"]["Position"] = transform_.pos;
 		}
 	}
-
-	if (ImGui::CollapsingHeader("AI State (HFSM / Utility)", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		ImGui::Text("Hierarchy : %s", hfsm_.GetCurrentHierarchyPath().c_str());
-		ImGui::Text("Last Trans: %s", hfsm_.GetLastTransitionLabel().c_str());
-		ImGui::Text("Distance  : %.1f  Angle: %.1f deg  Elapsed: %.2f s",
-			blackboard_.distance, blackboard_.angleToPlayer, blackboard_.stateElapsedTime);
-
-		const auto& scores = hfsm_.GetLastUtilityScores();
-		if (!scores.empty())
-		{
-			ImGui::Separator();
-			ImGui::Text("Utility Scores:");
-			for (const auto& s : scores)
-			{
-				ImGui::Text("  %-12s : %.3f", s.name.c_str(), s.score);
-			}
-		}
-	}
 #endif
 }
 
@@ -252,25 +238,18 @@ void EnemyBoss::UpdateProcess(void)
 {
 	SetBlackboard();
 
-	// 遷移ルール(HFSM条件 + Utility評価)を一括判定
-	if (hfsm_.EvaluateTransitions(*this, blackboard_))
-	{
-		blackboard_.currentState = hfsm_.GetCurrentStateId();
-		blackboard_.stateElapsedTime = 0.0f;
-		blackboard_.isActionFinished = false;
-	}
+	// 状態更新
+	states_->Update();
 
-	// 現在ステートの行動処理を実行
-	hfsm_.Update(*this);
-
+	// 移動量減少
 	const auto& data = GetData();
 	movePow_ = AsoUtility::Lerp(
-		movePow_, AsoUtility::VECTOR_ZERO, data["movement"]["movePowDecrease"].get<float>());
+		movePow_, AsoUtility::VECTOR_ZERO
+		, data["movement"]["movePowDecrease"].get<float>());
 }
 
 void EnemyBoss::UpdateProcessPost(void)
 {
-	hfsm_.UpdatePost(*this);
 }
 
 void EnemyBoss::UpdateHitCollider(void)
@@ -279,116 +258,97 @@ void EnemyBoss::UpdateHitCollider(void)
 
 void EnemyBoss::InitState(void)
 {
-	hfsm_.Clear();
+	const auto& data = GetData();
+	// インスタンス生成
+	states_ = std::make_unique<EnemyStateManager>(*this);
 
-	constexpr int GROUP_ALIVE   = static_cast<int>(STATE_GROUP::ALIVE);
-	constexpr int GROUP_NEUTRAL = static_cast<int>(STATE_GROUP::NEUTRAL);
-	constexpr int GROUP_COMBAT  = static_cast<int>(STATE_GROUP::COMBAT);
+	// 待機
+	states_->AddState(
+		static_cast<int>(EnemyBoss::STATE::IDLE), std::make_unique<BossIdleState>());
+	// 歩き
+	states_->AddState(
+		static_cast<int>(EnemyBoss::STATE::WALK)
+		, std::make_unique<BossMoveState>(
+			data["movement"]["speedWalk"].get<float>()
+			, static_cast<int>(EnemyBoss::ANIM_TYPE::WALK)));
+	// 走り
+	states_->AddState(
+		static_cast<int>(EnemyBoss::STATE::RUN)
+		, std::make_unique<BossMoveState>(
+			data["movement"]["speedRun"].get<float>()
+			, static_cast<int>(EnemyBoss::ANIM_TYPE::WALK)));
+	// 旋回
+	states_->AddState(
+		static_cast<int>(EnemyBoss::STATE::CHSDR), std::make_unique<BossChaseState>());
+	// 攻撃
+	states_->AddState(
+		static_cast<int>(EnemyBoss::STATE::ATTACK), std::make_unique<BossAttackState>());
 
-	// HFSMの階層グループ登録
-	hfsm_.RegisterGroup(GROUP_ALIVE,   "ALIVE");
-	hfsm_.RegisterGroup(GROUP_NEUTRAL, "NEUTRAL", GROUP_ALIVE);
-	hfsm_.RegisterGroup(GROUP_COMBAT,  "COMBAT",  GROUP_ALIVE);
 
-	// 各実体ステートを所属グループに登録
-	hfsm_.RegisterState(static_cast<int>(STATE::IDLE)
-		, std::make_unique<BossIdleState>()
-		, "IDLE", GROUP_NEUTRAL);
-	hfsm_.RegisterState(static_cast<int>(STATE::MOVE),
-		std::make_unique<BossMoveState>(
-			GetData()["movement"]["speedMove"].get<float>(),
-			static_cast<int>(ANIM_TYPE::WALK)),"MOVE",GROUP_NEUTRAL);
-
-	hfsm_.RegisterState(static_cast<int>(STATE::CHSDR)
-		,  std::make_unique<BossChaseState>(),  "CHASE",  GROUP_NEUTRAL);
-	hfsm_.RegisterState(static_cast<int>(STATE::ATTACK)
-		, std::make_unique<BossAttackState>(), "ATTACK", GROUP_COMBAT);
-
-	// 遷移条件(Condition)とUtility選択ルールを一括登録
-	InitTransitions();
-
-	// 初期状態を開始
-	hfsm_.Start(*this, static_cast<int>(STATE::IDLE));
-	blackboard_.currentState = hfsm_.GetCurrentStateId();
-	blackboard_.stateElapsedTime = 0.0f;
-	blackboard_.isActionFinished = false;
-}
-
-void EnemyBoss::InitTransitions(void)
-{
-	using namespace EnemyConditions;
-	using namespace EnemyConsiderations;
-
-	constexpr int GROUP_ALIVE   = static_cast<int>(STATE_GROUP::ALIVE);
-	constexpr int GROUP_COMBAT  = static_cast<int>(STATE_GROUP::COMBAT);
-	constexpr int ST_IDLE       = static_cast<int>(STATE::IDLE);
-	constexpr int ST_MOVE       = static_cast<int>(STATE::MOVE);
-	constexpr int ST_CHASE      = static_cast<int>(STATE::CHSDR);
-	constexpr int ST_DIE        = static_cast<int>(STATE::DIE);
-
-	// 再利用可能な共通条件パーツ
-	auto isInFov   = InFov(FOV_HALF_ANGLE);
-	auto isOutFov  = !isInFov;
-	auto isFar     = DistanceGreater(500.0f);
-	auto isArrived = DistanceLessEq(400.0f);
-
-	// --- 1. 親グループ単位の共通遷移(状態が増えても1行で全配下に適用) ---
-	// 生存中グループ全体から死亡への割り込み(DIEステート追加後に自動有効化)
-	hfsm_.AddTransition(GROUP_ALIVE, ST_DIE, 100, IsDead(), "ALIVE -> DIE");
-	// 攻撃グループ全体から行動完了時に待機へ復帰
-	hfsm_.AddTransition(GROUP_COMBAT, ST_IDLE, 60, IsActionFinished(), "COMBAT -> IDLE");
-
-	// --- 2. 個別ステートの終了・復帰遷移 ---
-	hfsm_.AddTransition(ST_CHASE, ST_IDLE, 50, isInFov,   "CHASE -> IDLE");
-	hfsm_.AddTransition(ST_MOVE,  ST_IDLE, 50, isArrived, "MOVE -> IDLE");
-
-	// --- 3. IDLE状態からの行動決定(Utility AIでスコア評価して最良行動を選択) ---
-	auto idleSelector = std::make_shared<EnemyUtilitySelector>();
-
-	// 視野角外なら最優先で旋回(CHASE)
-	idleSelector->AddOption(ST_CHASE, 1.0f, "TurnToTarget", {
-		FromCondition(isOutFov)
-	});
-
-	// 正面かつ一定距離以上離れていれば距離に応じたスコアで接近(MOVE)
-	idleSelector->AddOption(ST_MOVE, 0.8f, "Approach", {
-		FromCondition(isInFov && isFar),
-		DistanceLinear(400.0f, 1200.0f, false)
-	});
-
-	// 今後 ATTACK / COMBO 等を増やす場合は idleSelector->AddOption(...) を追加するだけで拡張可能
-	hfsm_.AddUtilityTransition(ST_IDLE, 20, idleSelector, 0.0f, false, "IDLE Utility");
 }
 
 void EnemyBoss::SetBlackboard(void)
 {
 	float dt = scnMng_.GetDeltaTime();
-	blackboard_.stateElapsedTime += dt;
-	blackboard_.UpdateCoolTimes(dt);
-	blackboard_.currentState = hfsm_.GetCurrentStateId();
 
+	// プレイヤーとの距離・正面からの角度を更新
 	if (targetPos_ != nullptr)
 	{
-		blackboard_.angleToPlayer = static_cast<float>(
-			AsoUtility::GetAconf(*targetPos_, transform_.pos, transform_.GetForward()));
-		blackboard_.distance = static_cast<float>(
+		blackBoard_.distance = static_cast<float>(
 			AsoUtility::Distance(*targetPos_, transform_.pos));
+		blackBoard_.angleToPlayer = static_cast<float>(
+			AsoUtility::GetAconf(*targetPos_, transform_.pos, transform_.GetForward()));
 	}
+
+	// 残りHP割合を更新
+	float maxHp = 100.0f;
+	const auto& data = GetData();
+	if (data.contains("status") && data["status"].contains("maxHp"))
+	{
+		maxHp = data["status"]["maxHp"].get<float>();
+	}
+	blackBoard_.hpRate = (maxHp > 0.0f) 
+		? AsoUtility::Clamp(hp_ / maxHp, 0.0f, 1.0f) : 0.0f;
+
+	// 現在の状態ID・経過時間・行動完了フラグを更新
+	if (states_ != nullptr)
+	{
+		int currentState = states_->GetState();
+		if (blackBoard_.currentState != currentState)
+		{
+			blackBoard_.currentState = currentState;
+			blackBoard_.stateElapsedTime = 0.0f;
+			blackBoard_.isActionFinished = false;
+		}
+		else
+		{
+			blackBoard_.stateElapsedTime += dt;
+		}
+	}
+
+	// 相手の現在状態・過去履歴を更新
+	if (targetState_ != nullptr)
+	{
+		int playerState = *targetState_;
+		if (blackBoard_.currentStatePlayer != playerState)
+		{
+			blackBoard_.currentStatesPlayer.push_back(blackBoard_.currentStatePlayer);
+			if (blackBoard_.currentStatesPlayer.size() > MAX_PLAYER_STATE_HISTORY)
+			{
+				blackBoard_.currentStatesPlayer.erase(blackBoard_.currentStatesPlayer.begin());
+			}
+			blackBoard_.currentStatePlayer = playerState;
+		}
+	}
+
+	// クールタイムを経過時間分だけ減算
+	blackBoard_.UpdateCoolTimes(dt);
 }
 
 void EnemyBoss::SetTargetDir(void)
 {
+	// 追尾対象の方向を設定
 	VECTOR dir = VSub(*targetPos_, transform_.pos);
 	dir.y = 0.0f;
 	moveDir_ = AsoUtility::VNormalize(dir);
-}
-
-void EnemyBoss::ChangeState(int state)
-{
-	if (hfsm_.ChangeState(*this, state))
-	{
-		blackboard_.currentState = hfsm_.GetCurrentStateId();
-		blackboard_.stateElapsedTime = 0.0f;
-		blackboard_.isActionFinished = false;
-	}
 }

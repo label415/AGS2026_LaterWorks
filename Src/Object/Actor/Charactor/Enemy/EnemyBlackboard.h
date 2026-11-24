@@ -2,7 +2,7 @@
 #include <map>
 #include <vector>
 
-// エネミーAIの意思決定・遷移判定で共有する判断材料
+// エネミーAIの意思決定判断材料
 struct EnemyBlackboard
 {
 	// プレイヤーとの距離
@@ -23,7 +23,6 @@ struct EnemyBlackboard
 	int currentStatePlayer = 0;
 	// 過去に相手が行った状態の履歴
 	std::vector<int> currentStatesPlayer;
-
 	// 行動・スキル別の残りクールタイム
 	std::map<int, float> coolTimes;
 
