@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossComboState.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\AI\BossAl.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\EnemyStateManager.cpp" />
     <ClCompile Include="Src\Object\Actor\Charactor\Enemy\State\BossIdleState.cpp" />
@@ -94,6 +95,7 @@
     <ClCompile Include="Src\Object\Actor\Weapon\WeaponManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\BossComboState.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\BossAl.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\AI\EnemyBlackboard.h" />
     <ClInclude Include="Src\Object\Actor\Charactor\Enemy\State\EnemyBlackboard.h" />
